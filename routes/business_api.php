@@ -14,6 +14,8 @@ Route::prefix('business')->group(function () {
     Route::post('login', [BusinessAuthController::class, 'login']);
 
 
+    // categories and sub categories
+
     Route::get('categories', [UserHomeController::class, 'categories']);
     Route::get('sub-categories', [UserHomeController::class, 'sub_categories']);
 
