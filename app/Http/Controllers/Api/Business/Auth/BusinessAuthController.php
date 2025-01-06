@@ -28,7 +28,7 @@ class BusinessAuthController extends Controller
 
         // dd($request->all());
         $validator = Validator::make($request->all(), [
-            'avatar' => 'required|image|mimes:jpg,jpeg,png|max:4096',
+            'cover' => 'required|image|mimes:jpg,jpeg,png|max:4096',
             'full_name' => 'required|string|max:255',
             'date_of_birth' => 'required|string|max:255',
             'country' => 'required|string|max:255',

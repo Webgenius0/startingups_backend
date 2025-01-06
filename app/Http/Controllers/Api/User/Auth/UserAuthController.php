@@ -27,7 +27,7 @@ class UserAuthController extends Controller
     {
         // validation for user register
         $validator = Validator::make($request->all(), [
-            'avatar' => 'required|image|mimes:jpg,jpeg,png|max:4096',
+            'cover' => 'required|image|mimes:jpg,jpeg,png|max:4096',
             'gender' => 'required|string|max:255',
             'preferences.*' => 'required|string|max:255',
 
