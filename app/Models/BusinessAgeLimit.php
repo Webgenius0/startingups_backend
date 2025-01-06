@@ -11,4 +11,6 @@ class BusinessAgeLimit extends Model
 
 
     protected $guarded = [];
+
+
 }

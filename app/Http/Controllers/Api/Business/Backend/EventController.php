@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\Business\Backend;
 use App\Helper\Helper;
 use App\Http\Controllers\Controller;
 use App\Mail\EventInviteMail;
-use App\Models\Event;
+use App\Models\BusinessProfile;
 use App\Traits\ApiResponse;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -19,9 +19,8 @@ class EventController extends Controller
     // __store event
     public function store(Request $request)
     {
-
-        // dd($request->all());
         $data = $request->validate([
+            'cover' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
             'title' => 'required|max:255',
             'category_id' => 'required',
             'age_min' => 'nullable|integer',
@@ -40,59 +39,69 @@ class EventController extends Controller
             'offerings' => 'nullable|string',
             'has_guests' => 'required|boolean',
             'guest_list' => 'nullable|array',
-            'guest_list.*' => 'required',
+            'guest_list.*' => 'required|email',
             'guest_options' => 'nullable|array',
             'guest_options.*' => 'string',
             'note_for_guests' => 'nullable|string',
-
-            // 'prices' => 'required|array',
-            // 'prices.*.type' => 'required|string',
-            // 'prices.*.amount' => 'required',
-            // 'prices.*.offerings' => 'nullable|string',
-
+            'prices' => 'required|array',
+            'prices.*.type' => 'required|string',
+            'prices.*.amount' => 'required',
+            'prices.*.offerings' => 'nullable|string',
         ]);
 
-        $data['user_id'] = auth()->user()->id;
-
-        if (is_string($data['guest_list'])) {
-            $data['guest_list'] = json_decode($data['guest_list'], true);
-        }
-
         if ($request->hasFile('cover')) {
-            $coverPath = $request->file('cover') ? Helper::uploadImage($request->file('cover'), 'events') : null;
-            $data['cover'] = $coverPath ?? null;
-
+            $data['cover'] = Helper::uploadImage($request->file('cover'), 'events');
         }
 
-        $event = Event::create($data);
+        $business_event = new BusinessProfile();
+        $business_event->type = 'event';
+        $business_event->user_id = auth()->user()->id;
+        $business_event->title = $data['title'];
+        $business_event->category_id = $data['category_id'];
+        $business_event->age_min = $data['age_min'];
+        $business_event->age_max = $data['age_max'];
+        $business_event->description = $data['description'];
+        $business_event->date = $data['date'];
+        $business_event->start_time = $data['start_time'];
+        $business_event->end_time = $data['end_time'];
+        $business_event->frequency = $data['frequency'];
+        $business_event->frequency_count = $data['frequency_count'] ?? null;
+        $business_event->frequency_end_after = $data['frequency_end_after'] ?? null;
+        $business_event->frequency_end_date = $data['frequency_end_date'] ?? null;
+        $business_event->location_address = $data['location_address'];
+        $business_event->location_type = $data['location_type'];
+        $business_event->cover = $data['cover'] ?? null;
+        $business_event->amount = $data['amount'] ?? null;
+        $business_event->offerings = $data['offerings'] ?? null;
+        $business_event->has_guests = $data['has_guests'];
+        $business_event->guest_list = isset($data['guest_list']) ? json_encode($data['guest_list']) : null;
+        $business_event->guest_options = isset($data['guest_options']) ? json_encode($data['guest_options']) : null;
+        $business_event->note_for_guests = $data['note_for_guests'] ?? null;
 
-        // $event->business_prices()->delete(); // __clear existing hours
+        $business_event->save();
+
         foreach ($request->prices as $price) {
-            $event->event_prices()->create([
+            $business_event->business_prices()->create([
                 'type' => $price['type'],
                 'amount' => $price['amount'],
-                'offerings' => $price['offerings'],
-
+                'offerings' => $price['offerings'] ?? null,
             ]);
         }
 
-        // event prices
-
         if (isset($data['guest_list']) && is_array($data['guest_list'])) {
             foreach ($data['guest_list'] as $guestEmail) {
-                Mail::to($guestEmail)->send(new EventInviteMail($event, $guestEmail));
+                Mail::to($guestEmail)->send(new EventInviteMail($business_event, $guestEmail));
             }
         }
 
         if ($data['frequency'] !== 'once') {
-            $this->createRecurringEvents($event, $data);
+            $this->createRecurringEvents($business_event, $data);
         }
 
-        return $this->success($event, 'Event created successfully!', 200);
-
+        return $this->success($business_event, 'Event created successfully!', 200);
     }
 
-    private function createRecurringEvents($event, $data)
+    private function createRecurringEvents($business_event, $data)
     {
         $currentDate = Carbon::parse($data['date']);
         $endDate = $data['frequency_end_date'] ? Carbon::parse($data['frequency_end_date']) : null;
@@ -106,32 +115,33 @@ class EventController extends Controller
 
             $currentDate = $this->getNextDate($currentDate, $data['frequency'], $data['frequency_count'] ?? 1);
 
-            // dd($event->category_id);
-            $new_event = Event::create([
-                'title' => $event->title,
-                'cover' => $event->cover,
+            // dd($business_event->category_id);
+            $new_business_event = BusinessProfile::create([
+                'type' => 'event',
+                'title' => $business_event->title,
+                'cover' => $business_event->cover,
                 'user_id' => auth()->user()->id,
-                'category_id' => $event->category_id,
-                'age_min' => $event->age_min,
-                'age_max' => $event->age_max,
-                'description' => $event->description,
+                'category_id' => $business_event->category_id,
+                'age_min' => $business_event->age_min,
+                'age_max' => $business_event->age_max,
+                'description' => $business_event->description,
                 'date' => $currentDate->format('Y-m-d'),
-                'start_time' => $event->start_time,
-                'end_time' => $event->end_time,
+                'start_time' => $business_event->start_time,
+                'end_time' => $business_event->end_time,
                 'frequency' => 'once',
-                'location_type' => $event->location_type,
-                'location_address' => $event->location_address,
-                'amount' => $event->amount,
-                'offerings' => $event->offerings,
-                'has_guests' => $event->has_guests,
-                'guest_list' => $event->guest_list,
-                'guest_options' => $event->guest_options,
-                'note_for_guests' => $event->note_for_guests,
+                'location_type' => $business_event->location_type,
+                'location_address' => $business_event->location_address,
+                'amount' => $business_event->amount,
+                'offerings' => $business_event->offerings,
+                'has_guests' => $business_event->has_guests,
+                'guest_list' => $business_event->guest_list,
+                'guest_options' => $business_event->guest_options,
+                'note_for_guests' => $business_event->note_for_guests,
             ]);
 
-            // Create event prices for the recurring event
-            foreach ($event->event_prices as $price) {
-                $new_event->event_prices()->create([
+            // Create business_event prices for the recurring business_event
+            foreach ($business_event->business_prices as $price) {
+                $new_business_event->business_prices()->create([
                     'type' => $price->type,
                     'amount' => $price->amount,
                     'offerings' => $price->offerings,
