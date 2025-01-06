@@ -17,7 +17,7 @@ Route::prefix('business')->group(function () {
     // categories and sub categories
 
     Route::get('categories', [UserHomeController::class, 'categories']);
-    Route::get('sub-categories', [UserHomeController::class, 'sub_categories']);
+    Route::get('categories/{id}/sub-categories', [UserHomeController::class, 'sub_categories']);
 
 
 

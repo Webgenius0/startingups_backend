@@ -11,6 +11,7 @@ use App\Models\EventClick;
 use App\Models\SubCategory;
 use App\Traits\ApiResponse;
 use Carbon\Carbon;
+use GuzzleHttp\Psr7\Request;
 
 class UserHomeController extends Controller
 {
@@ -41,11 +42,13 @@ class UserHomeController extends Controller
     }
 
 
-    public function sub_categories()
+    public function sub_categories($category_id)
     {
+
+        // dd($category_id);
         try {
 
-            $sub_categories = SubCategory::all();
+            $sub_categories = SubCategory::where('category_id',$category_id )->get();
 
             if ($sub_categories->isEmpty()) {
                 return $this->error([], 'No categories found', 404);
