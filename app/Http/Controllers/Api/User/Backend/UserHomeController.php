@@ -237,7 +237,7 @@ class UserHomeController extends Controller
                 return [
                     'id' => $event->id,
                     'title' => $event->business_profile->business_name,
-                    'time' => $event->open_time,
+                    'time' => $event->open_time == null ? 'Closed' : $event->open_time,
                     'date' => $event->date,
                     'location' => $event->business_profile->location,
                     'cover' => $event->business_profile->cover ? url($event->business_profile->cover) : null,
