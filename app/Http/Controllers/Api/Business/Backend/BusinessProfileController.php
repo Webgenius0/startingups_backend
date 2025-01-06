@@ -161,11 +161,20 @@ class BusinessProfileController extends Controller
             'activity' => 'required|in:Indoor,Outdoor',
             'location' => 'required|string',
 
+            'age_min' => 'nullable',
+            'age_max' => 'nullable',
+
             'hours' => 'required|array',
             'hours.*.day' => 'required|string',
             'hours.*.is_closed' => 'required|boolean',
             'hours.*.open_time' => 'nullable|string',
             'hours.*.close_time' => 'nullable|string',
+
+
+            'prices' => 'required|array',
+            'prices.*.type' => 'required|string',
+            'prices.*.amount' => 'required',
+            'prices.*.offerings' => 'nullable|string',
         ]);
 
         $businessProfile->update([
@@ -174,6 +183,9 @@ class BusinessProfileController extends Controller
             'sub_category_id' => $validatedData['sub_category_id'],
             'activity' => $validatedData['activity'],
             'location' => $validatedData['location'],
+
+            'age_min' => $validatedData['age_min'],
+            'age_max' => $validatedData['age_max'],
 
         ]);
 
@@ -199,10 +211,24 @@ class BusinessProfileController extends Controller
             ]);
         }
 
+        // business prices
+        $businessProfile->business_prices()->delete();
+
+        foreach ($validatedData['prices'] as $price) {
+            $businessProfile->business_prices()->create([
+                'type' => $price['type'],
+                'amount' => $price['amount'],
+                'offerings' => $price['offerings'],
+            ]);
+        }
+
+
+
+
         $businessProfile->cover = $businessProfile->cover ? url($businessProfile->cover) : null;
 
         return $this->success(
-            $businessProfile->load('business_hours'),
+            $businessProfile->load('business_hours', 'business_prices'),
             'Business Profile updated successfully',
             200
         );
