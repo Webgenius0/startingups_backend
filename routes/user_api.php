@@ -1,12 +1,14 @@
 <?php
 
-use App\Http\Controllers\Api\User\Auth\UserAuthController;
-use App\Http\Controllers\Api\User\Backend\EventBookingController;
-use App\Http\Controllers\Api\User\Backend\UserAccountController;
-use App\Http\Controllers\Api\User\Backend\UserEventController;
-use App\Http\Controllers\Api\User\Backend\UserHomeController;
-use App\Http\Controllers\Api\User\Backend\UserStoryController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\User\Auth\UserAuthController;
+use App\Http\Controllers\Api\User\Backend\FollowController;
+use App\Http\Controllers\Api\User\Backend\UserHomeController;
+use App\Http\Controllers\Api\User\Backend\UserEventController;
+use App\Http\Controllers\Api\User\Backend\UserStoryController;
+use App\Http\Controllers\Api\User\Backend\UserAccountController;
+use App\Http\Controllers\Api\User\Backend\EventBookingController;
+use App\Http\Controllers\Api\User\Backend\UserRelationshipController;
 
 // Public User API Routes
 Route::prefix('user')->group(function () {
@@ -23,6 +25,14 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
 
     // location update
     Route::post('location/update', [UserAuthController::class, 'user_location']);
+
+
+    Route::post('users/{followeeId}/follow', [UserRelationshipController::class, 'follow']);
+    Route::post('users/{followeeId}/unfollow', [UserRelationshipController::class, 'unfollow']);
+    Route::get('users/{userId}/followers', [UserRelationshipController::class, 'followers']);
+    Route::get('users/{userId}/followees', [UserRelationshipController::class, 'followees']);
+
+
 
     // Password Management
     Route::post('password/request-otp', [UserAuthController::class, 'requestOtp']);

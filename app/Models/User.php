@@ -2,41 +2,27 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Laravel\Cashier\Billable;
-use Tymon\JWTAuth\Contracts\JWTSubject;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Cashier\Billable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
-    use Billable;
+    use HasFactory, Notifiable, Billable;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var list<string>
+     * @var array<string>
      */
-
-     protected $guarded = [];
-    // protected $fillable = [
-    //     'name',
-    //     'user_name',
-    //     'email',
-    //     'password',
-    // ];
-
-
-
-
+    protected $guarded = [];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var list<string>
+     * @var array<string>
      */
     protected $hidden = [
         'password',
@@ -46,7 +32,7 @@ class User extends Authenticatable implements JWTSubject
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast.
      *
      * @return array<string, string>
      */
@@ -57,8 +43,6 @@ class User extends Authenticatable implements JWTSubject
             'password' => 'hashed',
         ];
     }
-
-    // Rest omitted for brevity
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
@@ -80,11 +64,42 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
-
-
-
+    /**
+     * Define relationship with the BusinessProfile model.
+     */
     public function businessProfile()
     {
         return $this->hasOne(BusinessProfile::class);
     }
+
+    public function followers()
+    {
+        return $this->hasMany(UserRelationship::class, 'followee_id');
+    }
+
+    public function followees()
+    {
+        return $this->hasMany(UserRelationship::class, 'follower_id');
+    }
+
+    // Check if the user follows another user
+    public function isFollowing($userId)
+    {
+        return $this->followees()->where('followee_id', $userId)->exists();
+    }
+
+    // Follow another user
+    public function follow($userId)
+    {
+        if (!$this->isFollowing($userId)) {
+            $this->followees()->create(['followee_id' => $userId]);
+        }
+    }
+
+    // Unfollow another user
+    public function unfollow($userId)
+    {
+        $this->followees()->where('followee_id', $userId)->delete();
+    }
+
 }
