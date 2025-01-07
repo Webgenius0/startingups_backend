@@ -13,7 +13,7 @@ class EventClick extends Model
 
     protected $fillable = [
         'user_id',
-        'event_id',
+        'business_profile_id',
         'last_click',
     ];
 }

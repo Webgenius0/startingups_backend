@@ -42,4 +42,10 @@ class BusinessProfile extends Model
     {
         return $this->hasMany(BusinessAgeLimit::class,);
     }
+
+    // user
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

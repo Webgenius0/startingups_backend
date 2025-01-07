@@ -26,6 +26,7 @@ class BusinessProfileController extends Controller
         // dd($request->all());
 
         $validatedData = $request->validate([
+
             'cover' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
             'business_name' => 'required|string',
             'category_id' => 'required|integer',
@@ -54,6 +55,7 @@ class BusinessProfileController extends Controller
         $businessProfile = BusinessProfile::updateOrCreate(
             ['user_id' => Auth::id()],
             [
+                'type' => 'business_profile',
                 'business_name' => $validatedData['business_name'],
                 'category_id' => $validatedData['category_id'],
                 'sub_category_id' => $validatedData['sub_category_id'],
@@ -117,8 +119,10 @@ class BusinessProfileController extends Controller
 
     public function business_profile_details()
     {
-        $businessProfile = BusinessProfile::where('user_id', Auth::id())->first();
 
+        $businessProfile = BusinessProfile::where('user_id', Auth::id())->where('type', 'business_profile')->first();
+
+        // dd($businessProfile);
         if (!$businessProfile) {
             return $this->error([], 'Business Profile not found', 404);
         }
@@ -144,7 +148,7 @@ class BusinessProfileController extends Controller
     public function business_profile_update(Request $request)
     {
 
-        $businessProfile = BusinessProfile::where('user_id', Auth::id())->first();
+        $businessProfile = BusinessProfile::where('user_id', Auth::id())->where('type', 'business_profile')->first();
 
         if (!$businessProfile || $businessProfile->user_id !== Auth::id()) {
             return response()->json([

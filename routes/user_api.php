@@ -37,7 +37,7 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
 
     // Events
     Route::get('event/upcoming', [UserHomeController::class, 'events']);
-    Route::get('event/details/{id}', [UserHomeController::class, 'event_details']);
+    Route::get('upcoming-event/details/{id}', [UserHomeController::class, 'event_details']);
 
 
     // event booking
@@ -56,6 +56,9 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
 
     Route::get('/categories/{id}/tailored-events', [UserHomeController::class, 'tailored_event']);
     Route::get('/categories/{id}/random-events', [UserHomeController::class, 'random_event']);
+
+    Route::get('category-event/details/{id}', [UserHomeController::class, 'category_event_details']);
+
 
     // Account Management
     Route::get('profile/edit', [UserAccountController::class, 'edit']);

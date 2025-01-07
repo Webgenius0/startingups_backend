@@ -84,12 +84,16 @@ class UserHomeController extends Controller
 
             $user = auth()->user();
 
+            // dd($user);
+
             $business_events = BusinessProfile::where('category_id', $category->id)
                 ->where(function ($query) use ($user) {
                     $query->where('location', 'like', '%' . $user->city . '%')
                         ->orWhere('location', 'like', '%' . $user->street_address . '%');
                 })
                 ->get();
+
+            // dd($business_events);
 
             $near_events = collect();
 
@@ -123,7 +127,7 @@ class UserHomeController extends Controller
 
             foreach ($business_events as $event) {
                 $event_hours = BusinessHour::where('business_profile_id', $event->id)
-                    ->where('date', '>', Carbon::now()->format('d/m/Y'))
+                    // ->where('date', '>', Carbon::now()->format('d/m/Y'))
                     ->get();
                 // dd($event_hours);
                 $recommated_events = $recommated_events->merge($event_hours);
@@ -147,7 +151,8 @@ class UserHomeController extends Controller
 
             foreach ($business_events as $event) {
                 $event_hours = BusinessHour::where('business_profile_id', $event->id)
-                    ->where('date', '>', Carbon::now()->format('d/m/Y'))
+                    // ->where('date', '>', Carbon::now()->format('d/m/Y'))
+                    ->orderBy('day', 'desc')
                     ->get();
                 $daily_events = $daily_events->merge($event_hours);
             }
@@ -260,7 +265,7 @@ class UserHomeController extends Controller
     {
         // upcoming events where frequency_end_date not null
 
-        $upcoming_events = Event::whereNull('frequency_end_date')->
+        $upcoming_events = BusinessProfile::whereNull('frequency_end_date')->
             where('date', '>', Carbon::now())
             ->orderBy('date', 'asc')
             ->get();
@@ -315,7 +320,7 @@ class UserHomeController extends Controller
     // _event details
     public function event_details($id)
     {
-        $event = Event::with('event_prices')->find($id);
+        $event = BusinessProfile::with('business_prices')->find($id);
 
         if (!$event) {
             return $this->error([], 'Event not found', 404);
@@ -324,7 +329,7 @@ class UserHomeController extends Controller
         $userId = auth()->id();
 
         $hasViewed = EventClick::where('user_id', $userId)
-            ->where('event_id', $id)
+            ->where('business_profile_id', $id)
             ->exists();
 
         if (!$hasViewed) {
@@ -333,7 +338,7 @@ class UserHomeController extends Controller
             // click events
             EventClick::create([
                 'user_id' => auth()->user()->id,
-                'event_id' => $event->id,
+                'business_profile_id' => $event->id,
                 'last_click' => Carbon::now(),
             ]);
         }
@@ -341,8 +346,8 @@ class UserHomeController extends Controller
         $event = [
 
             'user_id' => $event->user_id,
-            'user_name' => $event->user->name,
-            'user_image' => $event->user->image ? url($event->user->image) : null,
+            'organizer' => $event->user->full_name,
+            'organizer_avatar' => $event->user->avatar ? url($event->user->avatar) : null,
 
             'id' => $event->id,
             'title' => $event->title,
@@ -351,12 +356,62 @@ class UserHomeController extends Controller
             'location' => $event->location_address,
             'cover' => $event->cover ? url($event->cover) : null,
             'description' => $event->description,
-            'location_type' => $event->location_type,
-            'location_address' => $event->location_address,
-            'amount' => $event->amount,
-            'offerings' => $event->offerings,
-            'guest_list' => $event->guest_list,
-            'event_prices' => $event->event_prices,
+
+            'event_prices' => $event->business_prices,
+
+        ];
+
+        return $this->success($event, 'Event details retrieved successfully', 200);
+    }
+
+
+
+    public function category_event_details($id)
+    {
+        $event = BusinessProfile::with('business_prices')->find($id);
+
+        if (!$event) {
+            return $this->error([], 'Event not found', 404);
+        }
+
+        $userId = auth()->id();
+
+        $hasViewed = EventClick::where('user_id', $userId)
+            ->where('business_profile_id', $id)
+            ->exists();
+
+        if (!$hasViewed) {
+            $event->increment('view_count');
+
+            // click events
+            EventClick::create([
+                'user_id' => auth()->user()->id,
+                'business_profile_id' => $event->id,
+                'last_click' => Carbon::now(),
+            ]);
+        }
+
+        $event = [
+
+            'user_id' => $event->user_id,
+            'organizer' => $event->user->full_name,
+            'organizer_avatar' => $event->user->avatar ? url($event->user->avatar) : null,
+
+            'id' => $event->id,
+            'title' => $event->business_name,
+            'time' => Carbon::parse($event->business_prices[0]->day)->format('h:i A'),
+            'date' => Carbon::parse($event->date)->format('d M Y'),
+            'location_address' => $event->location,
+
+            'cover' => $event->cover ? url($event->cover) : null,
+            'description' => $event->description,
+            // 'location_type' => $event->location_type,
+
+            // load business prices
+            'event_prices' => $event->business_prices,
+
+
+
 
         ];
 

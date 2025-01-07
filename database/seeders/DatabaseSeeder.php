@@ -18,5 +18,6 @@ class DatabaseSeeder extends Seeder
         $this->call(DynamicPageSeeder::class);
 
         $this->call(PlanSeeder::class);
+        $this->call(CategorySeeder::class);
     }
 }

@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('location')->nullable();
 
 
-            $table->string('title'); //events
+            $table->string('title')->nullable(); //events
 
             $table->text('description')->nullable(); // events
             $table->date('date')->nullable(); // events
