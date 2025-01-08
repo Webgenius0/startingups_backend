@@ -20,8 +20,17 @@ Route::prefix('business')->group(function () {
     Route::get('categories/{id}/sub-categories', [UserHomeController::class, 'sub_categories']);
 
 
+    // user-profile
+
+
 
 });
+
+
+Route::get('/user-profile/{id}', [UserHomeController::class, 'user_profile']);
+Route::get('/user/{id}/recent-places', [UserHomeController::class, 'user_recent_places']);
+Route::get('/user/{id}/interested', [UserHomeController::class, 'user_interested']);
+
 
 // Protected Business API Routes
 Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->group(function () {

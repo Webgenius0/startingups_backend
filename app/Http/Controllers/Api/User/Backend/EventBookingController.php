@@ -99,8 +99,10 @@ class EventBookingController extends Controller
     // __event order summary
     public function order_summary($id)
     {
+        // dd($id);
 
-        $booking = EventBooking::with('guests', 'event')->findOrFail($id);
+        $booking = EventBooking::with('guests', 'business_profile')->findOrFail($id);
+        // dd($booking);
 
         $subtotal = $booking->price;
         $commissionFee = 0;
@@ -111,11 +113,11 @@ class EventBookingController extends Controller
 
             'booking_id' => $booking->id,
             'event_details' => [
-                'event_id' => $booking->event->id,
-                'event_name' => $booking->event->title,
+                'event_id' => $booking->business_profile->id,
+                'event_name' => $booking->business_profile->title == null ? $booking->business_profile->business_name : $booking->business_profile->title,
                 'event_date' => $booking->event_date,
                 'event_time' => $booking->event_time,
-                'location' => $booking->event->location_address,
+                'location' => $booking->business_profile->location_address == null ? $booking->business_profile->location : $booking->business_profile->location_address,
             ],
             'user_details' => [
                 'full_name' => $booking->full_name,

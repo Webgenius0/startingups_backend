@@ -22,9 +22,10 @@ class EventBooking extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function event()
+   //business profile
+    public function business_profile()
     {
-        return $this->belongsTo(Event::class);
+        return $this->belongsTo(BusinessProfile::class);
     }
 
 

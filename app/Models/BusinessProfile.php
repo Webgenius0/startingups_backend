@@ -48,4 +48,10 @@ class BusinessProfile extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // event booking
+    public function event_bookings()
+    {
+        return $this->hasMany(EventBooking::class);
+    }
 }

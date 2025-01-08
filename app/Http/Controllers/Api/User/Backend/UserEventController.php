@@ -7,6 +7,7 @@ use App\Helper\Helper;
 use App\Models\EventReview;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\BusinessProfile;
 use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -24,13 +25,14 @@ class UserEventController extends Controller
 
         $validatedData = Validator::make($request->all(), [
             'rating' => 'required|string',
+            'cover' => 'required|image|mimes:jpg,jpeg,png|max:4096',
         ]);
 
         if ($validatedData->fails()) {
             return $this->error([], $validatedData->errors()->first(), 422);
         }
 
-        $event = Event::findOrFail($id);
+        $event = BusinessProfile::findOrFail($id);
 
         if (!$event) {
             return $this->error([], 'Event not found', 404);
@@ -45,7 +47,7 @@ class UserEventController extends Controller
 
         $data =  EventReview::create([
             'user_id' => Auth::id(),
-            'event_id' => $event->id,
+            'business_profile_id' => $event->id,
             'review' => $request->review,
             'rating' => $request->rating,
             'cover' => $coverPath ?? null,

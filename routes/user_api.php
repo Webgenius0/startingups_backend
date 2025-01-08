@@ -47,6 +47,8 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
 
     // Events
     Route::get('event/upcoming', [UserHomeController::class, 'events']);
+    Route::get('upcoming-freind-events', [UserHomeController::class, 'friend_events']);
+
     Route::get('upcoming-event/details/{id}', [UserHomeController::class, 'event_details']);
 
 
