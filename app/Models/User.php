@@ -102,4 +102,12 @@ class User extends Authenticatable implements JWTSubject
         $this->followees()->where('followee_id', $userId)->delete();
     }
 
+
+
+    // user search history
+    public function user_search()
+    {
+        return $this->hasMany(UserSearchHistory::class, 'user_id', 'id');
+    }
+
 }

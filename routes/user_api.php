@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\User\Backend\UserStoryController;
 use App\Http\Controllers\Api\User\Backend\UserAccountController;
 use App\Http\Controllers\Api\User\Backend\EventBookingController;
 use App\Http\Controllers\Api\User\Backend\UserRelationshipController;
+use App\Http\Controllers\Api\User\Backend\UserSearchController;
 
 // Public User API Routes
 Route::prefix('user')->group(function () {
@@ -27,6 +28,7 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
     Route::post('location/update', [UserAuthController::class, 'user_location']);
 
 
+    // Follow and unfollow Management
     Route::post('users/{followeeId}/follow', [UserRelationshipController::class, 'follow']);
     Route::post('users/{followeeId}/unfollow', [UserRelationshipController::class, 'unfollow']);
     Route::get('users/{userId}/followers', [UserRelationshipController::class, 'followers']);
@@ -81,4 +83,18 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
     Route::get('preferences', [UserAuthController::class, 'preferences']);
     Route::post('preferences', [UserAuthController::class, 'update_preferences']);
     Route::get('faq', [UserAccountController::class, 'user_faq']);
+
+
+
+
+    // User search management
+    Route::get('/search/histories', [UserSearchController::class, 'getSearchHistory']);
+    Route::get('/search/results', [UserSearchController::class, 'searchUsers']);
+    Route::get('/search/suggestions', [UserSearchController::class, 'getSuggestions']);
+
+
+
+
+
+
 });
