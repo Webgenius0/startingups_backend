@@ -17,21 +17,45 @@ class UserStoryController extends Controller
 
     use ApiResponse;
 
+    // __story lists
+    public function story_lists()
+    {
+
+        // return 'story lists';
+        $stories = Story::withCount('likes', 'reviews')
+                        ->with('user')
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+
+        $stories = $stories->map(function ($story) {
+            return [
+
+                'user_name' => $story->user->full_name,
+                'user_avatar' => url($story->user->avatar),
+                'business_name' => $story->user->businessProfile->business_name ?? '',
+                'id' => $story->id,
+                'title' => $story->title,
+                // 'description' => $story->description,
+                'location' => $story->location,
+                'cover' => url($story->cover),
+                'likes_count' => $story->likes_count,
+                'reviews_count' => $story->reviews->count(),
+
+            ];
+        });
+
+        return $this->success($stories, 'Stories retrived successfully ', 200);
+    }
+
     // __store user story
     public function store(Request $request)
     {
-
-        // dd($request->all());
-        // Step 1: Validate the incoming request data
         $validatedData = Validator::make($request->all(), [
             'cover' => 'required|image|mimes:jpg,jpeg,png|max:4096',
             'title' => 'required|string',
             'description' => 'required|string',
             'location' => 'required|string',
-
         ]);
-
-
 
         if ($validatedData->fails()) {
             return $this->error([], $validatedData->errors()->first(), 422);
@@ -48,7 +72,6 @@ class UserStoryController extends Controller
             'description' => $request->description,
             'location' => $request->location,
             'cover' => $coverPath ?? null,
-
         ]);
 
         $story->cover = $story->cover ? url($story->cover) : null;
@@ -91,7 +114,7 @@ class UserStoryController extends Controller
                 'full_name' => $story->user->full_name,
                 'email' => $story->user->email,
                 'phone' => $story->user->phone,
-                'avatar' => $story->user->avatar ?  url($story->user->avatar) : null,
+                'avatar' => $story->user->avatar ? url($story->user->avatar) : null,
 
             ],
             'reviews' => $story->reviews->map(function ($review) {
@@ -102,7 +125,6 @@ class UserStoryController extends Controller
 
                 ];
             }),
-
 
         ];
 
@@ -146,8 +168,6 @@ class UserStoryController extends Controller
         if ($validatedData->fails()) {
             return $this->error([], $validatedData->errors()->first(), 422);
         }
-
-
 
         $story = Story::findOrFail($id);
 

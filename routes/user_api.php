@@ -45,6 +45,9 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
     Route::post('story/{id}/like', [UserStoryController::class, 'story_like']);
     Route::post('story/{id}/review', [UserStoryController::class, 'story_review']);
 
+    // story lists
+    Route::get('/story-lists', [UserStoryController::class, 'story_lists']);
+
     // Events
     Route::get('event/upcoming', [UserHomeController::class, 'events']);
     Route::get('upcoming-freind-events', [UserHomeController::class, 'friend_events']);
