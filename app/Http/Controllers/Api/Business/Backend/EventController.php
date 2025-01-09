@@ -96,11 +96,11 @@ class EventController extends Controller
             }
 
             // Send guest invitations
-            if (isset($data['guest_list']) && is_array($data['guest_list'])) {
-                foreach ($data['guest_list'] as $guestEmail) {
-                    Mail::to($guestEmail)->send(new EventInviteMail($business_event, $guestEmail));
-                }
-            }
+            // if (isset($data['guest_list']) && is_array($data['guest_list'])) {
+            //     foreach ($data['guest_list'] as $guestEmail) {
+            //         Mail::to($guestEmail)->send(new EventInviteMail($business_event, $guestEmail));
+            //     }
+            // }
 
             // Handle recurring events
             if ($data['frequency'] !== 'once') {
