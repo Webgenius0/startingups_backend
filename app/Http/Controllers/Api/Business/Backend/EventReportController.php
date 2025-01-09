@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Business\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\BusinessProfile;
 use App\Models\Event;
 use App\Traits\ApiResponse;
 use Carbon\Carbon;
@@ -155,7 +156,7 @@ class EventReportController extends Controller
     public function event_ratings(Request $request, $id)
     {
 
-        $event = Event::with(['user', 'event_reviews.user'])->find($id);
+        $event = BusinessProfile::with(['user', 'event_reviews.user'])->find($id);
 
         if (!$event) {
             return $this->error([], 'Event not found', 404);

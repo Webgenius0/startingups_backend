@@ -54,4 +54,11 @@ class BusinessProfile extends Model
     {
         return $this->hasMany(EventBooking::class);
     }
+
+
+    // event ratings
+    public function event_reviews()
+    {
+        return $this->hasMany(EventReview::class);
+    }
 }
