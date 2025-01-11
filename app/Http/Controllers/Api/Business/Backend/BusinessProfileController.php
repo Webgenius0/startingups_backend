@@ -37,7 +37,7 @@ class BusinessProfileController extends Controller
             'hours' => 'required|array',
             'hours.*.day' => 'required|string',
             // 'hours.*.date' => 'required',
-            'hours.*.is_closed' => 'required|boolean',
+            'hours.*.is_closed' => 'required',
             'hours.*.open_time' => 'nullable|string',
             'hours.*.close_time' => 'nullable|string',
 
