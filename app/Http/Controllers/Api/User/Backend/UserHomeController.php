@@ -84,11 +84,12 @@ class UserHomeController extends Controller
 
             // dd($user);
 
-            $business_events = BusinessProfile::where('category_id', $category->id)
-                ->where(function ($query) use ($user) {
-                    $query->where('location', 'like', '%' . $user->city . '%')
-                        ->orWhere('location', 'like', '%' . $user->street_address . '%');
-                })
+            $business_events = BusinessProfile::where('type', 'business_profile')->where('category_id', $category->id)
+                // ->where(function ($query) use ($user) {
+                //     $query->where('location', 'like', '%' . $user->city . '%')
+                //         ->orWhere('location', 'like', '%' . $user->street_address . '%');
+                // })
+                // ->limit(5)
                 ->get();
 
             // dd($business_events);
@@ -96,16 +97,18 @@ class UserHomeController extends Controller
             $near_events = collect();
 
             foreach ($business_events as $event) {
-                $event_hours = BusinessHour::where('business_profile_id', $event->id)->get();
+                $event_hours = BusinessHour::whereNotNull('open_time')->where('business_profile_id', $event->id)->get();
                 $near_events = $near_events->merge($event_hours);
             }
+
+      
 
             $near_events = $near_events->map(function ($event) {
                 return [
                     'id' => $event->id,
                     'title' => $event->business_profile->business_name,
                     'time' => $event->open_time,
-                    'date' => $event->date,
+                    // 'date' => $event->date,
                     'location' => $event->business_profile->location,
                     'cover' => $event->business_profile->cover ? url($event->business_profile->cover) : null,
                 ];
@@ -137,7 +140,7 @@ class UserHomeController extends Controller
                     'id' => $event->id,
                     'title' => $event->business_profile->business_name,
                     'time' => $event->open_time,
-                    'date' => $event->date,
+                    // 'date' => $event->date,
                     'location' => $event->business_profile->location,
                     'cover' => $event->business_profile->cover ? url($event->business_profile->cover) : null,
                 ];
@@ -148,10 +151,12 @@ class UserHomeController extends Controller
             $daily_events = collect();
 
             foreach ($business_events as $event) {
-                $event_hours = BusinessHour::where('business_profile_id', $event->id)
+                $event_hours = BusinessHour::whereNotNull('open_time')->where('business_profile_id', $event->id)
                 // ->where('date', '>', Carbon::now()->format('d/m/Y'))
                     ->orderBy('day', 'desc')
                     ->get();
+
+               
                 $daily_events = $daily_events->merge($event_hours);
             }
 
@@ -160,7 +165,7 @@ class UserHomeController extends Controller
                     'id' => $event->id,
                     'title' => $event->business_profile->business_name,
                     'time' => $event->open_time,
-                    'date' => $event->date,
+                    // 'date' => $event->date,
                     'location' => $event->business_profile->location,
                     'cover' => $event->business_profile->cover ? url($event->business_profile->cover) : null,
                 ];
@@ -192,7 +197,7 @@ class UserHomeController extends Controller
             $tailored_event = collect();
 
             foreach ($business_events as $event) {
-                $event_hours = BusinessHour::where('business_profile_id', $event->id)->get();
+                $event_hours = BusinessHour::whereNotnull('open_time')->where('business_profile_id', $event->id)->get();
                 $tailored_event = $tailored_event->merge($event_hours);
             }
 
@@ -201,7 +206,7 @@ class UserHomeController extends Controller
                     'id' => $event->id,
                     'title' => $event->business_profile->business_name,
                     'time' => $event->open_time,
-                    'date' => $event->date,
+                    // 'date' => $event->date,
                     'location' => $event->business_profile->location,
                     'cover' => $event->business_profile->cover ? url($event->business_profile->cover) : null,
                 ];
@@ -233,9 +238,11 @@ class UserHomeController extends Controller
             $random_event = collect();
 
             foreach ($business_events as $event) {
-                $event_hours = BusinessHour::where('business_profile_id', $event->id)
-                    ->orderBy('day', 'asc')
-                    ->get();
+                $event_hours = BusinessHour::whereNotnull('open_time')->where('business_profile_id', $event->id)
+                                            ->orderBy('day', 'asc')
+                                            ->get();
+
+
                 $random_event = $random_event->merge($event_hours);
             }
 
@@ -244,7 +251,7 @@ class UserHomeController extends Controller
                     'id' => $event->id,
                     'title' => $event->business_profile->business_name,
                     'time' => $event->open_time == null ? 'Closed' : $event->open_time,
-                    'date' => $event->date,
+                    // 'date' => $event->date,
                     'location' => $event->business_profile->location,
                     'cover' => $event->business_profile->cover ? url($event->business_profile->cover) : null,
                 ];

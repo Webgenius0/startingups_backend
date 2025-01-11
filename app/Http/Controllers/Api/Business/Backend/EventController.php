@@ -163,6 +163,18 @@ class EventController extends Controller
                 'note_for_guests' => $business_event->note_for_guests,
             ]);
 
+
+            // $businessProfile->business_hours()->delete(); // __clear existing hours
+            // foreach ($validatedData['hours'] as $hour) {
+            //     $businessProfile->business_hours()->create([
+            //         'day' => $hour['day'],
+            //         // 'date' => $hour['date'],
+            //         'is_closed' => $hour['is_closed'],
+            //         'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
+            //         'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
+            //     ]);
+            // }
+
             // Create business_event prices for the recurring business_event
             foreach ($business_event->business_prices as $price) {
                 $new_business_event->business_prices()->create([
