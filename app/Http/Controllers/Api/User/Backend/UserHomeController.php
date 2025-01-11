@@ -108,7 +108,8 @@ class UserHomeController extends Controller
                     'id' => $event->id,
                     'title' => $event->business_profile->business_name,
                     'time' => $event->open_time,
-                    'date' => $event->date,
+                   'date' => $event->created_at->format('M d, Y'),
+
                     'location' => $event->business_profile->location,
                     'cover' => $event->business_profile->cover ? url($event->business_profile->cover) : null,
                 ];
@@ -140,7 +141,8 @@ class UserHomeController extends Controller
                     'id' => $event->id,
                     'title' => $event->business_profile->business_name,
                     'time' => $event->open_time,
-                    'date' => $event->date,
+                   'date' => $event->created_at->format('d M'),
+
                     'location' => $event->business_profile->location,
                     'cover' => $event->business_profile->cover ? url($event->business_profile->cover) : null,
                 ];
@@ -165,7 +167,8 @@ class UserHomeController extends Controller
                     'id' => $event->id,
                     'title' => $event->business_profile->business_name,
                     'time' => $event->open_time,
-                    'date' => $event->date,
+                    'date' => $event->created_at->format('d M'),
+
                     'location' => $event->business_profile->location,
                     'cover' => $event->business_profile->cover ? url($event->business_profile->cover) : null,
                 ];
