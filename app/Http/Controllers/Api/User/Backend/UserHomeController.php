@@ -318,22 +318,21 @@ class UserHomeController extends Controller
 
     public function friend_events()
     {
-
         $user = auth()->user()->load('followees');
-
-        $friends_events = BusinessProfile::whereHas('event_bookings', function ($query) use ($user) {
-            $query->whereIn('user_id', $user->followees->pluck('followee_id'));
-        })
-            ->limit(5)
-            ->get();
-
+        
+        $friends_events = BusinessProfile::where('type', 'event')->whereHas('event_bookings', function ($query) use ($user) {
+                                            $query->whereIn('user_id', $user->followees->pluck('followee_id'));
+                                        })
+                                        ->limit(5)
+                                        ->get();
+     
         $friends_events = $friends_events->map(function ($event) {
             return [
                 'id' => $event->id,
                 'title' => $event->title,
                 'time' => Carbon::parse($event->date)->format('h:i A'),
                 'date' => Carbon::parse($event->date)->format('d M Y'),
-                'location' => $event->location_address,
+                'location' => $event->location_address == null ? $event->location : $event->location_address  ,
                 'cover' => $event->cover ? url($event->cover) : null,
             ];
         });

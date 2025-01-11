@@ -52,7 +52,7 @@ class BusinessProfile extends Model
     // event booking
     public function event_bookings()
     {
-        return $this->hasMany(EventBooking::class);
+        return $this->hasMany(EventBooking::class, 'business_profile_id', 'id');
     }
 
 
