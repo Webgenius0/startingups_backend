@@ -37,7 +37,8 @@ class BusinessProfileController extends Controller
             'hours' => 'required|array',
             'hours.*.day' => 'required|string',
             // 'hours.*.date' => 'required',
-            // 'hours.*.is_closed' => 'required',
+            'hours.*.is_closed' => 'required',
+
             'hours.*.open_time' => 'nullable|string',
             'hours.*.close_time' => 'nullable|string',
 
@@ -78,7 +79,8 @@ class BusinessProfileController extends Controller
             $businessProfile->business_hours()->create([
                 'day' => $hour['day'],
                 // 'date' => $hour['date'],
-                'is_closed' => $request->is_closed,
+                
+                'is_closed' => $hour['is_closed'],
                 'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
                 'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
             ]);
