@@ -386,6 +386,8 @@ class UserHomeController extends Controller
             'cover' => $event->cover ? url($event->cover) : null,
             'description' => $event->description,
 
+            'artist_or_guest' =>json_decode($event->guest_list) ,
+
             'event_prices' => $event->business_prices,
 
         ];
