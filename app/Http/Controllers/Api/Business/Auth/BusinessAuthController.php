@@ -27,9 +27,8 @@ class BusinessAuthController extends Controller
     public function register(Request $request)
     {
 
-
         $ip = $request->ip();
-
+        
         // Handle local development IP
         if (in_array($ip, ['127.0.0.1', '::1'])) {
             $location = (object)[
