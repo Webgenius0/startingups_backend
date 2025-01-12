@@ -47,7 +47,7 @@ class BusinessAuthController extends Controller
         $countryCode = $location->countryCode ?? 'XX';
 
         
-        return $countryName;
+        dd($countryName);
         // dd($request->all());
         $validator = Validator::make($request->all(), [
             'cover' => 'required|image|mimes:jpg,jpeg,png|max:4096',
