@@ -334,7 +334,7 @@ class UserHomeController extends Controller
         $friends_events = $friends_events->map(function ($event) {
             return [
                 'id' => $event->id,
-                'title' => $event->title,
+                'title' => $event->title == null ?  $event->business_name : $event->title ,
                 'time' => Carbon::parse($event->date)->format('h:i A'),
                 'date' => Carbon::parse($event->date)->format('d M Y'),
                 'location' => $event->location_address == null ? $event->location : $event->location_address  ,
