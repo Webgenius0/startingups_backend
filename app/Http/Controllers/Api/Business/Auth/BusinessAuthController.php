@@ -119,6 +119,7 @@ class BusinessAuthController extends Controller
         }
         // return user profile
         $user = [
+            'avatar' =>  $user->avatar ?  url($user->avatar) : '',
             'full_name' => $user->full_name,
             'email' => $user->email,
             'phone' => $user->phone,
@@ -163,10 +164,16 @@ class BusinessAuthController extends Controller
             'date_of_birth' => 'required|string|max:255',
             'gender' => 'required|string|max:255',
             'phone' => 'required|string|max:255',
+            
         ]);
 
         if ($validator->fails()) {
             return $this->error([], $validator->errors()->first(), 422);
+        }
+
+        if ($request->hasFile('avatar')) {
+            $coverPath = Helper::uploadImage($request->file('avatar'), 'business_profiles');
+
         }
 
         $user = auth('api')->user();
@@ -175,6 +182,7 @@ class BusinessAuthController extends Controller
         $user->date_of_birth = $request->date_of_birth;
         $user->gender = $request->gender;
         $user->phone = $request->phone;
+        $user->avatar = $coverPath;
         $user->save();
 
         $user = [
@@ -183,6 +191,7 @@ class BusinessAuthController extends Controller
             'phone' => $user->phone,
             'gender' => $user->gender,
             'date_of_birth' => $user->date_of_birth,
+            'avatar' => $user->avatar ?  url($user->avatar) : '',
 
         ];
 
