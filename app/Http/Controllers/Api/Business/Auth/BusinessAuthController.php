@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\Api\Business\Auth;
 
-use App\Helper\Helper;
-use App\Http\Controllers\Controller;
-use App\Mail\OtpMailNotification;
-use App\Models\User;
-use App\Traits\ApiResponse;
 use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Validator;
+use App\Models\User;
+use App\Helper\Helper;
+use App\Traits\ApiResponse;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Mail\OtpMailNotification;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Validator;
+use Stevebauman\Location\Facades\Location;
 
 class BusinessAuthController extends Controller
 {
@@ -26,6 +27,28 @@ class BusinessAuthController extends Controller
     public function register(Request $request)
     {
 
+
+        $ip = $request->ip();
+
+        // Handle local development IP
+        if (in_array($ip, ['127.0.0.1', '::1'])) {
+            $location = (object)[
+                'countryName' => 'Localhost',
+                'countryCode' => 'LO',
+            ];
+        } else {
+            $location = Location::get($ip);
+        }
+        
+        if (!$location) {
+            return $this->error([], 'Unable to determine your location.', 422);
+        }
+        
+        $countryName = $location->countryName ?? 'Unknown';
+        $countryCode = $location->countryCode ?? 'XX';
+
+        
+        dd($countryName);
         // dd($request->all());
         $validator = Validator::make($request->all(), [
             'cover' => 'required|image|mimes:jpg,jpeg,png|max:4096',
@@ -46,7 +69,6 @@ class BusinessAuthController extends Controller
 
         if ($request->hasFile('cover')) {
             $coverPath = Helper::uploadImage($request->file('cover'), 'business_profiles');
-
         }
         $data = User::create([
             'full_name' => $request->full_name,
@@ -70,7 +92,6 @@ class BusinessAuthController extends Controller
         $data['token'] = $token;
 
         return $this->success($data, ' Sign Up Successfull.', 201);
-
     }
 
     public function login(Request $request)
@@ -164,7 +185,7 @@ class BusinessAuthController extends Controller
             'date_of_birth' => 'required|string|max:255',
             'gender' => 'required|string|max:255',
             'phone' => 'required|string|max:255',
-            
+
         ]);
 
         if ($validator->fails()) {
@@ -173,7 +194,6 @@ class BusinessAuthController extends Controller
 
         if ($request->hasFile('avatar')) {
             $coverPath = Helper::uploadImage($request->file('avatar'), 'business_profiles');
-
         }
 
         $user = auth('api')->user();
@@ -303,5 +323,4 @@ class BusinessAuthController extends Controller
             return $this->error([], $e->getMessage(), 500);
         }
     }
-
 }
