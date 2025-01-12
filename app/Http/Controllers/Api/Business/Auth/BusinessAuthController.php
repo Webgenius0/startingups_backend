@@ -27,28 +27,7 @@ class BusinessAuthController extends Controller
     public function register(Request $request)
     {
 
-        $ip = $request->ip();
-
-        // Handle local development IP
-        if (in_array($ip, ['127.0.0.1', '::1'])) {
-            $location = (object)[
-                'countryName' => 'Localhost',
-                'countryCode' => 'LO',
-            ];
-        } else {
-            $location = Location::get($ip);
-        }
         
-        if (!$location) {
-            return $this->error([], 'Unable to determine your location.', 422);
-        }
-        
-        $countryName = $location->countryName ?? 'Unknown';
-        $countryCode = $location->countryCode ?? 'XX';
-
-        
-        dd($countryName);
-        // dd($request->all());
         $validator = Validator::make($request->all(), [
             'cover' => 'required|image|mimes:jpg,jpeg,png|max:4096',
             'full_name' => 'required|string|max:255',
