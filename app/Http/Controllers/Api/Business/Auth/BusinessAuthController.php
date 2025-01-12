@@ -28,7 +28,7 @@ class BusinessAuthController extends Controller
     {
 
         $ip = $request->ip();
-        
+
         // Handle local development IP
         if (in_array($ip, ['127.0.0.1', '::1'])) {
             $location = (object)[
@@ -47,7 +47,7 @@ class BusinessAuthController extends Controller
         $countryCode = $location->countryCode ?? 'XX';
 
         
-        dd($countryName);
+        return $countryName;
         // dd($request->all());
         $validator = Validator::make($request->all(), [
             'cover' => 'required|image|mimes:jpg,jpeg,png|max:4096',
