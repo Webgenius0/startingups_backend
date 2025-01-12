@@ -322,13 +322,15 @@ class UserHomeController extends Controller
     public function friend_events()
     {
         $user = auth()->user()->load('followees');
+
+        // dd($user);
         
-        $friends_events = BusinessProfile::where('type', 'event')->whereHas('event_bookings', function ($query) use ($user) {
+        $friends_events = BusinessProfile::whereHas('event_bookings', function ($query) use ($user) {
                                             $query->whereIn('user_id', $user->followees->pluck('followee_id'));
                                         })
                                         ->limit(5)
                                         ->get();
-     
+    //  dd($friends_events);
         $friends_events = $friends_events->map(function ($event) {
             return [
                 'id' => $event->id,
