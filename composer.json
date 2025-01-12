@@ -17,6 +17,7 @@
         "laravel/tinker": "^2.8",
         "stevebauman/location": "^7.4",
         "stripe/stripe-php": "^16.3",
+        "torann/geoip": "^3.0",
         "tymon/jwt-auth": "^2.1",
         "yajra/laravel-datatables": "^10.1"
     },

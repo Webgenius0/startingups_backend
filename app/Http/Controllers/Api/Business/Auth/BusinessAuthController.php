@@ -12,6 +12,7 @@ use App\Mail\OtpMailNotification;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
@@ -24,10 +25,9 @@ class BusinessAuthController extends Controller
 
     use ApiResponse;
 
+   
     public function register(Request $request)
     {
-
-        
         $validator = Validator::make($request->all(), [
             'cover' => 'required|image|mimes:jpg,jpeg,png|max:4096',
             'full_name' => 'required|string|max:255',
@@ -43,34 +43,56 @@ class BusinessAuthController extends Controller
             return $this->error([], $validator->errors()->first(), 422);
         }
 
-        // $validatedData = $validator->validated();
+   
+        // $countryCode = $this->getCountryCode($request->country);
+       
 
+        // if (!$countryCode) {
+        //     return $this->error([], 'Invalid country name.', 422);
+        // }
+
+        // Handle cover image
         if ($request->hasFile('cover')) {
             $coverPath = Helper::uploadImage($request->file('cover'), 'business_profiles');
         }
+
+        // Create User with country code
         $data = User::create([
             'full_name' => $request->full_name,
             'date_of_birth' => $request->date_of_birth,
             'country' => $request->country,
+            // 'country_code' => $countryCode, // Add country code field
             'user_name' => $request->user_name,
-
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'role' => 'business',
-            'avatar' => $coverPath
+            'avatar' => $coverPath,
         ]);
 
-        // cover with url
+        // Cover with URL
         $data->avatar = $data->avatar ? url($data->avatar) : null;
 
-
-        // generate token
+        // Generate token
         $token = auth('api')->login($data);
-
         $data['token'] = $token;
 
-        return $this->success($data, ' Sign Up Successfull.', 201);
+        return $this->success($data, 'Sign Up Successful.', 201);
     }
+
+    // Method to get country code
+    public function getCountryCode($countryName)
+    {
+        // Make API request to fetch country details
+        $response = Http::get('https://restcountries.com/v3.1/name/' . urlencode($countryName));
+
+        if ($response->successful()) {
+            $countryData = $response->json();
+            return $countryData[0]['cca2']; // 2-letter country code
+        }
+
+        return null; // Return null if not found
+    }
+
 
     public function login(Request $request)
     {
@@ -122,7 +144,7 @@ class BusinessAuthController extends Controller
             'full_name' => $user->full_name,
             'email' => $user->email,
             'phone' => $user->phone,
-            // 'user_name' => $user->user_name,
+            // 'country_code' => $user->country_code,
             'gender' => $user->gender,
             'date_of_birth' => $user->date_of_birth,
 
@@ -180,6 +202,7 @@ class BusinessAuthController extends Controller
         $user->date_of_birth = $request->date_of_birth;
         $user->gender = $request->gender;
         $user->phone = $request->phone;
+        // $user->country_code = $request->country_code;
         $user->avatar = $coverPath;
         $user->save();
 
@@ -187,6 +210,8 @@ class BusinessAuthController extends Controller
             'full_name' => $user->full_name,
             'email' => $user->email,
             'phone' => $user->phone,
+            // 'country_code' => $user->country_code,
+
             'gender' => $user->gender,
             'date_of_birth' => $user->date_of_birth,
             'avatar' => $user->avatar ?  url($user->avatar) : '',
