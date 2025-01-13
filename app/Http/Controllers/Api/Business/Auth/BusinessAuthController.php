@@ -25,7 +25,7 @@ class BusinessAuthController extends Controller
 
     use ApiResponse;
 
-   
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -43,9 +43,9 @@ class BusinessAuthController extends Controller
             return $this->error([], $validator->errors()->first(), 422);
         }
 
-   
-        // $countryCode = $this->getCountryCode($request->country);
-       
+
+        $countryCode = $this->getCountryCode($request->country);
+
 
         // if (!$countryCode) {
         //     return $this->error([], 'Invalid country name.', 422);
@@ -232,6 +232,7 @@ class BusinessAuthController extends Controller
             return $this->error('Validation Error', $validator->errors()->first(), 422);
         }
 
+        // Generate a 4-digit OTP
         $otp = rand(1000, 9999);
         $email = $request->email;
 
