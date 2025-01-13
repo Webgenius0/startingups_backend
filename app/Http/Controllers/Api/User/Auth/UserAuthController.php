@@ -171,7 +171,7 @@ class UserAuthController extends Controller
             return $this->error('Validation Error', $validator->errors()->first(), 422);
         }
 
-        $otp = rand(100000, 999999);
+        $otp = rand(1000, 9999);
         $email = $request->email;
 
         Cache::put('otp_' . $email, $otp, now()->addMinutes(10));
