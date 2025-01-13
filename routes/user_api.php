@@ -15,7 +15,16 @@ use App\Http\Controllers\Api\User\Backend\UserSearchController;
 Route::prefix('user')->group(function () {
     Route::post('register', [UserAuthController::class, 'register']);
     Route::post('login', [UserAuthController::class, 'login']);
+
+    // Password Management
+    Route::post('password/request-otp', [UserAuthController::class, 'requestOtp']);
+    Route::post('password/verify-otp', [UserAuthController::class, 'verifyOtp']);
+    Route::post('password/reset', [UserAuthController::class, 'resetPassword']);
+
 });
+
+
+
 
 // Protected User API Routes
 Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(function () {
@@ -36,11 +45,7 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
 
 
 
-    // Password Management
-    Route::post('password/request-otp', [UserAuthController::class, 'requestOtp']);
-    Route::post('password/verify-otp', [UserAuthController::class, 'verifyOtp']);
-    Route::post('password/reset', [UserAuthController::class, 'resetPassword']);
-
+    
     // Stories
     Route::post('story', [UserStoryController::class, 'store']);
     Route::get('story/{id}', [UserStoryController::class, 'show']);
