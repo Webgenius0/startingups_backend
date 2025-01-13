@@ -32,7 +32,12 @@ Route::get('/user/{id}/recent-places', [UserHomeController::class, 'user_recent_
 Route::get('/user/{id}/interested', [UserHomeController::class, 'user_interested']);
 
 
+// Password Management
 Route::post('password/request-otp', [BusinessAuthController::class, 'requestOtp']);
+Route::post('password/verify-otp', [BusinessAuthController::class, 'verifyOtp']);
+Route::post('password/reset', [BusinessAuthController::class, 'resetPassword']);
+
+
 
 // Protected Business API Routes
 Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->group(function () {
@@ -42,9 +47,6 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
     Route::get('profile', [BusinessAuthController::class, 'profile']);
     Route::post('profile', [BusinessAuthController::class, 'update_profile']);
 
-    // Password Management
-    Route::post('password/verify-otp', [BusinessAuthController::class, 'verifyOtp']);
-    Route::post('password/reset', [BusinessAuthController::class, 'resetPassword']);
 
     // Subscription Management
     Route::get('subscription/plans', [SubscriptionController::class, 'index']);
@@ -72,5 +74,4 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
 
     // event ratings
     Route::get('/event/ratings/{id}', [EventReportController::class, 'event_ratings']);
-
 });
