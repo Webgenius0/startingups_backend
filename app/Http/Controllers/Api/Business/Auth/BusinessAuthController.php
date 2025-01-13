@@ -61,7 +61,7 @@ class BusinessAuthController extends Controller
             'full_name' => $request->full_name,
             'date_of_birth' => $request->date_of_birth,
             'country' => $request->country,
-            // 'country_code' => $countryCode, // Add country code field
+            'country_code' => $countryCode, // Add country code field
             'user_name' => $request->user_name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
@@ -144,7 +144,7 @@ class BusinessAuthController extends Controller
             'full_name' => $user->full_name,
             'email' => $user->email,
             'phone' => $user->phone,
-            // 'country_code' => $user->country_code,
+            'country_code' => $user->country_code,
             'gender' => $user->gender,
             'date_of_birth' => $user->date_of_birth,
 
@@ -202,7 +202,7 @@ class BusinessAuthController extends Controller
         $user->date_of_birth = $request->date_of_birth;
         $user->gender = $request->gender;
         $user->phone = $request->phone;
-        // $user->country_code = $request->country_code;
+        $user->country_code = $request->country_code;
         $user->avatar = $coverPath;
         $user->save();
 
@@ -210,7 +210,7 @@ class BusinessAuthController extends Controller
             'full_name' => $user->full_name,
             'email' => $user->email,
             'phone' => $user->phone,
-            // 'country_code' => $user->country_code,
+            'country_code' => $user->country_code,
 
             'gender' => $user->gender,
             'date_of_birth' => $user->date_of_birth,

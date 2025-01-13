@@ -32,6 +32,8 @@ Route::get('/user/{id}/recent-places', [UserHomeController::class, 'user_recent_
 Route::get('/user/{id}/interested', [UserHomeController::class, 'user_interested']);
 
 
+Route::post('password/request-otp', [BusinessAuthController::class, 'requestOtp']);
+
 // Protected Business API Routes
 Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->group(function () {
     // Authentication & Profile
@@ -41,7 +43,6 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
     Route::post('profile', [BusinessAuthController::class, 'update_profile']);
 
     // Password Management
-    Route::post('password/request-otp', [BusinessAuthController::class, 'requestOtp']);
     Route::post('password/verify-otp', [BusinessAuthController::class, 'verifyOtp']);
     Route::post('password/reset', [BusinessAuthController::class, 'resetPassword']);
 
