@@ -132,8 +132,8 @@ class BusinessProfileController extends Controller
         $businessProfile->cover = $businessProfile->cover ? url($businessProfile->cover) : null;
 
         // Retrieve only the names for category and subcategory
-        $categoryName = $businessProfile->category()->pluck('name')->first();
-        $subcategoryName = $businessProfile->sub_category()->pluck('name')->first();
+        $categoryName = $businessProfile->category()->pluck('name');
+        $subcategoryName = $businessProfile->sub_category()->pluck('name');
 
         // Load business hours relation
         $businessProfile->load('business_hours');
@@ -154,26 +154,7 @@ class BusinessProfileController extends Controller
             'location' => $businessProfile->location,
             'age_min' => $businessProfile->age_min,
             'age_max' => $businessProfile->age_max,
-            // 'title' => $businessProfile->title,
-            // 'description' => $businessProfile->description,
-            // 'date' => $businessProfile->date,
-            // 'start_time' => $businessProfile->start_time,
-            // 'end_time' => $businessProfile->end_time,
-            // 'frequency' => $businessProfile->frequency,
-            // 'frequency_count' => $businessProfile->frequency_count,
-            // 'frequency_end_after' => $businessProfile->frequency_end_after,
-            // 'frequency_end_date' => $businessProfile->frequency_end_date,
-            // 'location_type' => $businessProfile->location_type,
-            // 'location_address' => $businessProfile->location_address,
-            // 'amount' => $businessProfile->amount,
-            // 'offerings' => $businessProfile->offerings,
-            // 'has_guests' => $businessProfile->has_guests,
-            // 'guest_list' => $businessProfile->guest_list,
-            // 'guest_options' => $businessProfile->guest_options,
-            // 'note_for_guests' => $businessProfile->note_for_guests,
-            // 'view_count' => $businessProfile->view_count,
-            // 'total_bookings' => $businessProfile->total_bookings,
-            // 'deleted_at' => $businessProfile->deleted_at,
+            
             'business_hours' => $businessProfile->business_hours,
         ];
 
