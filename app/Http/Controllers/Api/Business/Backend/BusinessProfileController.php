@@ -147,7 +147,7 @@ class BusinessProfileController extends Controller
                     'id' => $hour->id,
                     'business_profile_id' => $hour->business_profile_id,
                     'day' => $hour->day,
-                    'is_closed' => $hour->is_closed == 1 ? false : true,
+                    'is_closed' => $hour->is_closed == 1 ? true : false,
                     'open_time' => $hour->open_time,
                     'close_time' => $hour->close_time,
 
