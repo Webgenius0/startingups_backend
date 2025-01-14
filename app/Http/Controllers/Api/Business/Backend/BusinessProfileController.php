@@ -132,8 +132,8 @@ class BusinessProfileController extends Controller
         $businessProfile->cover = $businessProfile->cover ? url($businessProfile->cover) : null;
 
         // Retrieve only the names for category and subcategory
-        $categoryName = $businessProfile->category()->pluck('name');
-        $subcategoryName = $businessProfile->sub_category()->pluck('name');
+        // $categoryName = $businessProfile->category()->pluck('name');
+        // $subcategoryName = $businessProfile->sub_category()->pluck('name');
 
         // Load business hours relation
         $businessProfile->load('business_hours');
@@ -146,10 +146,10 @@ class BusinessProfileController extends Controller
             'cover' => $businessProfile->cover,
             'business_name' => $businessProfile->business_name,
             'category_id' => $businessProfile->category_id,
-            'category_name' => $categoryName,
+            'category_name' => $businessProfile->category->name,
 
             'subcategory_id' => $businessProfile->sub_category_id,
-            'subcategory_name' => $subcategoryName,
+            'subcategory_name' => $businessProfile->sub_category->name,
             'activity' => $businessProfile->activity,
             'location' => $businessProfile->location,
             'age_min' => $businessProfile->age_min,
