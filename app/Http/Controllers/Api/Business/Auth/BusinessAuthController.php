@@ -29,7 +29,7 @@ class BusinessAuthController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'cover' => 'required|image|mimes:jpg,jpeg,png|max:4096',
+            'cover' => 'nullable|image|mimes:jpg,jpeg,png',
             'full_name' => 'required|string|max:255',
             'date_of_birth' => 'required|string|max:255',
             'country' => 'required|string|max:255',
@@ -51,6 +51,7 @@ class BusinessAuthController extends Controller
         //     return $this->error([], 'Invalid country name.', 422);
         // }
 
+        $coverPath = '';
         // Handle cover image
         if ($request->hasFile('cover')) {
             $coverPath = Helper::uploadImage($request->file('cover'), 'business_profiles');
@@ -66,7 +67,7 @@ class BusinessAuthController extends Controller
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'role' => 'business',
-            'avatar' => $coverPath,
+            'avatar' => $coverPath ? $coverPath : '',
         ]);
 
         // Cover with URL
@@ -134,11 +135,10 @@ class BusinessAuthController extends Controller
     {
         $user = auth('api')->user();
 
-        // if not found
         if (!$user) {
             return $this->error([], 'User not found.', 404);
         }
-        // return user profile
+     
         $user = [
             'avatar' =>  $user->avatar ?  url($user->avatar) : '',
             'full_name' => $user->full_name,
@@ -181,7 +181,7 @@ class BusinessAuthController extends Controller
         // dd($request->all());
         $validator = Validator::make($request->all(), [
             'full_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email|max:255',
+            // 'email' => 'required|email|unique:users,email|max:255',
             'date_of_birth' => 'required|string|max:255',
             'gender' => 'required|string|max:255',
             'phone' => 'required|string|max:255',
@@ -192,23 +192,26 @@ class BusinessAuthController extends Controller
             return $this->error([], $validator->errors()->first(), 422);
         }
 
+        $coverPath = '';
+
+
         if ($request->hasFile('avatar')) {
             $coverPath = Helper::uploadImage($request->file('avatar'), 'business_profiles');
         }
 
         $user = auth('api')->user();
         $user->full_name = $request->full_name;
-        $user->email = $request->email;
+        // $user->email = $request->email;
         $user->date_of_birth = $request->date_of_birth;
         $user->gender = $request->gender;
         $user->phone = $request->phone;
         $user->country_code = $request->country_code;
-        $user->avatar = $coverPath;
+        $user->avatar = $coverPath ? $coverPath : '';
         $user->save();
 
         $user = [
             'full_name' => $user->full_name,
-            'email' => $user->email,
+            // 'email' => $user->email,
             'phone' => $user->phone,
             'country_code' => $user->country_code,
 

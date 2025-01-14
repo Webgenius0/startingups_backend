@@ -64,4 +64,18 @@ class BusinessProfile extends Model
     {
         return $this->hasMany(EventReview::class);
     }
+
+
+    // category name 
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+
+    // sub category name 
+    public function sub_category()
+    {
+        return $this->belongsTo(SubCategory::class);
+    }
 }

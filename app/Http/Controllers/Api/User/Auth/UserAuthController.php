@@ -27,7 +27,7 @@ class UserAuthController extends Controller
     {
         // validation for user register
         $validator = Validator::make($request->all(), [
-            'cover' => 'required|image|mimes:jpg,jpeg,png|max:4096',
+            'cover' => 'nullable|image|mimes:jpg,jpeg,png',
             'gender' => 'required|string|max:255',
             'preferences.*' => 'required|string|max:255',
 
@@ -45,6 +45,7 @@ class UserAuthController extends Controller
             return $this->error([], $validator->errors()->first(), 422);
         }
 
+        $coverPath = '';
         if ($request->hasFile('cover')) {
             $coverPath = Helper::uploadImage($request->file('cover'), 'business_profiles');
 
@@ -53,7 +54,7 @@ class UserAuthController extends Controller
         // $validatedData = $validator->validated();
 
         $data = User::create([
-            'avatar' => $coverPath,
+            'avatar' => $coverPath ? $coverPath : '',
             'full_name' => $request->full_name,
             'user_name' => $request->user_name,
             'email' => $request->email,

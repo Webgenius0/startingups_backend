@@ -79,7 +79,7 @@ class BusinessProfileController extends Controller
             $businessProfile->business_hours()->create([
                 'day' => $hour['day'],
                 // 'date' => $hour['date'],
-                
+
                 'is_closed' => $hour['is_closed'],
                 'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
                 'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
@@ -116,26 +116,70 @@ class BusinessProfileController extends Controller
         $businessProfile->load('business_hours', 'business_prices');
 
         return $this->success($businessProfile, 'Business Profile created successfully', 200);
-
     }
 
     public function business_profile_details()
     {
+        $businessProfile = BusinessProfile::where('user_id', Auth::id())
+            ->where('type', 'business_profile')
+            ->first();
 
-        $businessProfile = BusinessProfile::where('user_id', Auth::id())->where('type', 'business_profile')->first();
-
-        // dd($businessProfile);
         if (!$businessProfile) {
             return $this->error([], 'Business Profile not found', 404);
         }
 
+        // Set the cover URL
         $businessProfile->cover = $businessProfile->cover ? url($businessProfile->cover) : null;
 
-        // load business hours
+        // Retrieve only the names for category and subcategory
+        $categoryName = $businessProfile->category()->pluck('name')->first();
+        $subcategoryName = $businessProfile->sub_category()->pluck('name')->first();
+
+        // Load business hours relation
         $businessProfile->load('business_hours');
 
-        return $this->success($businessProfile, 'Business Profile retrieved successfully', 200);
+        // Structure the data in serialized order
+        $data = [
+            'id' => $businessProfile->id,
+            // 'type' => $businessProfile->type,
+            'user_id' => $businessProfile->user_id,
+            'cover' => $businessProfile->cover,
+            'business_name' => $businessProfile->business_name,
+            'category_id' => $businessProfile->category_id,
+            'category_name' => $categoryName,
+
+            'subcategory_id' => $businessProfile->sub_category_id,
+            'subcategory_name' => $subcategoryName,
+            'activity' => $businessProfile->activity,
+            'location' => $businessProfile->location,
+            'age_min' => $businessProfile->age_min,
+            'age_max' => $businessProfile->age_max,
+            // 'title' => $businessProfile->title,
+            // 'description' => $businessProfile->description,
+            // 'date' => $businessProfile->date,
+            // 'start_time' => $businessProfile->start_time,
+            // 'end_time' => $businessProfile->end_time,
+            // 'frequency' => $businessProfile->frequency,
+            // 'frequency_count' => $businessProfile->frequency_count,
+            // 'frequency_end_after' => $businessProfile->frequency_end_after,
+            // 'frequency_end_date' => $businessProfile->frequency_end_date,
+            // 'location_type' => $businessProfile->location_type,
+            // 'location_address' => $businessProfile->location_address,
+            // 'amount' => $businessProfile->amount,
+            // 'offerings' => $businessProfile->offerings,
+            // 'has_guests' => $businessProfile->has_guests,
+            // 'guest_list' => $businessProfile->guest_list,
+            // 'guest_options' => $businessProfile->guest_options,
+            // 'note_for_guests' => $businessProfile->note_for_guests,
+            // 'view_count' => $businessProfile->view_count,
+            // 'total_bookings' => $businessProfile->total_bookings,
+            // 'deleted_at' => $businessProfile->deleted_at,
+            'business_hours' => $businessProfile->business_hours,
+        ];
+
+        return $this->success($data, 'Business Profile retrieved successfully', 200);
     }
+
 
     public function show(string $id)
     {
