@@ -149,7 +149,7 @@ class BusinessProfileController extends Controller
             'category_name' => $businessProfile->category->name,
 
             'subcategory_id' => $businessProfile->sub_category_id,
-            'subcategory_name' => $businessProfile->sub_category->name,
+            'subcategory_name' => $businessProfile->sub_category ?  $businessProfile->sub_category->name : '',
             'activity' => $businessProfile->activity,
             'location' => $businessProfile->location,
             'age_min' => $businessProfile->age_min,
