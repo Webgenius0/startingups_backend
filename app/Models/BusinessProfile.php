@@ -15,9 +15,9 @@ class BusinessProfile extends Model
 
     protected $guarded = [];
 
-    protected $casts = [
-        'is_closed' => 'boolean',
-    ];
+    // protected $casts = [
+    //     'is_closed' => 'boolean' ,
+    // ];
     
 
 

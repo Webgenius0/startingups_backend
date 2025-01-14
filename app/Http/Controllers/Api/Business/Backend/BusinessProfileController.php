@@ -80,7 +80,7 @@ class BusinessProfileController extends Controller
                 'day' => $hour['day'],
                 // 'date' => $hour['date'],
 
-                'is_closed' => $hour['is_closed'],
+                'is_closed' => $hour['is_closed'] == true,
                 'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
                 'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
             ]);
@@ -96,17 +96,7 @@ class BusinessProfileController extends Controller
             ]);
         }
 
-        // age limit
-
-        // $businessProfile->age_limit()->delete(); // __clear existing hours
-        // if ($validatedData['age_limit']) {
-        //     $businessProfile->age_limit()->create([
-        //         'business_profile_id' => $businessProfile->id,
-        //         'minimum' => $validatedData['age_limit']['minimum'],
-        //         'maximum' => $validatedData['age_limit']['maximum'],
-        //     ]);
-        // }
-
+       
 
 
 
@@ -131,11 +121,7 @@ class BusinessProfileController extends Controller
         // Set the cover URL
         $businessProfile->cover = $businessProfile->cover ? url($businessProfile->cover) : null;
 
-        // Retrieve only the names for category and subcategory
-        // $categoryName = $businessProfile->category()->pluck('name');
-        // $subcategoryName = $businessProfile->sub_category()->pluck('name');
-
-        // Load business hours relation
+        
         $businessProfile->load('business_hours');
 
         // Structure the data in serialized order
@@ -155,7 +141,18 @@ class BusinessProfileController extends Controller
             'age_min' => $businessProfile->age_min,
             'age_max' => $businessProfile->age_max,
             
-            'business_hours' => $businessProfile->business_hours,
+            
+            'business_hours' => $businessProfile->business_hours->map(function ($hour) {
+                return [
+                    'id' => $hour->id,
+                    'business_profile_id' => $hour->business_profile_id,
+                    'day' => $hour->day,
+                    'is_closed' => $hour->is_closed == 1 ? false : true,
+                    'open_time' => $hour->open_time,
+                    'close_time' => $hour->close_time,
+
+                ];
+            }),
         ];
 
         return $this->success($data, 'Business Profile retrieved successfully', 200);

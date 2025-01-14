@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api\User\Backend;
 
-use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 
 class UserRelationshipController extends Controller
