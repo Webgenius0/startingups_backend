@@ -40,6 +40,7 @@ class UserStoryController extends Controller
                 'cover' => url($story->cover),
                 'likes_count' => $story->likes_count,
                 'reviews_count' => $story->reviews->count(),
+                'date' => $story->created_at->format('d M'),
 
             ];
         });
