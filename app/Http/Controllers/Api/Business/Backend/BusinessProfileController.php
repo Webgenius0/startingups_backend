@@ -189,8 +189,8 @@ class BusinessProfileController extends Controller
             'activity' => 'required|in:Indoor,Outdoor',
             'location' => 'required|string',
 
-            'age_min' => 'nullable',
-            'age_max' => 'nullable',
+            // 'age_min' => 'nullable',
+            // 'age_max' => 'nullable',
 
             'hours' => 'required|array',
             'hours.*.day' => 'required|string',
@@ -212,8 +212,8 @@ class BusinessProfileController extends Controller
             'activity' => $validatedData['activity'],
             'location' => $validatedData['location'],
 
-            'age_min' => $validatedData['age_min'],
-            'age_max' => $validatedData['age_max'],
+            // 'age_min' => $validatedData['age_min'],
+            // 'age_max' => $validatedData['age_max'],
 
         ]);
 
