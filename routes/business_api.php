@@ -81,4 +81,6 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
     Route::get('account/profile', [BusinessAccountController::class, 'account_profile']);
     Route::get('account/profile/edit', [BusinessAccountController::class, 'edit']);
     Route::post('account/profile/update', [BusinessAccountController::class, 'update_profile']);
+    Route::get('account/faq', [BusinessAccountController::class, 'business_faq']);
+
 });

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Api\Business\Backend;
 
+use App\Models\Faq;
 use App\Helper\Helper;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -13,6 +14,26 @@ class BusinessAccountController extends Controller
 {
 
     use ApiResponse;
+
+
+     // __faq
+
+     public function business_faq()
+     {
+         try {
+ 
+             $faqs = Faq::where('status', 'active')->get();
+ 
+             if ($faqs->isEmpty()) {
+                 return $this->error([], 'No faqs found', 404);
+             }
+ 
+             return $this->success($faqs, 'FAQs retrieved successfully', 200);
+         } catch (\Exception $e) {
+ 
+             return $this->error([], 'Error retrieving FAQs: ' . $e->getMessage(), 500);
+         }
+     }
 
 
     public function account_profile()
