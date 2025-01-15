@@ -100,7 +100,7 @@ class UserAccountController extends Controller
 
         $user = auth('api')->user();
         $user->full_name = $request->full_name;
-        // $user->email = $request->email;
+        $user->email = auth('api')->user()->email;
         $user->date_of_birth = $request->date_of_birth;
         $user->gender = $request->gender;
         $user->phone = $request->phone;
