@@ -95,7 +95,7 @@ class UserAccountController extends Controller
 
 
         if ($request->hasFile('avatar')) {
-            $coverPath = Helper::uploadImage($request->file('avatar'), 'business_profiles');
+            $coverPath = Helper::uploadImage($request->file('avatar'), 'user_profiles');
         }
 
         $user = auth('api')->user();
