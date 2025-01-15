@@ -5,12 +5,16 @@ namespace App\Http\Controllers\Api\Business\Backend;
 use App\Helper\Helper;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\Validator;
 
 
 class BusinessAccountController extends Controller
 {
 
+    use ApiResponse;
+
+    
     public function account_profile()
     {
         $user = auth('api')->user();
