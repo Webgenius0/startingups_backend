@@ -272,8 +272,8 @@ class BusinessProfileController extends Controller
             'subcategory_name' => $businessProfile->sub_category ?  $businessProfile->sub_category->name : '',
             'activity' => $businessProfile->activity,
             'location' => $businessProfile->location,
-            'age_min' => $businessProfile->age_min,
-            'age_max' => $businessProfile->age_max,
+            // 'age_min' => $businessProfile->age_min,
+            // 'age_max' => $businessProfile->age_max,
 
 
             'business_hours' => $businessProfile->business_hours->map(function ($hour) {
