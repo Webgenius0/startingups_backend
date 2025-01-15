@@ -87,7 +87,7 @@ class BusinessAccountController extends Controller
         $user->date_of_birth = $request->date_of_birth;
         $user->gender = $request->gender;
         $user->phone = $request->phone;
-        $user->county_code = $request->country_code;
+        $user->country_code = $request->country_code;
         $user->avatar = $coverPath;
         $user->save();
 
