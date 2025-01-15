@@ -129,7 +129,7 @@ class BusinessProfileController extends Controller
             'id' => $businessProfile->id,
             // 'type' => $businessProfile->type,
             'user_id' => $businessProfile->user_id,
-            'cover' => $businessProfile->cover,
+            'cover' => $businessProfile->cover ? url($businessProfile->cover) : null,
             'business_name' => $businessProfile->business_name,
             'category_id' => $businessProfile->category_id,
             'category_name' => $businessProfile->category->name,
@@ -256,10 +256,42 @@ class BusinessProfileController extends Controller
 
         $businessProfile->cover = $businessProfile->cover ? url($businessProfile->cover) : null;
 
-        
+        $businessProfile->load('business_hours');
 
-        return $this->success($businessProfile->load('business_hours'),
-            
+        // Structure the data in serialized order
+        $data = [
+            'id' => $businessProfile->id,
+            // 'type' => $businessProfile->type,
+            'user_id' => $businessProfile->user_id,
+            'cover' => $businessProfile->cover ? url($businessProfile->cover) : null,
+            'business_name' => $businessProfile->business_name,
+            'category_id' => $businessProfile->category_id,
+            'category_name' => $businessProfile->category->name,
+
+            'subcategory_id' => $businessProfile->sub_category_id,
+            'subcategory_name' => $businessProfile->sub_category ?  $businessProfile->sub_category->name : '',
+            'activity' => $businessProfile->activity,
+            'location' => $businessProfile->location,
+            'age_min' => $businessProfile->age_min,
+            'age_max' => $businessProfile->age_max,
+
+
+            'business_hours' => $businessProfile->business_hours->map(function ($hour) {
+                return [
+                    'id' => $hour->id,
+                    'business_profile_id' => $hour->business_profile_id,
+                    'day' => $hour->day,
+                    'is_closed' => $hour->is_closed == 1 ? true : false,
+                    'open_time' => $hour->open_time,
+                    'close_time' => $hour->close_time,
+
+                ];
+            }),
+        ];
+
+        return $this->success(
+            $data,
+
             'Business Profile updated successfully',
             200
         );
