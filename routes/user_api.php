@@ -87,7 +87,7 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
     Route::get('account/profile/edit', [UserAccountController::class, 'edit']);
     Route::post('account/profile/update', [UserAccountController::class, 'update_profile']);
     Route::get('account/preferences', [UserAuthController::class, 'preferences']);
-    Route::post('acount/preferences', [UserAuthController::class, 'update_preferences']);
+    Route::post('acount/preferences/update', [UserAuthController::class, 'update_preferences']);
     Route::get('account/faq', [UserAccountController::class, 'user_faq']);
 
 
