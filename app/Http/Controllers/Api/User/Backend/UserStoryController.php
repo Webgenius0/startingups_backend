@@ -30,6 +30,7 @@ class UserStoryController extends Controller
         $stories = $stories->map(function ($story) {
             return [
 
+                'user_id' => $story->user->id,
                 'user_name' => $story->user->full_name,
                 'user_avatar' => url($story->user->avatar),
                 'business_name' => $story->user->businessProfile->business_name ?? '',
