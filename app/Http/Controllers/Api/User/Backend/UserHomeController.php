@@ -8,6 +8,7 @@ use App\Models\BusinessProfile;
 use App\Models\Category;
 use App\Models\EventBooking;
 use App\Models\EventClick;
+use App\Models\Story;
 use App\Models\SubCategory;
 use App\Models\User;
 use App\Traits\ApiResponse;
@@ -469,16 +470,20 @@ class UserHomeController extends Controller
 
         $user = User::find($id);
 
-        $user_recent_places = EventBooking::with('business_profile')->where('user_id', $user->id)->latest()->limit(10)->get();
+        // $user_recent_places = EventBooking::with('business_profile')->where('user_id', $user->id)->latest()->limit(10)->get();
+        $user_recent_places = Story::with('user')->where('user_id', $user->id)->latest()->limit(10)->get();
 
         $user_recent_places = $user_recent_places->map(function ($event) {
-
             return [
-                'event_id' => $event->business_profile->id,
-                'event_name' => $event->business_profile->title == null ? $event->business_profile->business_name : $event->business_profile->title,
-                'event_date' => $event->event_date,
-                'event_time' => $event->event_time,
-                'location' => $event->business_profile->location_address == null ? $event->business_profile->location : $event->business_profile->location_address,
+                // 'story_id' => $event->business_profile->id,
+                // 'event_name' => $event->business_profile->title == null ? $event->business_profile->business_name : $event->business_profile->title,
+                // 'event_date' => $event->event_date,
+                // 'event_time' => $event->event_time,
+                // 'location' => $event->business_profile->location_address == null ? $event->business_profile->location : $event->business_profile->location_address,
+
+                'story_id' =>  $event->id,
+                'cover' => $event->cover,
+
             ];
         });
 

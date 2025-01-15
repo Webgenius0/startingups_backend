@@ -35,7 +35,6 @@ class BusinessAccountController extends Controller
          }
      }
 
-
     public function account_profile()
     {
         $user = auth('api')->user();
