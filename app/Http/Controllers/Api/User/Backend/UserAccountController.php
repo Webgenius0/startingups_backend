@@ -27,11 +27,29 @@ class UserAccountController extends Controller
             }
 
             return $this->success($faqs, 'FAQs retrieved successfully', 200);
-
         } catch (\Exception $e) {
 
             return $this->error([], 'Error retrieving FAQs: ' . $e->getMessage(), 500);
         }
+    }
+
+    public function account_profile()
+    {
+        $user = auth('api')->user();
+
+
+        if (!$user) {
+            return $this->error([], 'User not found.', 404);
+        }
+
+        $user = [
+            'full_name' => $user->full_name,
+            'email' => $user->email,
+            'avatar' => $user->avatar ?  url($user->avatar) : '' ,
+
+        ];
+
+        return $this->success($user, 'Profile retrieved successfully.');
     }
 
 

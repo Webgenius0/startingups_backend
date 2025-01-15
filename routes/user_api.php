@@ -83,6 +83,7 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
 
 
     // Account Management
+    Route::get('account/profile', [UserAccountController::class, 'account_profile']);
     Route::get('profile/edit', [UserAccountController::class, 'edit']);
     Route::post('profile/update', [UserAccountController::class, 'update_profile']);
     Route::get('preferences', [UserAuthController::class, 'preferences']);
