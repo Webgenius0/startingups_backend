@@ -96,7 +96,7 @@ class BusinessProfileController extends Controller
             ]);
         }
 
-       
+
 
 
 
@@ -121,7 +121,7 @@ class BusinessProfileController extends Controller
         // Set the cover URL
         $businessProfile->cover = $businessProfile->cover ? url($businessProfile->cover) : null;
 
-        
+
         $businessProfile->load('business_hours');
 
         // Structure the data in serialized order
@@ -140,8 +140,8 @@ class BusinessProfileController extends Controller
             'location' => $businessProfile->location,
             'age_min' => $businessProfile->age_min,
             'age_max' => $businessProfile->age_max,
-            
-            
+
+
             'business_hours' => $businessProfile->business_hours->map(function ($hour) {
                 return [
                     'id' => $hour->id,
@@ -199,10 +199,10 @@ class BusinessProfileController extends Controller
             'hours.*.close_time' => 'nullable|string',
 
 
-            'prices' => 'required|array',
-            'prices.*.type' => 'required|string',
-            'prices.*.amount' => 'required',
-            'prices.*.offerings' => 'nullable|string',
+            // 'prices' => 'required|array',
+            // 'prices.*.type' => 'required|string',
+            // 'prices.*.amount' => 'required',
+            // 'prices.*.offerings' => 'nullable|string',
         ]);
 
         $businessProfile->update([
@@ -239,24 +239,27 @@ class BusinessProfileController extends Controller
             ]);
         }
 
-        // business prices
-        $businessProfile->business_prices()->delete();
+        if ($request->prices) {
+            // business prices
+            $businessProfile->business_prices()->delete();
 
-        foreach ($validatedData['prices'] as $price) {
-            $businessProfile->business_prices()->create([
-                'type' => $price['type'],
-                'amount' => $price['amount'],
-                'offerings' => $price['offerings'],
-            ]);
+            foreach ($request->prices as $price) {
+                $businessProfile->business_prices()->create([
+                    'type' => $price['type'],
+                    'amount' => $price['amount'],
+                    'offerings' => $price['offerings'],
+                ]);
+            }
         }
-
 
 
 
         $businessProfile->cover = $businessProfile->cover ? url($businessProfile->cover) : null;
 
-        return $this->success(
-            $businessProfile->load('business_hours', 'business_prices'),
+        
+
+        return $this->success($businessProfile->load('business_hours'),
+            
             'Business Profile updated successfully',
             200
         );
