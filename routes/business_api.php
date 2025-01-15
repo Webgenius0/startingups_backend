@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\User\Backend\UserHomeController;
 use App\Http\Controllers\Api\Business\Backend\EventController;
 use App\Http\Controllers\Api\Business\Auth\BusinessAuthController;
+use App\Http\Controllers\Api\Business\Backend\BusinessAccountController;
 use App\Http\Controllers\Api\Business\Backend\EventReportController;
 use App\Http\Controllers\Api\Business\Backend\SubscriptionController;
 use App\Http\Controllers\Api\Business\Backend\BusinessProfileController;
@@ -74,4 +75,10 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
 
     // event ratings
     Route::get('/event/ratings/{id}', [EventReportController::class, 'event_ratings']);
+
+
+    // Account Management
+    Route::get('account/profile', [BusinessAccountController::class, 'account_profile']);
+    Route::get('account/profile/edit', [BusinessAccountController::class, 'edit']);
+    Route::post('account/profile/update', [BusinessAccountController::class, 'update_profile']);
 });
