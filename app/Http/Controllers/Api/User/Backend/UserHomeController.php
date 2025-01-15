@@ -482,7 +482,8 @@ class UserHomeController extends Controller
                 // 'location' => $event->business_profile->location_address == null ? $event->business_profile->location : $event->business_profile->location_address,
 
                 'story_id' =>  $event->id,
-                'cover' => $event->cover,
+                'cover' => $event->cover ? url($event->cover) : '',
+                'location' => $event->location
 
             ];
         });
