@@ -81,7 +81,7 @@ class UserAccountController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'full_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
+            // 'email' => 'required|email|max:255',
             'date_of_birth' => 'required|string|max:255',
             'gender' => 'required|string|max:255',
             'phone' => 'required|string|max:255',
@@ -100,7 +100,7 @@ class UserAccountController extends Controller
 
         $user = auth('api')->user();
         $user->full_name = $request->full_name;
-        $user->email = $request->email;
+        // $user->email = $request->email;
         $user->date_of_birth = $request->date_of_birth;
         $user->gender = $request->gender;
         $user->phone = $request->phone;
