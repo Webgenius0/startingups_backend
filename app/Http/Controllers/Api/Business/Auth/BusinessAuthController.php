@@ -163,6 +163,7 @@ class BusinessAuthController extends Controller
         }
 
         $user = [
+            'avatar' => $user->avatar ? url($user->avatar) : '',
             'full_name' => $user->full_name,
             'email' => $user->email,
             'phone' => $user->phone,

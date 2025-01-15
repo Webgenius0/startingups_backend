@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\User\Backend;
 
 use App\Models\Faq;
 use App\Models\User;
+use App\Helper\Helper;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -45,7 +46,7 @@ class UserAccountController extends Controller
         $user = [
             'full_name' => $user->full_name,
             'email' => $user->email,
-            'avatar' => $user->avatar ?  url($user->avatar) : '' ,
+            'avatar' => $user->avatar ?  url($user->avatar) : '',
 
         ];
 
@@ -63,7 +64,7 @@ class UserAccountController extends Controller
         }
 
         $user = [
-            'avatar' => $user->avatar ?  url($user->avatar) : '' ,
+            'avatar' => $user->avatar ?  url($user->avatar) : '',
             'full_name' => $user->full_name,
             'email' => $user->email,
             'phone' => $user->phone,
@@ -90,6 +91,12 @@ class UserAccountController extends Controller
             return $this->error([], $validator->errors()->first(), 422);
         }
 
+        $coverPath = '';
+
+
+        if ($request->hasFile('avatar')) {
+            $coverPath = Helper::uploadImage($request->file('avatar'), 'business_profiles');
+        }
 
         $user = auth('api')->user();
         $user->full_name = $request->full_name;
@@ -97,7 +104,7 @@ class UserAccountController extends Controller
         $user->date_of_birth = $request->date_of_birth;
         $user->gender = $request->gender;
         $user->phone = $request->phone;
-        $user->avatar = $request->avatar;
+        $user->avatar = $coverPath;
         $user->save();
 
         $user = [
@@ -106,7 +113,7 @@ class UserAccountController extends Controller
             'phone' => $user->phone,
             'gender' => $user->gender,
             'date_of_birth' => $user->date_of_birth,
-            'avatar' => $user->avatar ?  url($user->avatar) : '' ,
+            'avatar' => $user->avatar ?  url($user->avatar) : '',
 
         ];
 
