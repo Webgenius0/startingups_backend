@@ -154,76 +154,76 @@ class BusinessAuthController extends Controller
     }
 
     // user profile edit
-    public function edit()
-    {
-        $user = auth('api')->user();
+    // public function edit()
+    // {
+    //     $user = auth('api')->user();
 
-        if (!$user) {
-            return $this->error([], 'User not found.', 404);
-        }
+    //     if (!$user) {
+    //         return $this->error([], 'User not found.', 404);
+    //     }
 
-        $user = [
-            'avatar' => $user->avatar ? url($user->avatar) : '',
-            'full_name' => $user->full_name,
-            'email' => $user->email,
-            'phone' => $user->phone,
-            'gender' => $user->gender,
-            'date_of_birth' => $user->date_of_birth,
+    //     $user = [
+    //         'avatar' => $user->avatar ? url($user->avatar) : '',
+    //         'full_name' => $user->full_name,
+    //         'email' => $user->email,
+    //         'phone' => $user->phone,
+    //         'gender' => $user->gender,
+    //         'date_of_birth' => $user->date_of_birth,
 
-        ];
+    //     ];
 
-        return $this->success($user, 'Profile retrieved successfully.');
-    }
+    //     return $this->success($user, 'Profile retrieved successfully.');
+    // }
 
     //  __update user profile
-    public function update_profile(Request $request)
-    {
+    // public function update_profile(Request $request)
+    // {
 
-        // dd($request->all());
-        $validator = Validator::make($request->all(), [
-            'full_name' => 'required|string|max:255',
-            // 'email' => 'required|email|unique:users,email|max:255',
-            'date_of_birth' => 'required|string|max:255',
-            'gender' => 'required|string|max:255',
-            'phone' => 'required|string|max:255',
+    //     // dd($request->all());
+    //     $validator = Validator::make($request->all(), [
+    //         'full_name' => 'required|string|max:255',
+    //         // 'email' => 'required|email|unique:users,email|max:255',
+    //         'date_of_birth' => 'required|string|max:255',
+    //         'gender' => 'required|string|max:255',
+    //         'phone' => 'required|string|max:255',
 
-        ]);
+    //     ]);
 
-        if ($validator->fails()) {
-            return $this->error([], $validator->errors()->first(), 422);
-        }
+    //     if ($validator->fails()) {
+    //         return $this->error([], $validator->errors()->first(), 422);
+    //     }
 
-        $coverPath = '';
+    //     $coverPath = '';
 
 
-        if ($request->hasFile('avatar')) {
-            $coverPath = Helper::uploadImage($request->file('avatar'), 'business_profiles');
-        }
+    //     if ($request->hasFile('avatar')) {
+    //         $coverPath = Helper::uploadImage($request->file('avatar'), 'business_profiles');
+    //     }
 
-        $user = auth('api')->user();
-        $user->full_name = $request->full_name;
-        // $user->email = $request->email;
-        $user->date_of_birth = $request->date_of_birth;
-        $user->gender = $request->gender;
-        $user->phone = $request->phone;
-        $user->country_code = $request->country_code;
-        $user->avatar = $coverPath ? $coverPath : '';
-        $user->save();
+    //     $user = auth('api')->user();
+    //     $user->full_name = $request->full_name;
+    //     // $user->email = $request->email;
+    //     $user->date_of_birth = $request->date_of_birth;
+    //     $user->gender = $request->gender;
+    //     $user->phone = $request->phone;
+    //     $user->country_code = $request->country_code;
+    //     $user->avatar = $coverPath ? $coverPath : '';
+    //     $user->save();
 
-        $user = [
-            'full_name' => $user->full_name,
-            // 'email' => $user->email,
-            'phone' => $user->phone,
-            'country_code' => $user->country_code,
+    //     $user = [
+    //         'full_name' => $user->full_name,
+    //         // 'email' => $user->email,
+    //         'phone' => $user->phone,
+    //         'country_code' => $user->country_code,
 
-            'gender' => $user->gender,
-            'date_of_birth' => $user->date_of_birth,
-            'avatar' => $user->avatar ?  url($user->avatar) : '',
+    //         'gender' => $user->gender,
+    //         'date_of_birth' => $user->date_of_birth,
+    //         'avatar' => $user->avatar ?  url($user->avatar) : '',
 
-        ];
+    //     ];
 
-        return $this->success($user, 'Profile updated successfully.');
-    }
+    //     return $this->success($user, 'Profile updated successfully.');
+    // }
 
     // send otp to email
     public function requestOtp(Request $request)

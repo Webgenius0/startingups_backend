@@ -45,8 +45,8 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
     // Authentication & Profile
     Route::post('refresh', [BusinessAuthController::class, 'refresh']);
     Route::post('logout', [BusinessAuthController::class, 'logout']);
-    Route::get('profile', [BusinessAuthController::class, 'profile']);
-    Route::post('profile', [BusinessAuthController::class, 'update_profile']);
+    // Route::get('profile', [BusinessAuthController::class, 'profile']);
+    // Route::post('profile', [BusinessAuthController::class, 'update_profile']);
 
 
     // Subscription Management

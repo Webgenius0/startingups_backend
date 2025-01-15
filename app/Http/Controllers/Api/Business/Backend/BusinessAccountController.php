@@ -14,7 +14,7 @@ class BusinessAccountController extends Controller
 
     use ApiResponse;
 
-    
+
     public function account_profile()
     {
         $user = auth('api')->user();
@@ -49,6 +49,7 @@ class BusinessAccountController extends Controller
             'full_name' => $user->full_name,
             'email' => $user->email,
             'phone' => $user->phone,
+            'country_code' => $user->country_code,
             'gender' => $user->gender,
             'date_of_birth' => $user->date_of_birth,
 
@@ -66,6 +67,7 @@ class BusinessAccountController extends Controller
             'date_of_birth' => 'required|string|max:255',
             'gender' => 'required|string|max:255',
             'phone' => 'required|string|max:255',
+            
         ]);
 
         if ($validator->fails()) {
@@ -85,6 +87,7 @@ class BusinessAccountController extends Controller
         $user->date_of_birth = $request->date_of_birth;
         $user->gender = $request->gender;
         $user->phone = $request->phone;
+        $user->county_code = $request->country_code;
         $user->avatar = $coverPath;
         $user->save();
 
@@ -92,6 +95,7 @@ class BusinessAccountController extends Controller
             'full_name' => $user->full_name,
             'email' => $user->email,
             'phone' => $user->phone,
+            'country_code' => $user->country_code,
             'gender' => $user->gender,
             'date_of_birth' => $user->date_of_birth,
             'avatar' => $user->avatar ?  url($user->avatar) : '',
