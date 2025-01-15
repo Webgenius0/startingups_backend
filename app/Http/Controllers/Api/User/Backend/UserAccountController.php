@@ -63,6 +63,7 @@ class UserAccountController extends Controller
         }
 
         $user = [
+            'avatar' => $user->avatar ?  url($user->avatar) : '' ,
             'full_name' => $user->full_name,
             'email' => $user->email,
             'phone' => $user->phone,
@@ -96,6 +97,7 @@ class UserAccountController extends Controller
         $user->date_of_birth = $request->date_of_birth;
         $user->gender = $request->gender;
         $user->phone = $request->phone;
+        $user->avatar = $request->avatar;
         $user->save();
 
         $user = [
@@ -104,6 +106,7 @@ class UserAccountController extends Controller
             'phone' => $user->phone,
             'gender' => $user->gender,
             'date_of_birth' => $user->date_of_birth,
+            'avatar' => $user->avatar ?  url($user->avatar) : '' ,
 
         ];
 
