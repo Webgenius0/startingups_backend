@@ -98,6 +98,7 @@ class EventReportController extends Controller
 
         $events = BusinessProfile::where('user_id', $user->id)
             ->with('event_clicks', 'event_bookings')->get();
+            // dd($events);
 
         $totals = [
             'link_clicks' => 0,

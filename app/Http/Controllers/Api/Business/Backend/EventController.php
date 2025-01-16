@@ -34,10 +34,14 @@ class EventController extends Controller
                 'date' => 'required|date',
                 'start_time' => 'required',
                 'end_time' => 'required',
-                'frequency' => 'required|in:once,daily,weekly,monthly',
+
+
+                'frequency' => 'nullable|in:once,daily,weekly,monthly',
                 'frequency_count' => 'nullable|integer',
                 'frequency_end_after' => 'nullable|integer',
                 'frequency_end_date' => 'nullable|date',
+
+
                 'location_type' => 'required|in:physical,virtual',
                 'location_address' => 'nullable|string',
                 'amount' => 'nullable',

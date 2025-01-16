@@ -35,4 +35,9 @@ class EventBooking extends Model
     {
         return $this->hasMany(EventBookingQuest::class);
     }
+    // payments
+
+    public function payments(){
+        return $this->hasOne(PaymentTransaction::class, 'event_booking_id', 'id');
+    }
 }

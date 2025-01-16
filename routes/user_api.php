@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\User\Backend\UserEventController;
 use App\Http\Controllers\Api\User\Backend\UserStoryController;
 use App\Http\Controllers\Api\User\Backend\UserAccountController;
 use App\Http\Controllers\Api\User\Backend\EventBookingController;
+use App\Http\Controllers\Api\User\Backend\UserPaymentController;
 use App\Http\Controllers\Api\User\Backend\UserRelationshipController;
 use App\Http\Controllers\Api\User\Backend\UserSearchController;
 
@@ -20,7 +21,6 @@ Route::prefix('user')->group(function () {
     Route::post('password/request-otp', [UserAuthController::class, 'requestOtp']);
     Route::post('password/verify-otp', [UserAuthController::class, 'verifyOtp']);
     Route::post('password/reset', [UserAuthController::class, 'resetPassword']);
-
 });
 
 
@@ -45,7 +45,7 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
 
 
 
-    
+
     // Stories
     Route::post('story', [UserStoryController::class, 'store']);
     Route::get('story/{id}', [UserStoryController::class, 'show']);
@@ -64,11 +64,13 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
 
     // event booking
     Route::post('event/{id}/booking', [EventBookingController::class, 'event_book']);
-
-    // event order summary
     Route::get('event-booking/{id}/order-summary', [EventBookingController::class, 'order_summary']);
 
+  
 
+    Route::post('/stripe/create-payment-intent', [UserPaymentController::class, 'createPaymentIntent']);
+    Route::post('/stripe/confirm-payment', [UserPaymentController::class, 'confirmPayment']);
+    Route::post('/stripe/webhook', [UserPaymentController::class, 'webhookHandler']); // Optional for webhooks
     // event review
     Route::post('event/{id}/review', [UserEventController::class, 'event_review']);
 
@@ -97,10 +99,4 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
     Route::get('/search/histories', [UserSearchController::class, 'getSearchHistory']);
     Route::get('/search/results', [UserSearchController::class, 'searchUsers']);
     Route::get('/search/suggestions', [UserSearchController::class, 'getSuggestions']);
-
-
-
-
-
-
 });
