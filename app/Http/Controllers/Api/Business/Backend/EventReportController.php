@@ -76,79 +76,76 @@ class EventReportController extends Controller
 
     public function event_details(Request $request)
     {
-        // Get the authenticated user
         $user = auth('business')->user();
-
-        // If user not found
+    
         if (!$user) {
             return response()->json(['message' => 'User not found.'], 404);
         }
-
-        // Fetch all events for the user
+    
         $events = Event::where('user_id', $user->id)
             ->with('event_clicks', 'event_bookings')->get();
-
-        // Initialize overall totals
+    
         $totals = [
             'link_clicks' => 0,
             'sign_ups' => 0,
             'revenue' => 0.00,
             'repeat_customers' => 0,
         ];
-
-        // Fetch previous analytics data (Example: Last Week)
+    
         $previousEvents = Event::where('user_id', $user->id)
-            ->where('created_at', now()->subMonth())
+            ->whereBetween('created_at', [now()->subMonth(), now()])
             ->with('event_clicks', 'event_bookings')
             ->get();
-        // dd($previousEvents);
-
-        // Initialize previous totals
+    
         $previousTotals = [
             'link_clicks' => 0,
             'sign_ups' => 0,
             'revenue' => 0.00,
             'repeat_customers' => 0,
         ];
-
-        // Calculate current totals
+    
         foreach ($events as $event) {
             $totals['link_clicks'] += $event->event_clicks->count();
             $totals['sign_ups'] += $event->event_bookings->count();
             $totals['revenue'] += $event->event_bookings->sum('price');
             $totals['repeat_customers'] += $event->event_bookings->where('user_id', '!=', null)->count();
         }
-
-        // Calculate previous totals
+    
         foreach ($previousEvents as $event) {
             $previousTotals['link_clicks'] += $event->event_clicks->count();
             $previousTotals['sign_ups'] += $event->event_bookings->count();
             $previousTotals['revenue'] += $event->event_bookings->sum('price');
-            $totals['repeat_customers'] += $event->event_bookings->where('user_id', '!=', null)->count();
-
+            $previousTotals['repeat_customers'] += $event->event_bookings->where('user_id', '!=', null)->count();
         }
-
-        // Calculate percentage change
+    
         $percentageChange = [];
         foreach ($totals as $key => $value) {
             $previousValue = $previousTotals[$key] ?? 0;
             if ($previousValue != 0) {
-
                 $percentageChange[$key] = round((($value - $previousValue) / $previousValue) * 100, 2);
             } else {
-
                 $percentageChange[$key] = ($value > 0) ? 100 : 0;
             }
         }
-
-        // Return response with analytics and percentage changes
-        $data = [
-            'overall' => $totals,
-            'percentage_change' => $percentageChange,
-        ];
-
-        return $this->success($data, 'Event analytics fetched successfully.');
+    
+        // Format response
+        $responseData = [];
+        foreach ($totals as $key => $value) {
+            $responseData[] = [
+                'name' => $key,
+                'click' => $value,
+                'percentage' => $percentageChange[$key],
+            ];
+        }
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Event analytics fetched successfully.',
+            'data' => $responseData,
+            'code' => 200,
+        ]);
     }
+    
 
 
 
@@ -314,5 +311,4 @@ class EventReportController extends Controller
             return $group->unique('user_id')->count();
         })->toArray();
     }
-
 }

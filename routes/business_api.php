@@ -66,10 +66,7 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
 
     // events reports
     Route::get('event-reports', [EventReportController::class, 'event_details']);
-
-    // all events reports
     Route::get('all-event-reports', [EventReportController::class, 'all_event_reports']);
-    // single event reports
     Route::get('single-event-reports/{id}', [EventReportController::class, 'signle_event_reports']);
 
 
