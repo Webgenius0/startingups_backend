@@ -17,14 +17,20 @@ class EventReportController extends Controller
 
     public function all_event_reports(Request $request)
     {
-
         $user = auth('business')->user();
 
         if (!$user) {
-            return $this->error([], 'User not found.', 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.',
+                'data' => [],
+                'code' => 404,
+            ]);
         }
 
-        $events = Event::where('user_id', $user->id)->with('event_clicks', 'event_bookings', 'event_reviews')->get();
+        $events = Event::where('user_id', $user->id)
+            ->with('event_clicks', 'event_bookings', 'event_reviews')
+            ->get();
 
         $overall = [
             'link_clicks' => 0,
@@ -34,16 +40,13 @@ class EventReportController extends Controller
         ];
 
         $eventAnalytics = $events->map(function ($event) use (&$overall) {
-
             $linkClicks = $event->event_clicks->count();
             $signUps = $event->event_bookings->count();
-
             $revenue = $event->event_bookings->sum('price');
             $reportedCustomers = $event->event_bookings->where('user_id', '!=', null)->count();
-
             $rating = $event->event_reviews->sum('rating');
             $reviewCount = $event->event_reviews->count();
-            $averageRating = $reviewCount > 0 ? $rating / $reviewCount : 0;
+            $averageRating = $reviewCount > 0 ? round($rating / $reviewCount, 2) : 0;
 
             $overall['link_clicks'] += $linkClicks;
             $overall['sign_ups'] += $signUps;
@@ -59,8 +62,7 @@ class EventReportController extends Controller
                 'event_name' => $event->title,
                 'event_date' => $eventDate,
                 'event_time' => $startTime . ' - ' . $endTime,
-                'event_reviews' => $averageRating,
-
+                'average_rating' => $averageRating,
                 'link_clicks' => $linkClicks,
                 'sign_ups' => $signUps,
                 'revenue' => $revenue,
@@ -68,56 +70,68 @@ class EventReportController extends Controller
             ];
         });
 
-        return $this->success([
-            'events' => $eventAnalytics,
-            'overall' => $overall,
-        ], 'All event analytics fetched successfully.');
+        $overallData = collect($overall)->map(function ($value, $key) {
+            return [
+                'name' => $key,
+                'value' => $value,
+            ];
+        })->values();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'All event analytics fetched successfully.',
+            'data' => [
+                'events' => $eventAnalytics,
+                'overall' => $overallData,
+            ],
+            'code' => 200,
+        ]);
     }
 
     public function event_details(Request $request)
     {
         $user = auth('business')->user();
-    
+
         if (!$user) {
             return response()->json(['message' => 'User not found.'], 404);
         }
-    
+
         $events = Event::where('user_id', $user->id)
             ->with('event_clicks', 'event_bookings')->get();
-    
+
         $totals = [
             'link_clicks' => 0,
             'sign_ups' => 0,
             'revenue' => 0.00,
             'repeat_customers' => 0,
         ];
-    
+
         $previousEvents = Event::where('user_id', $user->id)
             ->whereBetween('created_at', [now()->subMonth(), now()])
             ->with('event_clicks', 'event_bookings')
             ->get();
-    
+
         $previousTotals = [
             'link_clicks' => 0,
             'sign_ups' => 0,
             'revenue' => 0.00,
             'repeat_customers' => 0,
         ];
-    
+
         foreach ($events as $event) {
             $totals['link_clicks'] += $event->event_clicks->count();
             $totals['sign_ups'] += $event->event_bookings->count();
             $totals['revenue'] += $event->event_bookings->sum('price');
             $totals['repeat_customers'] += $event->event_bookings->where('user_id', '!=', null)->count();
         }
-    
+
         foreach ($previousEvents as $event) {
             $previousTotals['link_clicks'] += $event->event_clicks->count();
             $previousTotals['sign_ups'] += $event->event_bookings->count();
             $previousTotals['revenue'] += $event->event_bookings->sum('price');
             $previousTotals['repeat_customers'] += $event->event_bookings->where('user_id', '!=', null)->count();
         }
-    
+
         $percentageChange = [];
         foreach ($totals as $key => $value) {
             $previousValue = $previousTotals[$key] ?? 0;
@@ -127,7 +141,7 @@ class EventReportController extends Controller
                 $percentageChange[$key] = ($value > 0) ? 100 : 0;
             }
         }
-    
+
         // Format response
         $responseData = [];
         foreach ($totals as $key => $value) {
@@ -137,7 +151,7 @@ class EventReportController extends Controller
                 'percentage' => $percentageChange[$key],
             ];
         }
-    
+
         return response()->json([
             'success' => true,
             'message' => 'Event analytics fetched successfully.',
@@ -145,7 +159,7 @@ class EventReportController extends Controller
             'code' => 200,
         ]);
     }
-    
+
 
 
 
