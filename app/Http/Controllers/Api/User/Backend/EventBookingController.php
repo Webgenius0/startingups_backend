@@ -17,12 +17,12 @@ class EventBookingController extends Controller
     use ApiResponse;
 
     // __event booking
-    public function event_book(Request $request)
+    public function event_book(Request $request, $id)
     {
 
         // dd($request->all());
         $validated = Validator::make($request->all(), [
-            'event_id' => 'required|exists:business_profiles,id',
+            // 'event_id' => 'required|exists:business_profiles,id',
             'full_name' => 'required|string|max:255',
             'email' => 'required|email',
             'phone' => 'required|string|max:15',
@@ -55,7 +55,7 @@ class EventBookingController extends Controller
 
         // Create the main booking
         $booking = EventBooking::create([
-            'business_profile_id' => $request->event_id,
+            'business_profile_id' => $request->id,
             'user_id' => Auth::id(),
             'full_name' => $request->full_name,
             'email' => $request->email,
