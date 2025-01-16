@@ -45,6 +45,8 @@ class UserAccountController extends Controller
 
         $user = [
             'full_name' => $user->full_name,
+            'location' => $user->city ? $user->street_address : $user->city,
+
             'email' => $user->email,
             'avatar' => $user->avatar ?  url($user->avatar) : '',
 
