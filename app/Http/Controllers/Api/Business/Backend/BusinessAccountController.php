@@ -60,7 +60,6 @@ class BusinessAccountController extends Controller
     {
         $user = auth('api')->user();
 
-
         if (!$user) {
             return $this->error([], 'User not found.', 404);
         }
@@ -73,7 +72,6 @@ class BusinessAccountController extends Controller
             'country_code' => $user->country_code,
             'gender' => $user->gender,
             'date_of_birth' => $user->date_of_birth,
-
         ];
 
         return $this->success($user, 'Profile retrieved successfully.');

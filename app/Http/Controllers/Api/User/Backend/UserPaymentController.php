@@ -50,7 +50,7 @@ class UserPaymentController extends Controller
             Stripe::setApiKey(config('services.stripe.secret'));
 
             $paymentIntent = PaymentIntent::create([
-                'amount' => $request->amount * 100, // Amount in cents
+                'amount' => $request->amount * 100, 
                 'currency' => 'usd',
                 'metadata' => [
                     'event_booking_id' => $request->event_booking_id,
