@@ -78,4 +78,9 @@ class BusinessProfile extends Model
     {
         return $this->belongsTo(SubCategory::class);
     }
+
+    public function event_clicks()
+    {
+        return $this->hasMany(EventClick::class);
+    }
 }

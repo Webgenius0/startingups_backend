@@ -28,7 +28,7 @@ class EventReportController extends Controller
             ]);
         }
 
-        $events = Event::where('user_id', $user->id)
+        $events = BusinessProfile::where('user_id', $user->id)
             ->with('event_clicks', 'event_bookings', 'event_reviews')
             ->get();
 
@@ -59,7 +59,7 @@ class EventReportController extends Controller
 
             return [
                 'event_id' => $event->id,
-                'event_name' => $event->title,
+                'event_name' => $event->business_name == null ?  $event->title : $event->business_name,
                 'event_date' => $eventDate,
                 'event_time' => $startTime . ' - ' . $endTime,
                 'average_rating' => $averageRating,
@@ -82,7 +82,7 @@ class EventReportController extends Controller
             'message' => 'All event analytics fetched successfully.',
             'data' => [
                 'events' => $eventAnalytics,
-                'overall' => $overallData,
+                // 'overall' => $overallData,
             ],
             'code' => 200,
         ]);
@@ -96,7 +96,7 @@ class EventReportController extends Controller
             return response()->json(['message' => 'User not found.'], 404);
         }
 
-        $events = Event::where('user_id', $user->id)
+        $events = BusinessProfile::where('user_id', $user->id)
             ->with('event_clicks', 'event_bookings')->get();
 
         $totals = [
@@ -106,7 +106,7 @@ class EventReportController extends Controller
             'repeat_customers' => 0,
         ];
 
-        $previousEvents = Event::where('user_id', $user->id)
+        $previousEvents = BusinessProfile::where('user_id', $user->id)
             ->whereBetween('created_at', [now()->subMonth(), now()])
             ->with('event_clicks', 'event_bookings')
             ->get();
@@ -206,9 +206,7 @@ class EventReportController extends Controller
             return $this->error([], 'User not found.', 404);
         }
 
-        $event = Event::where('id', $eventId)->where('user_id', $user->id)
-            ->with('event_clicks', 'event_bookings', 'event_reviews')
-            ->first();
+        $event = BusinessProfile::with('event_clicks', 'event_bookings', 'event_reviews')->find($eventId);
 
         if (!$event) {
             return $this->error([], 'Event not found.', 404);
