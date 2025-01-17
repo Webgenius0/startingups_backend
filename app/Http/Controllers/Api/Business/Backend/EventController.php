@@ -46,11 +46,11 @@ class EventController extends Controller
                 'location_address' => 'nullable|string',
                 'amount' => 'nullable',
                 'offerings' => 'nullable|string',
-                'has_guests' => 'required|boolean',
+                'has_guests' => 'nullable|boolean',
                 'guest_list' => 'nullable|array',
-                'guest_list.*' => 'required|email',
+                'guest_list.*' => 'nullable|email',
                 'guest_options' => 'nullable|array',
-                'guest_options.*' => 'string',
+                'guest_options.*' => 'nullable|string',
                 'note_for_guests' => 'nullable|string',
                 'prices' => 'required|array',
                 'prices.*.type' => 'required|string',
@@ -84,10 +84,14 @@ class EventController extends Controller
             $business_event->cover = $data['cover'] ?? null;
             $business_event->amount = $data['amount'] ?? null;
             $business_event->offerings = $data['offerings'] ?? null;
-            $business_event->has_guests = $data['has_guests'];
+
+            $business_event->has_guests = $request->has_guests ?? $request->has_guests ;
             $business_event->guest_list = isset($data['guest_list']) ? json_encode($data['guest_list']) : null;
             $business_event->guest_options = isset($data['guest_options']) ? json_encode($data['guest_options']) : null;
             $business_event->note_for_guests = $data['note_for_guests'] ?? null;
+
+
+
             $business_event->save();
 
             // Save prices
