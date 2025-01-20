@@ -42,6 +42,7 @@ class BusinessProfileController extends Controller
             'hours.*.open_time' => 'nullable|string',
             'hours.*.close_time' => 'nullable|string',
 
+            'hours.*.is_reopen' => 'required',
             
             'hours.*.re_open_time' => 'nullable|string',
             'hours.*.re_close_time' => 'nullable|string',
@@ -87,6 +88,8 @@ class BusinessProfileController extends Controller
                     'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
                     'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
                     // Store re_open_time and re_close_time only if provided
+                    'is_reopen' => $hour['is_reopen'],
+
                     're_open_time' => isset($hour['re_open_time']) && !$hour['is_closed'] ? $hour['re_open_time'] : null,
                     're_close_time' => isset($hour['re_close_time']) && !$hour['is_closed'] ? $hour['re_close_time'] : null,
                 ]);
@@ -158,6 +161,9 @@ class BusinessProfileController extends Controller
                     'is_closed' => $hour->is_closed == 1 ? true : false,
                     'open_time' => $hour->open_time,
                     'close_time' => $hour->close_time,
+
+                    'is_reopen' => $hour->is_reopen,
+
                     're_open_time' => $hour->re_open_time,
                     're_close_time' => $hour->re_close_time,
 
@@ -205,9 +211,11 @@ class BusinessProfileController extends Controller
 
             'hours' => 'required|array',
             'hours.*.day' => 'required|string',
-            'hours.*.is_closed' => 'required|boolean',
+            'hours.*.is_closed' => 'required',
             'hours.*.open_time' => 'nullable|string',
             'hours.*.close_time' => 'nullable|string',
+
+            'hours.*.is_reopen' => 'required',
 
             'hours.*.re_open_time' => 'nullable|string',
             'hours.*.re_close_time' => 'nullable|string',
@@ -251,6 +259,8 @@ class BusinessProfileController extends Controller
                 'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
                 'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
                     // Store re_open_time and re_close_time only if provided
+                'is_reopen' => $hour['is_reopen'],
+
                     're_open_time' => isset($hour['re_open_time']) && !$hour['is_closed'] ? $hour['re_open_time'] : null,
                     're_close_time' => isset($hour['re_close_time']) && !$hour['is_closed'] ? $hour['re_close_time'] : null,
             
@@ -303,6 +313,7 @@ class BusinessProfileController extends Controller
                     'open_time' => $hour->open_time,
                     'close_time' => $hour->close_time,
 
+                    'is_reopen' => $hour->is_reopen,
                     're_open_time' => $hour->re_open_time,
                     're_close_time' => $hour->re_close_time,
 
