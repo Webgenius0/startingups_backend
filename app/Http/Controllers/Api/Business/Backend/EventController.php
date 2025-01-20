@@ -79,7 +79,7 @@ class EventController extends Controller
             $business_event->frequency_count = $data['frequency_count'] ?? null;
             $business_event->frequency_end_after = $data['frequency_end_after'] ?? null;
             $business_event->frequency_end_date = $data['frequency_end_date'] ?? null;
-            $business_event->location_address = $data['location_address'];
+            $business_event->location_address = $data['location_address'] ?? null;
             $business_event->location_type = $data['location_type'];
             $business_event->cover = $data['cover'] ?? null;
             $business_event->amount = $data['amount'] ?? null;

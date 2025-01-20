@@ -29,7 +29,7 @@ class EventBookingController extends Controller
             'age' => 'nullable|integer|min:0',
             'event_date' => 'required|date',
             'event_time' => 'required',
-            'is_guest' => 'required|boolean',
+            'is_guest' => 'required',
             'guest_count' => 'nullable|integer|min:0',
             'guests' => 'required_if:is_guest,true|array',
             'guests.*.full_name' => 'required|string|max:255',
