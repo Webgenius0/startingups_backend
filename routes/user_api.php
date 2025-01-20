@@ -71,6 +71,13 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
     Route::post('/stripe/create-payment-intent', [UserPaymentController::class, 'createPaymentIntent']);
     Route::post('/stripe/confirm-payment', [UserPaymentController::class, 'confirmPayment']);
     Route::post('/stripe/webhook', [UserPaymentController::class, 'webhookHandler']); // Optional for webhooks
+    
+
+    //event history
+
+    Route::get('event/history', [UserHomeController::class, 'event_history']);
+    Route::get('event/history/{id}/details', [UserHomeController::class, 'event_history_details']);
+
     // event review
     Route::post('event/{id}/review', [UserEventController::class, 'event_review']);
 

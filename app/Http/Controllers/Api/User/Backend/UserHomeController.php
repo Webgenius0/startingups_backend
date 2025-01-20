@@ -506,4 +506,71 @@ class UserHomeController extends Controller
         return $this->success($preferences, 'Preferences retrieved successfully.');
     }
 
+
+
+
+
+
+
+
+
+
+
+
+    public function event_history()
+    {
+        $user = auth('api')->user();
+
+        $event_bookings = EventBooking::with('business_profile')->where('user_id',$user->id)->get();
+        // dd($event_bookings);
+
+       
+        $event_histories = $event_bookings->map(function ($event) {
+            return [
+                'event_id' => $event->business_profile->id,
+                'title' => $event->business_profile->business_name == null ? $event->business_profile->title : $event->business_profile->business_name,
+                
+                'location' => $event->business_profile->location_address == null ? $event->business_profile->location :  $event->business_profile->location_address ,
+                'cover' => $event->business_profile->cover ? url($event->business_profile->cover) : null,
+
+            ];
+        });
+
+        return $this->success($event_histories, 'Event history retrieved successfully', 200);
+
+    }
+
+
+    public function event_history_details($event_id)
+    {
+        $event = BusinessProfile::with('business_prices')->find($event_id);
+
+        if (!$event) {
+            return $this->error([], 'Event not found', 404);
+        }
+
+    
+
+        $event = [
+
+            'user_id' => $event->user_id,
+            'organizer' => $event->user->full_name,
+            'organizer_avatar' => $event->user->avatar ? url($event->user->avatar) : null,
+
+            'id' => $event->id,
+            'title' => $event->business_name == null ? $event->title : $event->business_name,
+            'time' => Carbon::parse($event->business_prices[0]->day)->format('h:i A'),
+            'date' => Carbon::parse($event->date)->format('d M Y'),
+            'location_address' => $event->location == null ? $event->location_address : $event->location,
+
+            'cover' => $event->cover ? url($event->cover) : null,
+            'description' => $event->description,
+            // 'location_type' => $event->location_type,
+
+           
+        ];
+
+        return $this->success($event, 'Event history details retrieved successfully', 200);
+    }
+
 }
