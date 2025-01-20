@@ -42,6 +42,10 @@ class BusinessProfileController extends Controller
             'hours.*.open_time' => 'nullable|string',
             'hours.*.close_time' => 'nullable|string',
 
+            
+            'hours.*.re_open_time' => 'nullable|string',
+            'hours.*.re_close_time' => 'nullable|string',
+
             'prices' => 'required|array',
             'prices.*.type' => 'required|string',
             'prices.*.amount' => 'required',
@@ -75,16 +79,20 @@ class BusinessProfileController extends Controller
         }
 
         $businessProfile->business_hours()->delete(); // __clear existing hours
-        foreach ($validatedData['hours'] as $hour) {
-            $businessProfile->business_hours()->create([
-                'day' => $hour['day'],
-                // 'date' => $hour['date'],
-
-                'is_closed' => $hour['is_closed'] == true,
-                'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
-                'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
-            ]);
-        }
+       
+            foreach ($validatedData['hours'] as $hour) {
+                $businessProfile->business_hours()->create([
+                    'day' => $hour['day'],
+                    'is_closed' => $hour['is_closed'] == true,
+                    'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
+                    'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
+                    // Store re_open_time and re_close_time only if provided
+                    're_open_time' => isset($hour['re_open_time']) && !$hour['is_closed'] ? $hour['re_open_time'] : null,
+                    're_close_time' => isset($hour['re_close_time']) && !$hour['is_closed'] ? $hour['re_close_time'] : null,
+                ]);
+            }
+            
+        
 
         $businessProfile->business_prices()->delete(); // __clear existing hours
         foreach ($validatedData['prices'] as $price) {
