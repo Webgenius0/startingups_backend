@@ -449,11 +449,11 @@ class EventReportController extends Controller
     {
         switch ($filter) {
             case 'daily':
-                return $date->format('H:i'); // Group by hour
+                return $date->format('H:i'); 
             case 'weekly':
-                return $date->format('l'); // Group by day of the week
+                return $date->format('l'); 
             case 'monthly':
-                return $date->format('j M'); // Group by day of the month
+                return $date->format('j M'); 
             default:
                 return $date->format('Y-m-d');
         }
