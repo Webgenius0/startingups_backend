@@ -565,9 +565,7 @@ class UserHomeController extends Controller
 
             'cover' => $event->cover ? url($event->cover) : null,
             'description' => $event->description,
-            // 'location_type' => $event->location_type,
-
-           
+            // 'location_type' => $event->location_type,  
         ];
 
         return $this->success($event, 'Event history details retrieved successfully', 200);

@@ -25,7 +25,7 @@ class UserEventController extends Controller
 
         $validatedData = Validator::make($request->all(), [
             'rating' => 'required|string',
-            'cover' => 'required|image|mimes:jpg,jpeg,png|max:4096',
+            'cover' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
         ]);
 
         if ($validatedData->fails()) {
