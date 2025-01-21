@@ -23,8 +23,6 @@ class BusinessProfileController extends Controller
     public function store(Request $request)
     {
 
-        // dd($request->all());
-
         $validatedData = $request->validate([
 
             'cover' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
@@ -36,14 +34,13 @@ class BusinessProfileController extends Controller
             'location' => 'required|string',
             'hours' => 'required|array',
             'hours.*.day' => 'required|string',
-            // 'hours.*.date' => 'required',
             'hours.*.is_closed' => 'required',
 
             'hours.*.open_time' => 'nullable|string',
             'hours.*.close_time' => 'nullable|string',
 
-            'hours.*.is_reopen' => 'required',
-            
+            'hours.*.is_second_time' => 'required|boolean',
+
             'hours.*.re_open_time' => 'nullable|string',
             'hours.*.re_close_time' => 'nullable|string',
 
@@ -79,25 +76,23 @@ class BusinessProfileController extends Controller
             $businessProfile->save();
         }
 
-        $businessProfile->business_hours()->delete(); // __clear existing hours
-       
-            foreach ($validatedData['hours'] as $hour) {
-                $businessProfile->business_hours()->create([
-                    'day' => $hour['day'],
-                    'is_closed' => $hour['is_closed'] == true,
-                    'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
-                    'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
-                    // Store re_open_time and re_close_time only if provided
-                    'is_reopen' => $hour['is_reopen'],
+        $businessProfile->business_hours()->delete(); 
+        foreach ($validatedData['hours'] as $hour) {
+            $businessProfile->business_hours()->create([
+                'day' => $hour['day'],
+                'is_closed' => $hour['is_closed'] == true,
+                'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
+                'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
+              
+                'is_second_time' => $hour['is_second_time'],
+                're_open_time' => isset($hour['re_open_time']) && !$hour['is_closed'] ? $hour['re_open_time'] : null,
+                're_close_time' => isset($hour['re_close_time']) && !$hour['is_closed'] ? $hour['re_close_time'] : null,
+            ]);
+        }
 
-                    're_open_time' => isset($hour['re_open_time']) && !$hour['is_closed'] ? $hour['re_open_time'] : null,
-                    're_close_time' => isset($hour['re_close_time']) && !$hour['is_closed'] ? $hour['re_close_time'] : null,
-                ]);
-            }
-            
-        
 
-        $businessProfile->business_prices()->delete(); // __clear existing hours
+
+        $businessProfile->business_prices()->delete(); 
         foreach ($validatedData['prices'] as $price) {
             $businessProfile->business_prices()->create([
                 'type' => $price['type'],
@@ -158,12 +153,13 @@ class BusinessProfileController extends Controller
                     'id' => $hour->id,
                     'business_profile_id' => $hour->business_profile_id,
                     'day' => $hour->day,
+
                     'is_closed' => $hour->is_closed == 1 ? true : false,
                     'open_time' => $hour->open_time,
                     'close_time' => $hour->close_time,
 
-                    'is_reopen' => $hour->is_reopen,
-
+             
+                    'is_second_time' => $hour->is_second_time == 0 ? true : false,
                     're_open_time' => $hour->re_open_time,
                     're_close_time' => $hour->re_close_time,
 
@@ -206,25 +202,18 @@ class BusinessProfileController extends Controller
             'activity' => 'required|in:Indoor,Outdoor',
             'location' => 'required|string',
 
-            // 'age_min' => 'nullable',
-            // 'age_max' => 'nullable',
-
+        
             'hours' => 'required|array',
             'hours.*.day' => 'required|string',
             'hours.*.is_closed' => 'required',
             'hours.*.open_time' => 'nullable|string',
             'hours.*.close_time' => 'nullable|string',
 
-            'hours.*.is_reopen' => 'required',
+      
+            'hours.*.is_second_time' => 'required|boolean',
 
             'hours.*.re_open_time' => 'nullable|string',
             'hours.*.re_close_time' => 'nullable|string',
-
-
-            // 'prices' => 'required|array',
-            // 'prices.*.type' => 'required|string',
-            // 'prices.*.amount' => 'required',
-            // 'prices.*.offerings' => 'nullable|string',
         ]);
 
         $businessProfile->update([
@@ -234,8 +223,7 @@ class BusinessProfileController extends Controller
             'activity' => $validatedData['activity'],
             'location' => $validatedData['location'],
 
-            // 'age_min' => $validatedData['age_min'],
-            // 'age_max' => $validatedData['age_max'],
+           
 
         ]);
 
@@ -258,12 +246,11 @@ class BusinessProfileController extends Controller
                 'is_closed' => $hour['is_closed'],
                 'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
                 'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
-                    // Store re_open_time and re_close_time only if provided
-                'is_reopen' => $hour['is_reopen'],
-
-                    're_open_time' => isset($hour['re_open_time']) && !$hour['is_closed'] ? $hour['re_open_time'] : null,
-                    're_close_time' => isset($hour['re_close_time']) && !$hour['is_closed'] ? $hour['re_close_time'] : null,
             
+                'is_second_time' => $hour['is_second_time'],
+                're_open_time' => isset($hour['re_open_time']) && !$hour['is_closed'] ? $hour['re_open_time'] : null,
+                're_close_time' => isset($hour['re_close_time']) && !$hour['is_closed'] ? $hour['re_close_time'] : null,
+
             ]);
         }
 
@@ -300,9 +287,7 @@ class BusinessProfileController extends Controller
             'subcategory_name' => $businessProfile->sub_category ?  $businessProfile->sub_category->name : '',
             'activity' => $businessProfile->activity,
             'location' => $businessProfile->location,
-            // 'age_min' => $businessProfile->age_min,
-            // 'age_max' => $businessProfile->age_max,
-
+          
 
             'business_hours' => $businessProfile->business_hours->map(function ($hour) {
                 return [
@@ -313,7 +298,7 @@ class BusinessProfileController extends Controller
                     'open_time' => $hour->open_time,
                     'close_time' => $hour->close_time,
 
-                    'is_reopen' => $hour->is_reopen,
+                    'is_second_time' => $hour->is_second_time,
                     're_open_time' => $hour->re_open_time,
                     're_close_time' => $hour->re_close_time,
 
@@ -322,10 +307,7 @@ class BusinessProfileController extends Controller
         ];
 
         return $this->success(
-            $data,
-
-            'Business Profile updated successfully',
-            200
+            $data,'Business Profile updated successfully',200
         );
     }
 

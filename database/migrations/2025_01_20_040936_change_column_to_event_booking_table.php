@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::table('event_bookings', function (Blueprint $table) {
             $table->string('is_guest')->nullable()->change();
-        
         });
     }
 

@@ -17,6 +17,7 @@ class BusinessHour extends Model
         'open_time',
         'close_time',
         'is_reopen',
+        'is_second_time',
         're_open_time',
         're_close_time',
     ];

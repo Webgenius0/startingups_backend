@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('business_hours', function (Blueprint $table) {
-            $table->string('is_reopen')->nullable()->after('close_time'); // Null if closed
+            $table->string('is_reopen')->nullable()->after('close_time'); 
         
         });
     }

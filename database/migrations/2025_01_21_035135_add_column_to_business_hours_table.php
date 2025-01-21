@@ -12,8 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('business_hours', function (Blueprint $table) {
-            $table->string('re_open_time')->nullable()->after('close_time'); // Null if closed
-            $table->string('re_close_time')->nullable()->after('re_open_time'); // Null if closed
+
+            $table->boolean('is_second_time')->default(false)->after('is_reopen'); 
+
+            
         });
     }
 
@@ -22,6 +24,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::table('business_hours', function (Blueprint $table) {
+            //
+        });
     }
 };
