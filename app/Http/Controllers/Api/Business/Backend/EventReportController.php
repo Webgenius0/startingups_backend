@@ -328,41 +328,54 @@ class EventReportController extends Controller
 
     // event analysis
 
+    // Event analysis function
     public function event_analysis(Request $request)
     {
-        // Authenticate the user
         $user = auth('business')->user();
 
         if (!$user) {
             return $this->error([], 'User not found.', 404);
         }
 
-        // Filter type: daily, weekly, or monthly
-        $filter = $request->input('filter', 'monthly');
+        // Validate filter input
+        $filter = $request->input('filter', 'daily');
+        $validFilters = ['daily', 'weekly', 'monthly'];
+        if (!in_array($filter, $validFilters)) {
+            $filter = 'daily';
+        }
+
         $startDate = $this->getStartDateByFilter($filter);
 
-        // Fetch all related data for all events combined
-        $events = BusinessProfile::with(['event_clicks', 'event_bookings'])->where('user_id', $user->id)->get();
+        // Fetch events with optimized queries
+        $events = BusinessProfile::where('user_id', $user->id)
+            ->with([
+                'event_clicks' => function ($query) use ($startDate) {
+                    $query->where('created_at', '>=', $startDate);
+                },
+                'event_bookings' => function ($query) use ($startDate) {
+                    $query->where('created_at', '>=', $startDate);
+                },
+            ])->get();
 
-        // Combine data from all events
-        $combinedClicks = $events->flatMap(fn($event) => $event->event_clicks)
-            ->where('created_at', '>=', $startDate);
-        $combinedBookings = $events->flatMap(fn($event) => $event->event_bookings)
-            ->where('created_at', '>=', $startDate);
+        // Combine and analyze data
+        $combinedClicks = $events->flatMap(fn($event) => $event->event_clicks);
+        $combinedBookings = $events->flatMap(fn($event) => $event->event_bookings);
 
-        // Total Metrics
         $totalLinkClicks = $combinedClicks->count();
         $totalSignUps = $combinedBookings->count();
         $totalRevenue = $combinedBookings->sum('price');
         $totalRepeatCustomers = $combinedBookings->whereNotNull('user_id')->unique('user_id')->count();
 
-        // Trend Data
+        // Generate trend data
         $trendData = [
             'link_clicks' => $this->getTrendDataAnalysis($combinedClicks, $filter),
             'sign_ups' => $this->getTrendDataAnalysis($combinedBookings, $filter),
             'revenue' => $this->getRevenueTrendDataAnalysis($combinedBookings, $filter),
             'repeat_customers' => $this->getRepeatCustomersTrendDataAnalysis($combinedBookings, $filter),
         ];
+
+        // Add graph labels for the frontend
+        $graphLabels = $this->getGraphLabels($filter, $startDate);
 
         return $this->success([
             'statistics' => [
@@ -383,7 +396,8 @@ class EventReportController extends Controller
                     'trend_data' => $trendData['repeat_customers'],
                 ],
             ],
-        ], 'Combined event analytics fetched successfully.');
+            'graph_labels' => $graphLabels,
+        ], 'Event analytics fetched successfully.');
     }
 
     /**
@@ -449,13 +463,42 @@ class EventReportController extends Controller
     {
         switch ($filter) {
             case 'daily':
-                return $date->format('H:i'); 
+                return $date->format('H:i');
             case 'weekly':
-                return $date->format('l'); 
+                return $date->format('l');
             case 'monthly':
-                return $date->format('j M'); 
+                return $date->format('j M');
             default:
                 return $date->format('Y-m-d');
         }
+    }
+
+    /**
+     * Generate graph labels based on the filter.
+     */
+    private function getGraphLabels($filter, $startDate)
+    {
+        $labels = [];
+
+        switch ($filter) {
+            case 'daily':
+                for ($i = 0; $i < 24; $i++) {
+                    $labels[] = $startDate->copy()->addHours($i)->format('H:i');
+                }
+                break;
+            case 'weekly':
+                for ($i = 0; $i < 7; $i++) {
+                    $labels[] = $startDate->copy()->addDays($i)->format('l');
+                }
+                break;
+            case 'monthly':
+                $daysInMonth = $startDate->daysInMonth;
+                for ($i = 1; $i <= $daysInMonth; $i++) {
+                    $labels[] = $startDate->copy()->day($i)->format('j M');
+                }
+                break;
+        }
+
+        return $labels;
     }
 }
