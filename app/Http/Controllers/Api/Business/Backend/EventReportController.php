@@ -328,9 +328,6 @@ class EventReportController extends Controller
 
     // event analysis
 
-    /**
-     * Event Analysis for authenticated business user.
-     */
     public function event_analysis(Request $request)
     {
         // Authenticate the user
@@ -340,48 +337,53 @@ class EventReportController extends Controller
             return $this->error([], 'User not found.', 404);
         }
 
-        // Fetch user's events with related data
-        $events = BusinessProfile::with('event_clicks', 'event_bookings', 'event_reviews')
-            ->where('user_id', $user->id)
-            ->get();
-
         // Filter type: daily, weekly, or monthly
         $filter = $request->input('filter', 'monthly');
         $startDate = $this->getStartDateByFilter($filter);
 
-        // Initialize statistics
-        $statistics = [];
-        foreach ($events as $event) {
-            $filteredClicks = $event->event_clicks->where('created_at', '>=', $startDate);
-            $filteredBookings = $event->event_bookings->where('created_at', '>=', $startDate);
+        // Fetch all related data for all events combined
+        $events = BusinessProfile::with(['event_clicks', 'event_bookings'])->where('user_id', $user->id)->get();
 
-            $statistics[] = [
-                'event_id' => $event->id,
-                'title' => $event->title,
-                'statistics' => [
-                    'link_clicks' => [
-                        'total' => $filteredClicks->count(),
-                        'trend_data' => $this->getTrendDataAnalysis($filteredClicks, $filter),
-                    ],
-                    'sign_ups' => [
-                        'total' => $filteredBookings->count(),
-                        'trend_data' => $this->getTrendDataAnalysis($filteredBookings, $filter),
-                    ],
-                    'revenue' => [
-                        'total' => $filteredBookings->sum('price'),
-                        'trend_data' => $this->getRevenueTrendDataAnalysis($filteredBookings, $filter),
-                    ],
-                    'repeat_customers' => [
-                        'total' => $filteredBookings->whereNotNull('user_id')->count(),
-                        'trend_data' => $this->getRepeatCustomersTrendDataAnalysis($filteredBookings, $filter),
-                    ],
-                ],
-            ];
-        }
+        // Combine data from all events
+        $combinedClicks = $events->flatMap(fn($event) => $event->event_clicks)
+            ->where('created_at', '>=', $startDate);
+        $combinedBookings = $events->flatMap(fn($event) => $event->event_bookings)
+            ->where('created_at', '>=', $startDate);
+
+        // Total Metrics
+        $totalLinkClicks = $combinedClicks->count();
+        $totalSignUps = $combinedBookings->count();
+        $totalRevenue = $combinedBookings->sum('price');
+        $totalRepeatCustomers = $combinedBookings->whereNotNull('user_id')->unique('user_id')->count();
+
+        // Trend Data
+        $trendData = [
+            'link_clicks' => $this->getTrendDataAnalysis($combinedClicks, $filter),
+            'sign_ups' => $this->getTrendDataAnalysis($combinedBookings, $filter),
+            'revenue' => $this->getRevenueTrendData($combinedBookings, $filter),
+            'repeat_customers' => $this->getRepeatCustomersTrendData($combinedBookings, $filter),
+        ];
 
         return $this->success([
-            'statistics' => $statistics,
-        ], 'Event analytics fetched successfully.');
+            'statistics' => [
+                'link_clicks' => [
+                    'total' => $totalLinkClicks,
+                    'trend_data' => $trendData['link_clicks'],
+                ],
+                'sign_ups' => [
+                    'total' => $totalSignUps,
+                    'trend_data' => $trendData['sign_ups'],
+                ],
+                'revenue' => [
+                    'total' => $totalRevenue,
+                    'trend_data' => $trendData['revenue'],
+                ],
+                'repeat_customers' => [
+                    'total' => $totalRepeatCustomers,
+                    'trend_data' => $trendData['repeat_customers'],
+                ],
+            ],
+        ], 'Combined event analytics fetched successfully.');
     }
 
     /**
