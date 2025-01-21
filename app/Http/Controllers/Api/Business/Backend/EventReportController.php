@@ -360,8 +360,8 @@ class EventReportController extends Controller
         $trendData = [
             'link_clicks' => $this->getTrendDataAnalysis($combinedClicks, $filter),
             'sign_ups' => $this->getTrendDataAnalysis($combinedBookings, $filter),
-            'revenue' => $this->getRevenueTrendData($combinedBookings, $filter),
-            'repeat_customers' => $this->getRepeatCustomersTrendData($combinedBookings, $filter),
+            'revenue' => $this->getRevenueTrendDataAnalysis($combinedBookings, $filter),
+            'repeat_customers' => $this->getRepeatCustomersTrendDataAnalysis($combinedBookings, $filter),
         ];
 
         return $this->success([
@@ -449,11 +449,11 @@ class EventReportController extends Controller
     {
         switch ($filter) {
             case 'daily':
-                return $date->format('Y-m-d');
+                return $date->format('H:i'); // Group by hour
             case 'weekly':
-                return $date->startOfWeek()->format('Y-m-d');
+                return $date->format('l'); // Group by day of the week
             case 'monthly':
-                return $date->startOfMonth()->format('Y-m-d');
+                return $date->format('j M'); // Group by day of the month
             default:
                 return $date->format('Y-m-d');
         }
