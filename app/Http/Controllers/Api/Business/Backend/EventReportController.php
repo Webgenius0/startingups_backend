@@ -326,9 +326,6 @@ class EventReportController extends Controller
     }
 
 
-    // event analysis
-
-    // Event analysis function
     public function event_analysis(Request $request)
     {
         $user = auth('business')->user();
@@ -337,30 +334,20 @@ class EventReportController extends Controller
             return $this->error([], 'User not found.', 404);
         }
 
-        // Validate filter input
+        // Get the filter (daily, weekly, monthly)
         $filter = $request->input('filter', 'daily');
-        $validFilters = ['daily', 'weekly', 'monthly'];
-        if (!in_array($filter, $validFilters)) {
-            $filter = 'daily';
-        }
-
         $startDate = $this->getStartDateByFilter($filter);
 
-        // Fetch events with optimized queries
-        $events = BusinessProfile::where('user_id', $user->id)
-            ->with([
-                'event_clicks' => function ($query) use ($startDate) {
-                    $query->where('created_at', '>=', $startDate);
-                },
-                'event_bookings' => function ($query) use ($startDate) {
-                    $query->where('created_at', '>=', $startDate);
-                },
-            ])->get();
+        // Fetch all events and related data
+        $events = BusinessProfile::with(['event_clicks', 'event_bookings'])->where('user_id', $user->id)->get();
 
-        // Combine and analyze data
-        $combinedClicks = $events->flatMap(fn($event) => $event->event_clicks);
-        $combinedBookings = $events->flatMap(fn($event) => $event->event_bookings);
+        // Combine data from all events
+        $combinedClicks = $events->flatMap(fn($event) => $event->event_clicks)
+            ->where('created_at', '>=', $startDate);
+        $combinedBookings = $events->flatMap(fn($event) => $event->event_bookings)
+            ->where('created_at', '>=', $startDate);
 
+        // Calculate totals
         $totalLinkClicks = $combinedClicks->count();
         $totalSignUps = $combinedBookings->count();
         $totalRevenue = $combinedBookings->sum('price');
@@ -368,17 +355,14 @@ class EventReportController extends Controller
 
         // Generate trend data
         $trendData = [
-            'link_clicks' => $this->getTrendDataAnalysis($combinedClicks, $filter),
-            'sign_ups' => $this->getTrendDataAnalysis($combinedBookings, $filter),
-            'revenue' => $this->getRevenueTrendDataAnalysis($combinedBookings, $filter),
-            'repeat_customers' => $this->getRepeatCustomersTrendDataAnalysis($combinedBookings, $filter),
+            'link_clicks' => $this->getTrendDataWithDayNames($combinedClicks),
+            'sign_ups' => $this->getTrendDataWithDayNames($combinedBookings),
+            'revenue' => $this->getRevenueTrendDataWithDayNames($combinedBookings),
+            'repeat_customers' => $this->getRepeatCustomersTrendDataWithDayNames($combinedBookings),
         ];
 
-        // Add graph labels for the frontend
-        $graphLabels = $this->getGraphLabels($filter, $startDate);
-
         return $this->success([
-            'statistics' => [
+            
                 'link_clicks' => [
                     'total' => $totalLinkClicks,
                     'trend_data' => $trendData['link_clicks'],
@@ -396,8 +380,7 @@ class EventReportController extends Controller
                     'trend_data' => $trendData['repeat_customers'],
                 ],
             ],
-            'graph_labels' => $graphLabels,
-        ], 'Event analytics fetched successfully.');
+         'Event analytics fetched successfully.');
     }
 
     /**
@@ -407,98 +390,52 @@ class EventReportController extends Controller
     {
         switch ($filter) {
             case 'daily':
-                return Carbon::now()->startOfDay();
+                return Carbon::now()->subDays(7); // Fetch the last 7 days for "daily"
             case 'weekly':
-                return Carbon::now()->startOfWeek();
+                return Carbon::now()->subWeeks(4); // Fetch the last 4 weeks
             case 'monthly':
-                return Carbon::now()->startOfMonth();
+                return Carbon::now()->subMonths(6); // Fetch the last 6 months
             default:
                 return Carbon::now();
         }
     }
 
     /**
-     * Get trend data analysis grouped by date.
+     * Get trend data grouped by created date with day names.
      */
-    private function getTrendDataAnalysis($data, $filter)
+    private function getTrendDataWithDayNames($data)
     {
-        return $data->groupBy(function ($item) use ($filter) {
-            $date = $item->created_at;
-            return $this->formatDateByFilter($date, $filter);
+        return $data->groupBy(function ($item) {
+            $date = Carbon::parse($item->created_at);
+            return $date->format('Y-m-d') . ' (' . $date->format('l') . ')'; // Format: "2025-01-21 (Tuesday)"
         })->map(function ($group) {
             return $group->count();
         })->toArray();
     }
 
     /**
-     * Get revenue trend data grouped by date.
+     * Get revenue trend data grouped by created date with day names.
      */
-    private function getRevenueTrendDataAnalysis($bookings, $filter)
+    private function getRevenueTrendDataWithDayNames($bookings)
     {
-        return $bookings->groupBy(function ($booking) use ($filter) {
-            $date = $booking->created_at;
-            return $this->formatDateByFilter($date, $filter);
+        return $bookings->groupBy(function ($booking) {
+            $date = Carbon::parse($booking->created_at);
+            return $date->format('Y-m-d') . ' (' . $date->format('l') . ')'; // Format: "2025-01-21 (Tuesday)"
         })->map(function ($group) {
             return $group->sum('price');
         })->toArray();
     }
 
     /**
-     * Get repeat customers trend data grouped by date.
+     * Get repeat customers trend data grouped by created date with day names.
      */
-    private function getRepeatCustomersTrendDataAnalysis($bookings, $filter)
+    private function getRepeatCustomersTrendDataWithDayNames($bookings)
     {
-        return $bookings->groupBy(function ($booking) use ($filter) {
-            $date = $booking->created_at;
-            return $this->formatDateByFilter($date, $filter);
+        return $bookings->groupBy(function ($booking) {
+            $date = Carbon::parse($booking->created_at);
+            return $date->format('Y-m-d') . ' (' . $date->format('l') . ')'; // Format: "2025-01-21 (Tuesday)"
         })->map(function ($group) {
             return $group->unique('user_id')->count();
         })->toArray();
-    }
-
-    /**
-     * Format date based on the filter.
-     */
-    private function formatDateByFilter($date, $filter)
-    {
-        switch ($filter) {
-            case 'daily':
-                return $date->format('H:i');
-            case 'weekly':
-                return $date->format('l');
-            case 'monthly':
-                return $date->format('j M');
-            default:
-                return $date->format('Y-m-d');
-        }
-    }
-
-    /**
-     * Generate graph labels based on the filter.
-     */
-    private function getGraphLabels($filter, $startDate)
-    {
-        $labels = [];
-
-        switch ($filter) {
-            case 'daily':
-                for ($i = 0; $i < 24; $i++) {
-                    $labels[] = $startDate->copy()->addHours($i)->format('H:i');
-                }
-                break;
-            case 'weekly':
-                for ($i = 0; $i < 7; $i++) {
-                    $labels[] = $startDate->copy()->addDays($i)->format('l');
-                }
-                break;
-            case 'monthly':
-                $daysInMonth = $startDate->daysInMonth;
-                for ($i = 1; $i <= $daysInMonth; $i++) {
-                    $labels[] = $startDate->copy()->day($i)->format('j M');
-                }
-                break;
-        }
-
-        return $labels;
     }
 }
