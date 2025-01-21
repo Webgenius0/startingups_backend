@@ -98,7 +98,7 @@ class EventReportController extends Controller
 
         $events = BusinessProfile::where('user_id', $user->id)
             ->with('event_clicks', 'event_bookings')->get();
-            // dd($events);
+        // dd($events);
 
         $totals = [
             'link_clicks' => 0,
@@ -323,5 +323,137 @@ class EventReportController extends Controller
         })->map(function ($group) {
             return $group->unique('user_id')->count();
         })->toArray();
+    }
+
+
+    // event analysis
+
+    /**
+     * Event Analysis for authenticated business user.
+     */
+    public function event_analysis(Request $request)
+    {
+        // Authenticate the user
+        $user = auth('business')->user();
+
+        if (!$user) {
+            return $this->error([], 'User not found.', 404);
+        }
+
+        // Fetch user's events with related data
+        $events = BusinessProfile::with('event_clicks', 'event_bookings', 'event_reviews')
+            ->where('user_id', $user->id)
+            ->get();
+
+        // Filter type: daily, weekly, or monthly
+        $filter = $request->input('filter', 'monthly');
+        $startDate = $this->getStartDateByFilter($filter);
+
+        // Initialize statistics
+        $statistics = [];
+        foreach ($events as $event) {
+            $filteredClicks = $event->event_clicks->where('created_at', '>=', $startDate);
+            $filteredBookings = $event->event_bookings->where('created_at', '>=', $startDate);
+
+            $statistics[] = [
+                'event_id' => $event->id,
+                'title' => $event->title,
+                'statistics' => [
+                    'link_clicks' => [
+                        'total' => $filteredClicks->count(),
+                        'trend_data' => $this->getTrendDataAnalysis($filteredClicks, $filter),
+                    ],
+                    'sign_ups' => [
+                        'total' => $filteredBookings->count(),
+                        'trend_data' => $this->getTrendDataAnalysis($filteredBookings, $filter),
+                    ],
+                    'revenue' => [
+                        'total' => $filteredBookings->sum('price'),
+                        'trend_data' => $this->getRevenueTrendDataAnalysis($filteredBookings, $filter),
+                    ],
+                    'repeat_customers' => [
+                        'total' => $filteredBookings->whereNotNull('user_id')->count(),
+                        'trend_data' => $this->getRepeatCustomersTrendDataAnalysis($filteredBookings, $filter),
+                    ],
+                ],
+            ];
+        }
+
+        return $this->success([
+            'statistics' => $statistics,
+        ], 'Event analytics fetched successfully.');
+    }
+
+    /**
+     * Get the start date based on the filter.
+     */
+    private function getStartDateByFilter($filter)
+    {
+        switch ($filter) {
+            case 'daily':
+                return Carbon::now()->startOfDay();
+            case 'weekly':
+                return Carbon::now()->startOfWeek();
+            case 'monthly':
+                return Carbon::now()->startOfMonth();
+            default:
+                return Carbon::now();
+        }
+    }
+
+    /**
+     * Get trend data analysis grouped by date.
+     */
+    private function getTrendDataAnalysis($data, $filter)
+    {
+        return $data->groupBy(function ($item) use ($filter) {
+            $date = $item->created_at;
+            return $this->formatDateByFilter($date, $filter);
+        })->map(function ($group) {
+            return $group->count();
+        })->toArray();
+    }
+
+    /**
+     * Get revenue trend data grouped by date.
+     */
+    private function getRevenueTrendDataAnalysis($bookings, $filter)
+    {
+        return $bookings->groupBy(function ($booking) use ($filter) {
+            $date = $booking->created_at;
+            return $this->formatDateByFilter($date, $filter);
+        })->map(function ($group) {
+            return $group->sum('price');
+        })->toArray();
+    }
+
+    /**
+     * Get repeat customers trend data grouped by date.
+     */
+    private function getRepeatCustomersTrendDataAnalysis($bookings, $filter)
+    {
+        return $bookings->groupBy(function ($booking) use ($filter) {
+            $date = $booking->created_at;
+            return $this->formatDateByFilter($date, $filter);
+        })->map(function ($group) {
+            return $group->unique('user_id')->count();
+        })->toArray();
+    }
+
+    /**
+     * Format date based on the filter.
+     */
+    private function formatDateByFilter($date, $filter)
+    {
+        switch ($filter) {
+            case 'daily':
+                return $date->format('Y-m-d');
+            case 'weekly':
+                return $date->startOfWeek()->format('Y-m-d');
+            case 'monthly':
+                return $date->startOfMonth()->format('Y-m-d');
+            default:
+                return $date->format('Y-m-d');
+        }
     }
 }
