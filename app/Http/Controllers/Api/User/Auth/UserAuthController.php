@@ -48,7 +48,6 @@ class UserAuthController extends Controller
         $coverPath = '';
         if ($request->hasFile('cover')) {
             $coverPath = Helper::uploadImage($request->file('cover'), 'business_profiles');
-
         }
 
         // $validatedData = $validator->validated();
@@ -72,8 +71,8 @@ class UserAuthController extends Controller
 
         ]);
 
-         // cover with url
-         $data->avatar = $data->avatar ? url($data->avatar) : null;
+        // cover with url
+        $data->avatar = $data->avatar ? url($data->avatar) : null;
 
 
 
@@ -85,7 +84,6 @@ class UserAuthController extends Controller
         $data['preferences'] = json_decode($data['preferences']);
 
         return $this->success($data, ' Sign Up Successfull.', 201);
-
     }
 
     // user_location update
@@ -265,16 +263,17 @@ class UserAuthController extends Controller
     {
         $user = auth('api')->user();
 
-        // if not found
         if (!$user) {
             return $this->error([], 'User not found.', 404);
         }
 
-        // return user preferences
-        $preferences = json_decode($user->preferences);
+        $preferences = json_decode($user->preferences, true); 
 
-        return $this->success($preferences, 'Preferences retrieved successfully.');
+        $preferencesArray = $preferences ? explode(',', $preferences) : [];
+
+        return $this->success($preferencesArray, 'Preferences retrieved successfully.');
     }
+
 
 
     // __update user preferences
@@ -327,6 +326,4 @@ class UserAuthController extends Controller
             return $this->error([], $e->getMessage(), 500);
         }
     }
-
-
 }
