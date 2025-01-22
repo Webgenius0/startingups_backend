@@ -182,9 +182,10 @@ class EventReportController extends Controller
             return [
                 'review_id' => $review->id,
                 'user_name' => $review->user->full_name ?? 'Anonymous',
-                'avatar' => $review->user->avatar ?? null,
+                'avatar' => $review->user ?  url($review->user->avatar) : null,
                 'rating' => $review->rating,
                 'review_comment' => $review->review ?? '',
+                'review_cover' => $review->cover ? url($review->cover) : null,
                 'review_date' => $review->created_at->format('F j, Y, g:i A'),
             ];
         });
