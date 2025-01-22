@@ -108,7 +108,7 @@ class UserStoryController extends Controller
             'user_id' => $story->user->id,
             'user_name' => $story->user->full_name,
             'user_avatar' => url($story->user->avatar),
-            'business_name' => $story->user->businessProfile->business_name ? $story->user->businessProfile->location_address : '',
+            'business_name' => $story->user->location ,
             'date' => $story->created_at->format('d M'),
 
 
