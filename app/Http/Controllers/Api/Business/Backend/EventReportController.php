@@ -167,22 +167,33 @@ class EventReportController extends Controller
     // event ratings
     public function event_ratings(Request $request, $id)
     {
-
         $event = BusinessProfile::with(['user', 'event_reviews.user'])->find($id);
 
         if (!$event) {
             return $this->error([], 'Event not found', 404);
         }
 
-        $rating = $event->event_reviews->sum('rating');
+        $ratingCounts = $event->event_reviews->groupBy('rating')->map(function ($reviews, $rating) {
+            return count($reviews);
+        });
+
         $reviewCount = $event->event_reviews->count();
+        // dd($reviewCount);
+        $ratingPercentages = [];
+
+        for ($i = 5; $i >= 1; $i--) {
+            $ratingPercentages[$i] = $reviewCount > 0 ? round(($ratingCounts->get($i, 0) / $reviewCount) * 100, 1) : 0;
+        }
+
+        $rating = $event->event_reviews->sum('rating');
+
         $averageRating = $reviewCount > 0 ? round($rating / $reviewCount, 1) : 0;
 
         $reviews = $event->event_reviews->map(function ($review) {
             return [
                 'review_id' => $review->id,
                 'user_name' => $review->user->full_name ?? 'Anonymous',
-                'avatar' => $review->user ?  url($review->user->avatar) : null,
+                'avatar' => $review->user ? url($review->user->avatar) : null,
                 'rating' => $review->rating,
                 'review_comment' => $review->review ?? '',
                 'review_cover' => $review->cover ? url($review->cover) : null,
@@ -191,14 +202,14 @@ class EventReportController extends Controller
         });
 
         return $this->success([
-            // 'event_name' => $event->title,
             'event_id' => $event->id,
             'average_rating' => $averageRating,
             'total_reviews' => $reviewCount,
-
+            'rating_percentages' => $ratingPercentages, 
             'reviews' => $reviews,
         ], 'Event ratings fetched successfully.');
     }
+
 
     public function signle_event_reports(Request $request, $eventId)
     {
@@ -362,8 +373,9 @@ class EventReportController extends Controller
             'repeat_customers' => $this->getRepeatCustomersTrendDataWithDayNames($combinedBookings),
         ];
 
-        return $this->success([
-            
+        return $this->success(
+            [
+
                 'link_clicks' => [
                     'total' => $totalLinkClicks,
                     'trend_data' => $trendData['link_clicks'],
@@ -381,7 +393,8 @@ class EventReportController extends Controller
                     'trend_data' => $trendData['repeat_customers'],
                 ],
             ],
-         'Event analytics fetched successfully.');
+            'Event analytics fetched successfully.'
+        );
     }
 
     /**

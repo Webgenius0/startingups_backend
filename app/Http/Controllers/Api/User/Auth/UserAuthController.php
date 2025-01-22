@@ -280,7 +280,7 @@ class UserAuthController extends Controller
     public function update_preferences(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'preferences.*' => 'required|string|max:255', // Validate each preference as a string
+            'preferences.*' => 'required|string|max:255', 
         ]);
 
         if ($validator->fails()) {
@@ -289,7 +289,6 @@ class UserAuthController extends Controller
 
         $user = auth('api')->user();
 
-       
         if (!$user) {
             return $this->error([], 'User not found.', 404);
         }
