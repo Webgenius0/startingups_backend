@@ -102,7 +102,17 @@ class UserStoryController extends Controller
         }
 
         $story = [
-            'id' => $story->id,
+
+
+
+            'user_id' => $story->user->id,
+            'user_name' => $story->user->full_name,
+            'user_avatar' => url($story->user->avatar),
+            'business_name' => $story->user->businessProfile->business_name ? $story->user->businessProfile->location_address : '',
+            'date' => $story->created_at->format('d M'),
+
+
+            'story_id' => $story->id,
             'title' => $story->title,
             'description' => $story->description,
             'location' => $story->location,
@@ -111,12 +121,8 @@ class UserStoryController extends Controller
             // count review
             'reviews_count' => $story->reviews->count(),
 
-            'user_id' => $story->user->id,
-            'user_name' => $story->user->full_name,
-            'user_avatar' => url($story->user->avatar),
-            'business_name' => $story->user->businessProfile->business_name ?? '',
-            'date' => $story->created_at->format('d M'),
-            
+            'post_time' => $story->created_at->diffForHumans(),
+
                 
 
             'reviews' => $story->reviews->map(function ($review) {
