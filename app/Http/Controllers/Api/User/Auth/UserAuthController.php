@@ -267,7 +267,7 @@ class UserAuthController extends Controller
             return $this->error([], 'User not found.', 404);
         }
 
-        $preferences = json_decode($user->preferences, true); 
+        $preferences = json_decode($user->preferences, true);
 
         $preferencesArray = $preferences ? explode(',', $preferences) : [];
 
@@ -280,7 +280,7 @@ class UserAuthController extends Controller
     public function update_preferences(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'preferences.*' => 'required|string|max:255',
+            'preferences.*' => 'required|string|max:255', // Validate each preference as a string
         ]);
 
         if ($validator->fails()) {
@@ -289,19 +289,25 @@ class UserAuthController extends Controller
 
         $user = auth('api')->user();
 
-        // if not found
+        // If user is not found
         if (!$user) {
             return $this->error([], 'User not found.', 404);
         }
 
+        // Remove current preferences
+        $user->preferences = null;
+        $user->save();
+
+        // Save new preferences
         $user->preferences = json_encode($request->preferences);
         $user->save();
 
-
+        // Return the updated preferences
         $data = json_decode($user->preferences);
 
         return $this->success($data, 'Preferences updated successfully.');
     }
+
 
 
 
