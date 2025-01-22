@@ -192,6 +192,7 @@ class EventReportController extends Controller
         $reviews = $event->event_reviews->map(function ($review) {
             return [
                 'review_id' => $review->id,
+                'user_id' => $review->user_id,
                 'user_name' => $review->user->full_name ?? 'Anonymous',
                 'avatar' => $review->user ? url($review->user->avatar) : null,
                 'rating' => $review->rating,
