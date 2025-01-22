@@ -276,7 +276,6 @@ class UserAuthController extends Controller
 
 
 
-    // __update user preferences
     public function update_preferences(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -294,19 +293,25 @@ class UserAuthController extends Controller
             return $this->error([], 'User not found.', 404);
         }
 
-        // Remove current preferences
+        
+        $sanitizedPreferences = array_map(function ($preference) {
+            return trim(strip_tags($preference)); 
+        }, $request->preferences);
+
+       
         $user->preferences = null;
         $user->save();
 
-        // Save new preferences
-        $user->preferences = json_encode($request->preferences);
+        
+        $user->preferences = json_encode($sanitizedPreferences);
         $user->save();
 
-        // Return the updated preferences
+        
         $data = json_decode($user->preferences);
 
         return $this->success($data, 'Preferences updated successfully.');
     }
+
 
 
 
