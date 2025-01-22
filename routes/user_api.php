@@ -106,4 +106,9 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
     Route::get('/search/histories', [UserSearchController::class, 'getSearchHistory']);
     Route::get('/search/results', [UserSearchController::class, 'searchUsers']);
     Route::get('/search/suggestions', [UserSearchController::class, 'getSuggestions']);
+
+    // delete single search history
+    Route::delete('/search/history/{id}', [UserSearchController::class, 'deleteSearchHistory']); 
+    // delete user all search history
+    Route::delete('/all-search/history', [UserSearchController::class, 'deleteAllSearchHistory']);
 });

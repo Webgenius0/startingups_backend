@@ -21,6 +21,7 @@ class UserSearchController extends Controller
 
         $histories = $histories->map(function ($history) {
             return [
+                'id' => $history->id,
                 'search' => $history->query,
             ];
         });
@@ -41,23 +42,7 @@ class UserSearchController extends Controller
         $request->user()->user_search()->create(['query' => $query]);
 
         $results = $results->map(function ($user) use ($query) {
-            // if (stripos($user->full_name, $query) !== false) {
-            //     return [
-
-            //         'value' => $user->full_name,
-            //     ];
-            // } elseif (stripos($user->email, $query) !== false) {
-            //     return [
-            //         'matching_field' => 'email',
-            //         'value' => $user->email,
-            //     ];
-            // } elseif (stripos($user->user_name, $query) !== false) {
-            //     return [
-            //         'matching_field' => 'user_name',
-            //         'value' => $user->user_name,
-            //     ];
-            // }
-
+          
             return [
                 'id' => $user->id,
                 'name' => $user->full_name == null ? $user->user_name : $user->full_name,
@@ -92,5 +77,30 @@ class UserSearchController extends Controller
 
         return $this->success($histories, 'You may know this user', 200);
 
+    }
+
+    // delete single search history
+    public function deleteSearchHistory(Request $request, $history_id)
+    {
+        $user = $request->user();
+        $history = UserSearchHistory::where('id', $history_id)->where('user_id', $user->id)->first();
+
+        if (!$history) {
+            return $this->error('Search history not found', 404);
+        }
+
+        $history->delete();
+
+        return $this->success([], 'Search history deleted successfully', 200);
+    }
+
+    // delete user all history
+    public function deleteAllSearchHistory(Request $request)
+    {
+        $user = $request->user();
+
+        UserSearchHistory::where('user_id', $user->id)->delete();
+
+        return $this->success([], 'All search history deleted successfully', 200);
     }
 }
