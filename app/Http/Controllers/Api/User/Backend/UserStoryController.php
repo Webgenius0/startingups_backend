@@ -111,14 +111,14 @@ class UserStoryController extends Controller
             // count review
             'reviews_count' => $story->reviews->count(),
 
-            'user' => [
-                'id' => $story->user->id,
-                'full_name' => $story->user->full_name,
-                'email' => $story->user->email,
-                'phone' => $story->user->phone,
-                'avatar' => $story->user->avatar ? url($story->user->avatar) : null,
+            'user_id' => $story->user->id,
+            'user_name' => $story->user->full_name,
+            'user_avatar' => url($story->user->avatar),
+            'business_name' => $story->user->businessProfile->business_name ?? '',
+            'date' => $story->created_at->format('d M'),
+            
+                
 
-            ],
             'reviews' => $story->reviews->map(function ($review) {
                 return [
                     'id' => $review->id,
