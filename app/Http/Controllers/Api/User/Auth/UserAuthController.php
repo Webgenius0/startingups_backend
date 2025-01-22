@@ -289,32 +289,31 @@ class UserAuthController extends Controller
 
         $user = auth('api')->user();
 
-        // If user is not found
+       
         if (!$user) {
             return $this->error([], 'User not found.', 404);
         }
 
-        // Check if preferences are a string and convert to an array if necessary
+        
         $preferences = $request->preferences;
         if (is_string($preferences)) {
-            // Split the string into an array by commas
             $preferences = explode(',', $preferences);
         }
 
-        // Sanitize and trim each preference
+        
         $sanitizedPreferences = array_map(function ($preference) {
-            return trim(strip_tags($preference)); // Remove unwanted tags and trim extra spaces
+            return trim(strip_tags($preference)); 
         }, $preferences);
 
-        // Remove current preferences from the database
+        
         $user->preferences = null;
         $user->save();
 
-        // Save sanitized new preferences
+       
         $user->preferences = json_encode($sanitizedPreferences);
         $user->save();
 
-        // Return the updated preferences
+       
         $data = json_decode($user->preferences);
 
         return $this->success($data, 'Preferences updated successfully.');
