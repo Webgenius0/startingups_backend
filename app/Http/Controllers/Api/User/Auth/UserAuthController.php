@@ -258,7 +258,6 @@ class UserAuthController extends Controller
 
 
 
-    // __get user preferences
     public function preferences()
     {
         $user = auth('api')->user();
@@ -267,9 +266,11 @@ class UserAuthController extends Controller
             return $this->error([], 'User not found.', 404);
         }
 
+        // Decode the preferences into an array
         $preferences = json_decode($user->preferences, true);
 
-        $preferencesArray = $preferences ? explode(',', $preferences) : [];
+        // Ensure preferences is an array or set to an empty array if null
+        $preferencesArray = is_array($preferences) ? $preferences : [];
 
         return $this->success($preferencesArray, 'Preferences retrieved successfully.');
     }
