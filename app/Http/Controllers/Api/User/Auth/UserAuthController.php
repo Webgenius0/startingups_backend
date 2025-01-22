@@ -280,7 +280,7 @@ class UserAuthController extends Controller
     public function update_preferences(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'preferences.*' => 'required|string|max:255', // Validate each preference as a string
+            'preferences.*' => 'required|string', // Validate each preference as a string
         ]);
 
         if ($validator->fails()) {
@@ -289,35 +289,23 @@ class UserAuthController extends Controller
 
         $user = auth('api')->user();
 
-       
         if (!$user) {
             return $this->error([], 'User not found.', 404);
         }
 
-        
-        $preferences = $request->preferences;
-        if (is_string($preferences)) {
-            $preferences = explode(',', $preferences);
-        }
-
-        
+        // Sanitize preferences input
         $sanitizedPreferences = array_map(function ($preference) {
-            return trim(strip_tags($preference)); 
-        }, $preferences);
+            return trim(strip_tags($preference), '{}'); 
+        }, $request->preferences);
 
-        
-        $user->preferences = null;
-        $user->save();
-
-       
+        // Update preferences
         $user->preferences = json_encode($sanitizedPreferences);
         $user->save();
 
-       
-        $data = json_decode($user->preferences);
-
-        return $this->success($data, 'Preferences updated successfully.');
+        // Return the updated preferences
+        return $this->success($sanitizedPreferences, 'Preferences updated successfully.');
     }
+
 
 
 
