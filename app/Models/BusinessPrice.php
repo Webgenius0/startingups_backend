@@ -14,6 +14,7 @@ class BusinessPrice extends Model
         'business_profile_id',
         'type',
         'amount',
+        'days',
         'offerings'
     ];
 

@@ -55,6 +55,7 @@ class EventController extends Controller
                 'prices' => 'required|array',
                 'prices.*.type' => 'required|string',
                 'prices.*.amount' => 'required',
+                'prices.*.days' => 'required',
                 'prices.*.offerings' => 'nullable|string',
             ]);
 
@@ -93,12 +94,13 @@ class EventController extends Controller
 
 
             $business_event->save();
-
+      
             // Save prices
             foreach ($request->prices as $price) {
                 $business_event->business_prices()->create([
                     'type' => $price['type'],
                     'amount' => $price['amount'],
+                    'days' => isset($price['days']) ? $price['days'] : null, 
                     'offerings' => $price['offerings'] ?? null,
                 ]);
             }
@@ -188,6 +190,7 @@ class EventController extends Controller
                 $new_business_event->business_prices()->create([
                     'type' => $price->type,
                     'amount' => $price->amount,
+                    'days' => $price->days , 
                     'offerings' => $price->offerings,
                 ]);
             }

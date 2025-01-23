@@ -103,14 +103,11 @@ class UserStoryController extends Controller
 
         $story = [
 
-
-
             'user_id' => $story->user->id,
             'user_name' => $story->user->full_name,
             'user_avatar' => url($story->user->avatar),
             'business_name' => $story->user->location ,
             'date' => $story->created_at->format('d M'),
-
 
             'story_id' => $story->id,
             'title' => $story->title,
@@ -122,8 +119,6 @@ class UserStoryController extends Controller
             'reviews_count' => $story->reviews->count(),
 
             'post_time' => $story->created_at->diffForHumans(),
-
-                
 
             'reviews' => $story->reviews->map(function ($review) {
                 return [

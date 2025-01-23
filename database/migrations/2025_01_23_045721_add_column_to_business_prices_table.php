@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('business_hours', function (Blueprint $table) {
-            $table->boolean('is_second_time')->default(false)->after('is_reopen'); 
+        Schema::table('business_prices', function (Blueprint $table) {
+            $table->string('days')->nullable()->after('amount'); 
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('business_hours', function (Blueprint $table) {
+        Schema::table('business_prices', function (Blueprint $table) {
             //
         });
     }
