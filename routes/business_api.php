@@ -65,7 +65,7 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
 
 
     // events reports
-    Route::get('event-reports', [EventReportController::class, 'event_details']);
+    Route::get('event-reports', [EventReportController::class, 'event_details'])->name('business.event_reports');
     Route::get('all-event-reports', [EventReportController::class, 'all_event_reports']);
     Route::get('single-event-reports/{id}', [EventReportController::class, 'signle_event_reports']);
 
@@ -82,5 +82,10 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
     Route::get('account/profile/edit', [BusinessAccountController::class, 'edit']);
     Route::post('account/profile/update', [BusinessAccountController::class, 'update_profile']);
     Route::get('account/faq', [BusinessAccountController::class, 'business_faq']);
+
+
+    // stripe onboarding
+    Route::post('account/business/{business_id}', [BusinessAccountController::class, 'onboard']);
+    Route::get('onboard-result/{encodedToken}', [BusinessAccountController::class, 'onboardResult'])->name('stripe.onboard-result');
 
 });
