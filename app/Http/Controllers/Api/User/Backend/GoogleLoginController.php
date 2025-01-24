@@ -58,4 +58,11 @@ class GoogleLoginController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
+
+
+    public function login()
+    {
+        return view('google');
+    }
+    
 }

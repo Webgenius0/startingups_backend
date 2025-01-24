@@ -3,19 +3,20 @@
 namespace App\Http\Controllers\Api\User\Backend;
 
 use Stripe\Stripe;
+use Stripe\Account;
+use Stripe\Webhook;
 use Stripe\PaymentIntent;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
+use App\Traits\ApiResponse;
 use App\Models\EventBooking;
 
-use App\Models\PaymentTransaction;
+use Illuminate\Http\Request;
 
-use App\Traits\ApiResponse;
-use Illuminate\Support\Facades\Validator;
+use App\Models\PaymentTransaction;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 use Stripe\Exception\ApiErrorException;
+use Illuminate\Support\Facades\Validator;
 use Stripe\Exception\SignatureVerificationException;
-use Stripe\Webhook;
 
 class UserPaymentController extends Controller
 {
@@ -26,7 +27,9 @@ class UserPaymentController extends Controller
      */
     public function createPaymentIntent(Request $request)
     {
-        // Validate the incoming request
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+
         $validatedData = Validator::make($request->all(), [
             'event_booking_id' => 'required|integer|exists:event_bookings,id',
             'amount' => 'required|numeric',
@@ -36,52 +39,56 @@ class UserPaymentController extends Controller
             return $this->error([], $validatedData->errors()->first(), 422);
         }
 
-        $event_booking = EventBooking::with('payments')
-            ->whereHas('payments', function ($query) {
-                $query->where('status', 'success');
-            })
-            ->find($request->event_booking_id);
+        // event booking and the event owner
+        $eventBooking = EventBooking::with('business_profile')->findOrFail($request->event_booking_id);
+        $event_owner = $eventBooking->business_profile->user;
 
-        if ($event_booking && $event_booking->payments->count() > 0) {
-            return $this->error([], 'Booking Payment Already Paid.', 200, []);
+
+
+        if (!$event_owner->stripe_account_id) {
+            return $this->error([], 'Event owner is not onboarded to Stripe.', 400);
+        }
+
+        
+        $account = Account::retrieve($event_owner->stripe_account_id);
+       
+        if (!$account->capabilities->transfers || $account->capabilities->transfers !== 'active') {
+            return $this->error([], 'The event owner\'s account is not enabled for transfers.', 400);
         }
 
         try {
+
+            
             Stripe::setApiKey(config('services.stripe.secret'));
 
             $paymentIntent = PaymentIntent::create([
-                'amount' => $request->amount * 100, 
+                'amount' => $request->amount * 100,
                 'currency' => 'usd',
                 'metadata' => [
                     'event_booking_id' => $request->event_booking_id,
+                    'event_owner_id' => $event_owner->id,
+                ],
+                'transfer_data' => [
+                    'destination' => $event_owner->stripe_account_id,
                 ],
             ]);
 
-            DB::table('payment_transactions')->insert([
+            PaymentTransaction::create([
                 'event_booking_id' => $request->event_booking_id,
-                'amount' => $request->amount,
                 'transaction_id' => $paymentIntent->id,
+                'amount' => $request->amount,
                 'status' => 'pending',
-                'created_at' => now(),
-                'updated_at' => now(),
             ]);
 
-         
-
-            return $this->success($paymentIntent->client_secret, 'Payment intent send succesfully.');
+            return $this->success(['client_secret' => $paymentIntent->client_secret], 'Payment intent created successfully.');
 
         } catch (ApiErrorException $e) {
-            return response()->json([
-                'error' => $e->getMessage(),
-            ], 500);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => $e->getMessage(),
-            ], 500);
+
+            return $this->error([], 'Stripe error: ' . $e->getMessage(), 500);
         }
     }
 
-    
+
 
     /**
      * Handle Stripe Webhook Events (Optional)
@@ -97,9 +104,12 @@ class UserPaymentController extends Controller
             $event = Webhook::constructEvent($payload, $sigHeader, $webhookSecret);
 
             switch ($event->type) {
+
                 case 'payment_intent.succeeded':
+
                     $this->handlePaymentSuccess($event->data->object);
                     return response()->json(['message' => 'Payment succeeded']);
+
 
                 case 'payment_intent.payment_failed':
                     $this->handlePaymentFailure($event->data->object);
@@ -109,10 +119,13 @@ class UserPaymentController extends Controller
                     return response()->json(['message' => 'Unhandled event type']);
             }
         } catch (SignatureVerificationException $e) {
+
             return response()->json(['error' => 'Webhook signature verification failed'], 400);
         } catch (ApiErrorException $e) {
+
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {
+
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
@@ -122,7 +135,7 @@ class UserPaymentController extends Controller
      */
     protected function handlePaymentSuccess($paymentIntent)
     {
-        // Record successful payment in the database
+
         $payment = PaymentTransaction::create([
             'event_booking_id' => $paymentIntent->metadata->event_booking_id,
             'transaction_id' => $paymentIntent->id,
@@ -130,7 +143,7 @@ class UserPaymentController extends Controller
             'status' => 'success',
         ]);
 
-       
+
         if ($payment) {
             $payment->update(['status' => 'succeeded']);
         }
@@ -149,7 +162,7 @@ class UserPaymentController extends Controller
             'status' => 'failed',
         ]);
 
-        
+
         if ($payment) {
             $payment->update(['status' => 'failed']);
         }

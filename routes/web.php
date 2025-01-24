@@ -20,6 +20,7 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
+
 Route::get('/google/login', [GoogleLoginController::class, 'login'])->name('google.login');
 Route::get('/google/redirect', [GoogleLoginController::class, 'redirectToGoogle'])->name('google.redirect');
 Route::get('/google/callback', [GoogleLoginController::class, 'handleGoogleCallback'])->name('google.callback');

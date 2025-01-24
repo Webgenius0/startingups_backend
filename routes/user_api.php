@@ -30,7 +30,6 @@ Route::prefix('user')->group(function () {
 
 
 
-
 // Protected User API Routes
 Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(function () {
     // Authentication & Profile

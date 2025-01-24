@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Business\Backend\GoogleLoginController;
 use App\Http\Controllers\Api\Business\Backend\SubscriptionController;
 use App\Http\Controllers\Api\Business\Backend\BusinessAccountController;
 use App\Http\Controllers\Api\Business\Backend\BusinessProfileController;
+use App\Http\Controllers\Api\Business\Backend\StripeOnboardingController;
 
 // Public Business API Routes
 Route::prefix('business')->group(function () {
@@ -20,12 +21,6 @@ Route::prefix('business')->group(function () {
     // categories and sub categories
     Route::get('categories', [UserHomeController::class, 'categories']);
     Route::get('categories/{id}/sub-categories', [UserHomeController::class, 'sub_categories']);
-
-
-    // user-profile
-
-
-
 });
 
 
@@ -44,6 +39,7 @@ Route::post('password/reset', [BusinessAuthController::class, 'resetPassword']);
 
 // Protected Business API Routes
 Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->group(function () {
+
     // Authentication & Profile
     Route::post('refresh', [BusinessAuthController::class, 'refresh']);
     Route::post('logout', [BusinessAuthController::class, 'logout']);
@@ -54,25 +50,23 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
     // Subscription Management
     Route::get('subscription/plans', [SubscriptionController::class, 'index']);
 
+
     // Business Profile Management
     Route::post('business-profile/create', [BusinessProfileController::class, 'store']);
     Route::get('business-profile/show', [BusinessProfileController::class, 'business_profile_details']);
     Route::post('business-profile/update', [BusinessProfileController::class, 'business_profile_update']);
+
 
     // Events
     Route::post('event/create', [EventController::class, 'store']);
     // Route::post('event/send-invite', [EventController::class, 'send_invite']);
 
 
-
-
     // events reports
     Route::get('event-reports', [EventReportController::class, 'event_details'])->name('business.event_reports');
     Route::get('all-event-reports', [EventReportController::class, 'all_event_reports']);
     Route::get('single-event-reports/{id}', [EventReportController::class, 'signle_event_reports']);
-
     Route::get('event/analysis', [EventReportController::class, 'event_analysis']);
-
 
 
     // event ratings
@@ -87,6 +81,7 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
 
 
     // stripe onboarding
-    Route::post('account/business/{business_id}', [BusinessAccountController::class, 'onboard']);
-    Route::get('onboard-result/{encodedToken}', [BusinessAccountController::class, 'onboardResult'])->name('stripe.onboard-result');
+    Route::post('account/business/{business_id}', [StripeOnboardingController::class, 'onboard']);
+    Route::get('onboard-result/{encodedToken}', [StripeOnboardingController::class, 'onboardResult'])->name('stripe.onboard-result');
+
 });

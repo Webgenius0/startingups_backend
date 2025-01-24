@@ -72,14 +72,14 @@ class GoogleLoginController extends Controller
 
 
 
-    // public function login()
-    // {
-    //     return view('google');
-    // }
-    // public function redirectToGoogle()
-    // {
-    //     return Socialite::driver('google')->redirect();
-    // }
+    public function login()
+    {
+        return view('google');
+    }
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
 
 
     // public function handleGoogleCallback()
