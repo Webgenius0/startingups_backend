@@ -4,9 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\User\Backend\UserHomeController;
 use App\Http\Controllers\Api\Business\Backend\EventController;
 use App\Http\Controllers\Api\Business\Auth\BusinessAuthController;
-use App\Http\Controllers\Api\Business\Backend\BusinessAccountController;
 use App\Http\Controllers\Api\Business\Backend\EventReportController;
+use App\Http\Controllers\Api\Business\Backend\GoogleLoginController;
 use App\Http\Controllers\Api\Business\Backend\SubscriptionController;
+use App\Http\Controllers\Api\Business\Backend\BusinessAccountController;
 use App\Http\Controllers\Api\Business\Backend\BusinessProfileController;
 
 // Public Business API Routes
@@ -14,9 +15,9 @@ Route::prefix('business')->group(function () {
     Route::post('register', [BusinessAuthController::class, 'register']);
     Route::post('login', [BusinessAuthController::class, 'login']);
 
+    Route::post('google/signin', [GoogleLoginController::class, 'googlesignin']);
 
     // categories and sub categories
-
     Route::get('categories', [UserHomeController::class, 'categories']);
     Route::get('categories/{id}/sub-categories', [UserHomeController::class, 'sub_categories']);
 
@@ -26,6 +27,7 @@ Route::prefix('business')->group(function () {
 
 
 });
+
 
 
 Route::get('/user-profile/{id}', [UserHomeController::class, 'user_profile']);
@@ -70,7 +72,7 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
     Route::get('single-event-reports/{id}', [EventReportController::class, 'signle_event_reports']);
 
     Route::get('event/analysis', [EventReportController::class, 'event_analysis']);
-    
+
 
 
     // event ratings
@@ -87,5 +89,4 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
     // stripe onboarding
     Route::post('account/business/{business_id}', [BusinessAccountController::class, 'onboard']);
     Route::get('onboard-result/{encodedToken}', [BusinessAccountController::class, 'onboardResult'])->name('stripe.onboard-result');
-
 });

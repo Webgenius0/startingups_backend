@@ -100,7 +100,7 @@ class BusinessProfileController extends Controller
             $businessProfile->business_prices()->create([
                 'type' => $price['type'],
                 'amount' => $price['amount'],
-                'days' => isset($price['days']) ? $price['days'] : null, 
+                'days' => isset($price['days']) ? $price['days'] : null,
                 'offerings' => $price['offerings'],
             ]);
         }

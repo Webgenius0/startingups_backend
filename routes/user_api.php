@@ -6,16 +6,21 @@ use App\Http\Controllers\Api\User\Backend\FollowController;
 use App\Http\Controllers\Api\User\Backend\UserHomeController;
 use App\Http\Controllers\Api\User\Backend\UserEventController;
 use App\Http\Controllers\Api\User\Backend\UserStoryController;
-use App\Http\Controllers\Api\User\Backend\UserAccountController;
-use App\Http\Controllers\Api\User\Backend\EventBookingController;
-use App\Http\Controllers\Api\User\Backend\UserPaymentController;
-use App\Http\Controllers\Api\User\Backend\UserRelationshipController;
 use App\Http\Controllers\Api\User\Backend\UserSearchController;
+use App\Http\Controllers\Api\User\Backend\GoogleLoginController;
+use App\Http\Controllers\Api\User\Backend\UserAccountController;
+use App\Http\Controllers\Api\User\Backend\UserPaymentController;
+use App\Http\Controllers\Api\User\Backend\EventBookingController;
+use App\Http\Controllers\Api\User\Backend\UserRelationshipController;
 
 // Public User API Routes
 Route::prefix('user')->group(function () {
     Route::post('register', [UserAuthController::class, 'register']);
     Route::post('login', [UserAuthController::class, 'login']);
+    
+    Route::post('google/signin', [GoogleLoginController::class, 'googlesignin']);
+
+
 
     // Password Management
     Route::post('password/request-otp', [UserAuthController::class, 'requestOtp']);
