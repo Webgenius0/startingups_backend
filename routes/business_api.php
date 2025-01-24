@@ -23,6 +23,9 @@ Route::prefix('business')->group(function () {
     Route::get('categories/{id}/sub-categories', [UserHomeController::class, 'sub_categories']);
 });
 
+// countires routes
+Route::get('/countries', [UserHomeController::class, 'countries']);
+
 
 
 Route::get('/user-profile/{id}', [UserHomeController::class, 'user_profile']);

@@ -2,22 +2,33 @@
 
 namespace App\Http\Controllers\Api\User\Backend;
 
-use App\Http\Controllers\Controller;
-use App\Models\BusinessHour;
-use App\Models\BusinessProfile;
-use App\Models\Category;
-use App\Models\EventBooking;
-use App\Models\EventClick;
-use App\Models\Story;
-use App\Models\SubCategory;
-use App\Models\User;
-use App\Traits\ApiResponse;
 use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Story;
+use App\Models\Country;
+use App\Models\Category;
+use App\Models\EventClick;
+use App\Models\SubCategory;
+use App\Traits\ApiResponse;
+use App\Models\BusinessHour;
+use App\Models\EventBooking;
+use App\Models\BusinessProfile;
+use App\Http\Controllers\Controller;
 
 class UserHomeController extends Controller
 {
 
     use ApiResponse;
+
+
+
+
+    public function countries()
+    {
+        $countries = Country::all();
+
+        return $this->success($countries, 'Countries retrieved successfully', 200);
+    }
 
     // _categories
     public function categories()
@@ -35,7 +46,6 @@ class UserHomeController extends Controller
             });
 
             return $this->success($categories, 'Categories retrieved successfully', 200);
-
         } catch (\Exception $e) {
 
             return $this->error([], 'Error retrieving categories: ' . $e->getMessage(), 500);
@@ -61,7 +71,6 @@ class UserHomeController extends Controller
             });
 
             return $this->success($sub_category, 'Sub Categories retrieved successfully', 200);
-
         } catch (\Exception $e) {
 
             return $this->error([], 'Error retrieving categories: ' . $e->getMessage(), 500);
@@ -102,14 +111,14 @@ class UserHomeController extends Controller
                 $near_events = $near_events->merge($event_hours);
             }
 
-      
+
 
             $near_events = $near_events->map(function ($event) {
                 return [
                     'id' => $event->id,
                     'title' => $event->business_profile->business_name,
                     'time' => $event->open_time,
-                   'date' => $event->created_at->format('M d, Y'),
+                    'date' => $event->created_at->format('M d, Y'),
 
                     'location' => $event->business_profile->location,
                     'cover' => $event->business_profile->cover ? url($event->business_profile->cover) : null,
@@ -130,11 +139,10 @@ class UserHomeController extends Controller
 
             foreach ($business_events as $event) {
                 $event_hours = BusinessHour::where('business_profile_id', $event->id)
-                // ->where('date', '>', Carbon::now()->format('d/m/Y'))
+                    // ->where('date', '>', Carbon::now()->format('d/m/Y'))
                     ->get();
                 // dd($event_hours);
                 $recommated_events = $recommated_events->merge($event_hours);
-
             }
 
             $recommated_events = $recommated_events->map(function ($event) {
@@ -142,7 +150,7 @@ class UserHomeController extends Controller
                     'id' => $event->id,
                     'title' => $event->business_profile->business_name,
                     'time' => $event->open_time,
-                   'date' => $event->created_at->format('d M'),
+                    'date' => $event->created_at->format('d M'),
 
                     'location' => $event->business_profile->location,
                     'cover' => $event->business_profile->cover ? url($event->business_profile->cover) : null,
@@ -155,11 +163,11 @@ class UserHomeController extends Controller
 
             foreach ($business_events as $event) {
                 $event_hours = BusinessHour::whereNotNull('open_time')->where('business_profile_id', $event->id)
-                // ->where('date', '>', Carbon::now()->format('d/m/Y'))
+                    // ->where('date', '>', Carbon::now()->format('d/m/Y'))
                     ->orderBy('day', 'desc')
                     ->get();
 
-               
+
                 $daily_events = $daily_events->merge($event_hours);
             }
 
@@ -180,7 +188,6 @@ class UserHomeController extends Controller
                 'recommated_events' => $recommated_events,
                 'daily_events' => $daily_events,
             ], 'Events retrieved successfully', 200);
-
         } catch (\Exception $e) {
 
             return $this->error([], 'Error retrieving events: ' . $e->getMessage(), 500);
@@ -217,7 +224,6 @@ class UserHomeController extends Controller
             });
 
             return $this->success($tailored_event, 'Tailored Events retrieved successfully', 200);
-
         } catch (\Exception $e) {
 
             return $this->error([], 'Error retrieving events: ' . $e->getMessage(), 500);
@@ -243,8 +249,8 @@ class UserHomeController extends Controller
 
             foreach ($business_events as $event) {
                 $event_hours = BusinessHour::whereNotnull('open_time')->where('business_profile_id', $event->id)
-                                            ->orderBy('day', 'asc')
-                                            ->get();
+                    ->orderBy('day', 'asc')
+                    ->get();
 
 
                 $random_event = $random_event->merge($event_hours);
@@ -262,7 +268,6 @@ class UserHomeController extends Controller
             });
 
             return $this->success($random_event, 'Random Events retrieved successfully', 200);
-
         } catch (\Exception $e) {
 
             return $this->error([], 'Error retrieving events: ' . $e->getMessage(), 500);
@@ -317,7 +322,6 @@ class UserHomeController extends Controller
         });
 
         return $this->success($upcoming_events, 'Upcoming events retrieved successfully', 200);
-
     }
 
     public function friend_events()
@@ -325,26 +329,25 @@ class UserHomeController extends Controller
         $user = auth()->user()->load('followees');
 
         // dd($user);
-        
+
         $friends_events = BusinessProfile::whereHas('event_bookings', function ($query) use ($user) {
-                                            $query->whereIn('user_id', $user->followees->pluck('followee_id'));
-                                        })
-                                        ->limit(5)
-                                        ->get();
-    //  dd($friends_events);
+            $query->whereIn('user_id', $user->followees->pluck('followee_id'));
+        })
+            ->limit(5)
+            ->get();
+        //  dd($friends_events);
         $friends_events = $friends_events->map(function ($event) {
             return [
                 'id' => $event->id,
-                'title' => $event->title == null ?  $event->business_name : $event->title ,
+                'title' => $event->title == null ?  $event->business_name : $event->title,
                 'time' => Carbon::parse($event->date)->format('h:i A'),
                 'date' => Carbon::parse($event->date)->format('d M Y'),
-                'location' => $event->location_address == null ? $event->location : $event->location_address  ,
+                'location' => $event->location_address == null ? $event->location : $event->location_address,
                 'cover' => $event->cover ? url($event->cover) : null,
             ];
         });
 
         return $this->success($friends_events, 'Here are some events where your friends are going.', 200);
-
     }
 
     // _event details
@@ -387,7 +390,7 @@ class UserHomeController extends Controller
             'cover' => $event->cover ? url($event->cover) : null,
             'description' => $event->description,
 
-            'artist_or_guest' =>json_decode($event->guest_list) ,
+            'artist_or_guest' => json_decode($event->guest_list),
 
             'event_prices' => $event->business_prices,
 
@@ -461,7 +464,6 @@ class UserHomeController extends Controller
         ];
 
         return $this->success($user, 'User profile retrieved successfully', 200);
-
     }
 
     // user recent places
@@ -489,7 +491,6 @@ class UserHomeController extends Controller
         });
 
         return $this->success($user_recent_places, 'User recent places retrieved successfully', 200);
-
     }
 
     // user preferences
@@ -521,23 +522,22 @@ class UserHomeController extends Controller
     {
         $user = auth('api')->user();
 
-        $event_bookings = EventBooking::with('business_profile')->where('user_id',$user->id)->get();
+        $event_bookings = EventBooking::with('business_profile')->where('user_id', $user->id)->get();
         // dd($event_bookings);
 
-       
+
         $event_histories = $event_bookings->map(function ($event) {
             return [
                 'event_id' => $event->business_profile->id,
                 'title' => $event->business_profile->business_name == null ? $event->business_profile->title : $event->business_profile->business_name,
-                
-                'location' => $event->business_profile->location_address == null ? $event->business_profile->location :  $event->business_profile->location_address ,
+
+                'location' => $event->business_profile->location_address == null ? $event->business_profile->location :  $event->business_profile->location_address,
                 'cover' => $event->business_profile->cover ? url($event->business_profile->cover) : null,
 
             ];
         });
 
         return $this->success($event_histories, 'Event history retrieved successfully', 200);
-
     }
 
 
@@ -549,7 +549,7 @@ class UserHomeController extends Controller
             return $this->error([], 'Event not found', 404);
         }
 
-    
+
 
         $event = [
 
@@ -570,5 +570,4 @@ class UserHomeController extends Controller
 
         return $this->success($event, 'Event history details retrieved successfully', 200);
     }
-
 }
