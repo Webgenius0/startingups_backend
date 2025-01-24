@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Business\Auth\BusinessAuthController;
 use App\Http\Controllers\Api\Business\Backend\EventReportController;
 use App\Http\Controllers\Api\Business\Backend\GoogleLoginController;
 use App\Http\Controllers\Api\Business\Backend\SubscriptionController;
+use App\Http\Controllers\Api\Business\Backend\BusinessPayoutController;
 use App\Http\Controllers\Api\Business\Backend\BusinessAccountController;
 use App\Http\Controllers\Api\Business\Backend\BusinessProfileController;
 use App\Http\Controllers\Api\Business\Backend\StripeOnboardingController;
@@ -86,5 +87,12 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
     // stripe onboarding
     Route::post('account/business/{business_id}', [StripeOnboardingController::class, 'onboard']);
     Route::get('onboard-result/{encodedToken}', [StripeOnboardingController::class, 'onboardResult'])->name('stripe.onboard-result');
+
+    // stripe payout
+    Route::post('account/payout/withdraw', [BusinessPayoutController::class, 'withdraw']);
+    Route::get('account/balance', [BusinessPayoutController::class, 'getBalance']);
+    Route::get('account/transactions', [BusinessPayoutController::class, 'getAllTransactionHistory']);
+
+
 
 });
