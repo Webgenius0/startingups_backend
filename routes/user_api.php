@@ -115,4 +115,12 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
     Route::delete('/search/history/{id}', [UserSearchController::class, 'deleteSearchHistory']); 
     // delete user all search history
     Route::delete('/all-search/history', [UserSearchController::class, 'deleteAllSearchHistory']);
+
+
+    // user notification
+  
+    // get the notifications
+    Route::get('today/notifications', [UserHomeController::class, 'notifications']);
+    // previous notifications
+    Route::get('previous/notifications', [UserHomeController::class, 'previousDayNotifications']);
 });
