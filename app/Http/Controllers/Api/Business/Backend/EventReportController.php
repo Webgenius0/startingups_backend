@@ -113,7 +113,7 @@ class EventReportController extends Controller
             ->get();
 
         $previousTotals = [
-            'Link_clicks' => 0,
+            'link_clicks' => 0,
             'sign_ups' => 0,
             'revenue' => 0.00,
             'repeat_customers' => 0,
