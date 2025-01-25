@@ -259,7 +259,7 @@ class EventReportController extends Controller
         return $this->success([
             'event_id' => $event->id,
             'title' => $event->title,
-            'statistics' => [
+            
                 'link_clicks' => [
                     'total' => $linkClicks,
                     'change_percentage' => $this->calculatePercentageChange($linkClicks, $event->event_clicks->count()),
@@ -279,7 +279,7 @@ class EventReportController extends Controller
                     'total' => $repeatCustomers,
                     'trend_data' => $trendData['repeat_customers'],
                 ],
-            ],
+           
         ], 'Event report fetched successfully.');
     }
 
