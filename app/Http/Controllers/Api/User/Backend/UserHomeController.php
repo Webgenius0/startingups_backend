@@ -585,7 +585,7 @@ class UserHomeController extends Controller
             return $notification->created_at->isToday();
         });
 
-        $today = now()->format('Y-m-d');
+        $today = now()->format('M d, Y');
 
         $data = $notifications->map(function ($notification) {
             return [
