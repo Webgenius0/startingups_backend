@@ -380,6 +380,6 @@ class BusinessAuthController extends Controller
             ];
         });
 
-        return $this->success($data, 'Yesterday\'s notifications retrieved successfully.');
+        return $this->success($data, 'Previous\'s notifications retrieved successfully.');
     }
 }
