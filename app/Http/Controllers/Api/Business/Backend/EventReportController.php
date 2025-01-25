@@ -257,9 +257,13 @@ class EventReportController extends Controller
         ];
 
         return $this->success([
-            'name' => 'Link Click', // You can change this to match your event title or other info
-            'click' => number_format($linkClicks) . 'M', // Formatting clicks
-            'chartData' => $this->formatTrendData($trendData['link_clicks']),
+           
+            'link_clicks' => [
+                'total' => $linkClicks,
+                'change_percentage' => $this->calculatePercentageChange($linkClicks, $event->event_clicks->count()),
+                'trend_data' => $this->formatTrendData($trendData['link_clicks']),
+            ],
+
             'sign_ups' => [
                 'total' => $signUps,
                 'change_percentage' => $this->calculatePercentageChange($signUps, $event->event_bookings->count()),

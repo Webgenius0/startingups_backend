@@ -117,6 +117,10 @@ class EventController extends Controller
                 $this->createRecurringEvents($business_event, $data);
             }
 
+
+        // Notification::send($admin, new UserRegistrationNotification($user));
+
+
             return $this->success($business_event, 'Event created successfully!', 200);
         } catch (ValidationException $e) {
             // Return a JSON response with validation errors
