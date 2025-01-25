@@ -95,4 +95,8 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
 
 
 
+    // get the notifications
+    Route::get('today/notifications', [BusinessAuthController::class, 'notifications']);
+    // previous notifications
+    Route::get('previous/notifications', [BusinessAuthController::class, 'previousDayNotifications']);
 });

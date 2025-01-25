@@ -138,7 +138,7 @@ class BusinessAuthController extends Controller
         if (!$user) {
             return $this->error([], 'User not found.', 404);
         }
-     
+
         $user = [
             'avatar' =>  $user->avatar ?  url($user->avatar) : '',
             'full_name' => $user->full_name,
@@ -330,5 +330,56 @@ class BusinessAuthController extends Controller
             Log::error($e->getMessage());
             return $this->error([], $e->getMessage(), 500);
         }
+    }
+
+
+    // get notification
+    public function notifications()
+    {
+        $user = auth('api')->user();
+
+        if (!$user) {
+            return $this->error([], 'User not found.', 404);
+        }
+
+        $notifications = $user->notifications->filter(function ($notification) {
+            return $notification->created_at->isToday();
+        });
+
+        // return only message and created_at
+        $data = $notifications->map(function ($notification) {
+            return [
+                'message' => $notification->data['message'],
+                'time' => $notification->created_at->diffForHumans(),
+            ];
+        });
+
+        return $this->success($data, 'Today\'s notifications retrieved successfully.');
+    }
+
+
+   
+    // previous day notifications
+    public function previousDayNotifications()
+    {
+        $user = auth('api')->user();
+
+        if (!$user) {
+            return $this->error([], 'User not found.', 404);
+        }
+
+        $notifications = $user->notifications->filter(function ($notification) {
+            return !$notification->created_at->isToday();
+        });
+
+        // return only message and created_at
+        $data = $notifications->map(function ($notification) {
+            return [
+                'message' => $notification->data['message'],
+                'time' => $notification->created_at->diffForHumans(),
+            ];
+        });
+
+        return $this->success($data, 'Yesterday\'s notifications retrieved successfully.');
     }
 }

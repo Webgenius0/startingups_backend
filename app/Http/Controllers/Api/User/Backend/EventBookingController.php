@@ -10,6 +10,8 @@ use App\Models\EventBookingQuest;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use App\Notifications\NewEventNotification;
+use Illuminate\Support\Facades\Notification;
 
 class EventBookingController extends Controller
 {
@@ -85,6 +87,11 @@ class EventBookingController extends Controller
                 ]);
             }
         }
+
+        $event_owner = $booking->business_profile->user;
+            
+        Notification::send($event_owner, new NewEventNotification($booking));
+
 
         // event load with guests
         $booking = $booking->load('guests'); ;

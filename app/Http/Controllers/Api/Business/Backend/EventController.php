@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers\Api\Business\Backend;
 
+use Carbon\Carbon;
 use App\Helper\Helper;
-use App\Http\Controllers\Controller;
+use App\Traits\ApiResponse;
+use Illuminate\Http\Request;
 use App\Mail\EventInviteMail;
 use App\Models\BusinessProfile;
-use App\Traits\ApiResponse;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Notifications\NewEventNotification;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 
 class EventController extends Controller
@@ -86,7 +88,7 @@ class EventController extends Controller
             $business_event->amount = $data['amount'] ?? null;
             $business_event->offerings = $data['offerings'] ?? null;
 
-            $business_event->has_guests = $request->has_guests ?? $request->has_guests ;
+            $business_event->has_guests = $request->has_guests ?? $request->has_guests;
             $business_event->guest_list = isset($data['guest_list']) ? json_encode($data['guest_list']) : null;
             $business_event->guest_options = isset($data['guest_options']) ? json_encode($data['guest_options']) : null;
             $business_event->note_for_guests = $data['note_for_guests'] ?? null;
@@ -94,13 +96,13 @@ class EventController extends Controller
 
 
             $business_event->save();
-      
+
             // Save prices
             foreach ($request->prices as $price) {
                 $business_event->business_prices()->create([
                     'type' => $price['type'],
                     'amount' => $price['amount'],
-                    'days' => isset($price['days']) ? $price['days'] : null, 
+                    'days' => isset($price['days']) ? $price['days'] : null,
                     'offerings' => $price['offerings'] ?? null,
                 ]);
             }
@@ -118,8 +120,7 @@ class EventController extends Controller
             }
 
 
-        // Notification::send($admin, new UserRegistrationNotification($user));
-
+           
 
             return $this->success($business_event, 'Event created successfully!', 200);
         } catch (ValidationException $e) {
@@ -194,7 +195,7 @@ class EventController extends Controller
                 $new_business_event->business_prices()->create([
                     'type' => $price->type,
                     'amount' => $price->amount,
-                    'days' => $price->days , 
+                    'days' => $price->days,
                     'offerings' => $price->offerings,
                 ]);
             }

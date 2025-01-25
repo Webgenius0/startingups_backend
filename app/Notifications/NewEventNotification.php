@@ -11,14 +11,15 @@ class NewEventNotification extends Notification
 {
     use Queueable;
 
-    /**
-     * Create a new notification instance.
-     */
-    public function __construct()
-    {
-        //
-    }
 
+    public $booking;
+
+    
+    public function __construct($booking)
+    {
+        $this->booking = $booking;
+    }
+    
     /**
      * Get the notification's delivery channels.
      *
@@ -48,7 +49,7 @@ class NewEventNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'message' => 'A new event has been created.', 
+            'message' => 'A new ' . $this->booking->business_profile->title . ' event has been booking',
         ];
 
     }
