@@ -26,93 +26,76 @@ class StripeOnboardingController extends Controller
     // Onboarding User to Stripe
     public function onboard($id)
     {
-        $user = User::find($id);
+        $user = User::findOrFail($id); // Use findOrFail for better error handling
 
-        if (!$user) {
-            return $this->error([], 'User not found.', 404);
+        if (!$user->stripe_account_id) {
+            try {
+                Stripe::setApiKey(config('services.stripe.secret'));
+
+                if (empty($user->stripe_account_id)) {
+                    $account = Account::create([
+                        'type' => 'express',
+                        'email' => $user->email,
+                        'country' => 'US',
+                        'capabilities' => [
+                            'card_payments' => ['requested' => true],
+                            'transfers' => ['requested' => true],
+                        ],
+                        'settings' => [
+                            'payouts' => [
+                                'schedule' => [
+                                    'interval' => 'manual',
+                                ],
+                            ],
+                        ],
+                    ]);
+
+                    $user->stripe_account_id = $account->id;
+                    $user->save();
+                }
+
+                $onBoardLink = AccountLink::create([
+                    'account' => $user->stripe_account_id,
+                    'refresh_url' => route('business.event_reports'),
+                    'return_url' => route('stripe.onboard-result', Crypt::encrypt($user->stripe_account_id)),
+                    'type' => 'account_onboarding',
+                ]);
+
+                return $this->success(['url' => $onBoardLink->url], 'Onboarding link generated successfully.');
+            } catch (\Exception $e) {
+                return $this->error([], 'Stripe Onboarding Error: ' . $e->getMessage(), 500);
+            }
         }
 
         try {
-            Stripe::setApiKey(config('services.stripe.secret'));
-
-            if (empty($user->stripe_account_id)) {
-                
-                $account = Account::create([
-                    'type' => 'express',
-                    'email' => $user->email,
-                    'country' => 'US', 
-                    'capabilities' => [
-                        'card_payments' => ['requested' => true],
-                        'transfers' => ['requested' => true],
-                    ],
-                    'settings' => [
-                        'payouts' => [
-                            'schedule' => [
-                                'interval' => 'manual',
-                            ],
-                        ],
-                    ],
-                ]);
-
-                
-                $user->stripe_account_id = $account->id;
-                $user->save();
-            }
-
-            // create Onboarding Link
-            $onBoardLink = AccountLink::create([
-                'account' => $user->stripe_account_id,
-                'refresh_url' => route('business.event_reports'),
-                'return_url' => route('stripe.onboard-result', Crypt::encrypt($user->stripe_account_id)),
-                'type' => 'account_onboarding',
-            ]);
-
-            return $this->success(['url' => $onBoardLink->url], 'Onboarding link generated successfully.');
-
-        } catch (\Stripe\Exception\ApiErrorException $e) {
-            
-            Log::error('Stripe Onboarding Error', [
-                'error_message' => $e->getMessage(),
-                'error_code' => $e->getCode(),
-                'user_id' => $user->id,
-                'stripe_account_id' => $user->stripe_account_id,
-            ]);
-
-           
-            return $this->error([], 'Stripe Onboarding Error: ' . $e->getMessage(), 500);
+            $loginLink = $this->stripeClient->accounts->createLoginLink($user->stripe_account_id, []);
+            return $this->success(['url' => $loginLink->url], 'Login link generated successfully.');
         } catch (\Exception $e) {
-            
-            Log::error('Unexpected Error in Stripe Onboarding', [
-                'error_message' => $e->getMessage(),
-                'user_id' => $user->id,
-                'stack_trace' => $e->getTraceAsString(),
-            ]);
-
-            
-            return $this->error([], 'Unexpected Error: ' . $e->getMessage(), 500);
+            return $this->error([], 'Error generating login link: ' . $e->getMessage(), 500);
         }
     }
 
-    
+
+
     public function onboardResult($encodedToken)
     {
         try {
             $user = User::where('stripe_account_id', Crypt::decrypt($encodedToken))->firstOrFail();
 
-            
+
             $user->stripe_boarding_completed = 'completed';
             $user->save();
 
             return redirect(route('dashboard'));
         } catch (\Exception $e) {
-            
+
             Log::error('Error processing Stripe Onboarding result', [
                 'error_message' => $e->getMessage(),
                 'encoded_token' => $encodedToken,
                 'stack_trace' => $e->getTraceAsString(),
             ]);
 
-            
+
             return $this->error([], 'Error processing onboarding result: ' . $e->getMessage(), 500);
         }
     }
