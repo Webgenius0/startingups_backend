@@ -206,7 +206,7 @@ class EventReportController extends Controller
             'event_id' => $event->id,
             'average_rating' => $averageRating,
             'total_reviews' => $reviewCount,
-            'rating_percentages' => $ratingPercentages, 
+            'rating_percentages' => $ratingPercentages,
             'reviews' => $reviews,
         ], 'Event ratings fetched successfully.');
     }
@@ -257,31 +257,36 @@ class EventReportController extends Controller
         ];
 
         return $this->success([
-            'event_id' => $event->id,
-            'title' => $event->title,
-            
-                'link_clicks' => [
-                    'total' => $linkClicks,
-                    'change_percentage' => $this->calculatePercentageChange($linkClicks, $event->event_clicks->count()),
-                    'trend_data' => $trendData['link_clicks'],
-                ],
-                'sign_ups' => [
-                    'total' => $signUps,
-                    'change_percentage' => $this->calculatePercentageChange($signUps, $event->event_bookings->count()),
-                    'trend_data' => $trendData['sign_ups'],
-                ],
-                'revenue' => [
-                    'total' => $revenue,
-                    'change_percentage' => $this->calculatePercentageChange($revenue, $event->event_bookings->sum('price')),
-                    'trend_data' => $trendData['revenue'],
-                ],
-                'repeat_customers' => [
-                    'total' => $repeatCustomers,
-                    'trend_data' => $trendData['repeat_customers'],
-                ],
-           
+            'name' => 'Link Click', // You can change this to match your event title or other info
+            'click' => number_format($linkClicks) . 'M', // Formatting clicks
+            'chartData' => $this->formatTrendData($trendData['link_clicks']),
+            'sign_ups' => [
+                'total' => $signUps,
+                'change_percentage' => $this->calculatePercentageChange($signUps, $event->event_bookings->count()),
+                'trend_data' => $this->formatTrendData($trendData['sign_ups']),
+            ],
+            'revenue' => [
+                'total' => $revenue,
+                'change_percentage' => $this->calculatePercentageChange($revenue, $event->event_bookings->sum('price')),
+                'trend_data' => $this->formatTrendData($trendData['revenue']),
+            ],
+            'repeat_customers' => [
+                'total' => $repeatCustomers,
+                'trend_data' => $this->formatTrendData($trendData['repeat_customers']),
+            ],
         ], 'Event report fetched successfully.');
     }
+
+    private function formatTrendData($trendData)
+    {
+        return array_map(function ($date, $value) {
+            return [
+                'x' => (int)$date, // You can customize how to map this to your x-axis data
+                'y' => $value,
+            ];
+        }, array_keys($trendData), $trendData);
+    }
+
 
     private function calculatePercentageChange($current, $previous)
     {
@@ -339,6 +344,7 @@ class EventReportController extends Controller
     }
 
 
+    // event analysis
     public function event_analysis(Request $request)
     {
         $user = auth('business')->user();
@@ -347,26 +353,32 @@ class EventReportController extends Controller
             return $this->error([], 'User not found.', 404);
         }
 
-        // Get the filter (daily, weekly, monthly)
+        // Get the selected filter (daily, weekly, monthly)
         $filter = $request->input('filter', 'daily');
         $startDate = $this->getStartDateByFilter($filter);
 
-        // Fetch all events and related data
-        $events = BusinessProfile::with(['event_clicks', 'event_bookings'])->where('user_id', $user->id)->get();
+        // Fetch the events for the user, filtering by the date range
+        $events = BusinessProfile::with(['event_clicks', 'event_bookings'])
+            ->where('user_id', $user->id)
+            ->whereHas('event_clicks', function ($query) use ($startDate) {
+                $query->where('created_at', '>=', $startDate);
+            })
+            ->whereHas('event_bookings', function ($query) use ($startDate) {
+                $query->where('created_at', '>=', $startDate);
+            })
+            ->get();
 
-        // Combine data from all events
-        $combinedClicks = $events->flatMap(fn($event) => $event->event_clicks)
-            ->where('created_at', '>=', $startDate);
-        $combinedBookings = $events->flatMap(fn($event) => $event->event_bookings)
-            ->where('created_at', '>=', $startDate);
+        // Combine clicks and bookings into a single collection, filtered by start date
+        $combinedClicks = $events->flatMap(fn($event) => $event->event_clicks);
+        $combinedBookings = $events->flatMap(fn($event) => $event->event_bookings);
 
-        // Calculate totals
+        // Calculate the total metrics
         $totalLinkClicks = $combinedClicks->count();
         $totalSignUps = $combinedBookings->count();
         $totalRevenue = $combinedBookings->sum('price');
         $totalRepeatCustomers = $combinedBookings->whereNotNull('user_id')->unique('user_id')->count();
 
-        // Generate trend data
+        // Generate trend data for each metric
         $trendData = [
             'link_clicks' => $this->getTrendDataWithDayNames($combinedClicks),
             'sign_ups' => $this->getTrendDataWithDayNames($combinedBookings),
@@ -376,7 +388,6 @@ class EventReportController extends Controller
 
         return $this->success(
             [
-
                 'link_clicks' => [
                     'total' => $totalLinkClicks,
                     'trend_data' => $trendData['link_clicks'],
@@ -398,57 +409,50 @@ class EventReportController extends Controller
         );
     }
 
-    /**
-     * Get the start date based on the filter.
-     */
+
+
     private function getStartDateByFilter($filter)
     {
         switch ($filter) {
             case 'daily':
-                return Carbon::now()->subDays(7); // Fetch the last 7 days for "daily"
+                return Carbon::now()->subDays(7);
             case 'weekly':
-                return Carbon::now()->subWeeks(4); // Fetch the last 4 weeks
+                return Carbon::now()->subWeeks(4);
             case 'monthly':
-                return Carbon::now()->subMonths(6); // Fetch the last 6 months
+                return Carbon::now()->subMonths(6);
             default:
                 return Carbon::now();
         }
     }
 
-    /**
-     * Get trend data grouped by created date with day names.
-     */
+
     private function getTrendDataWithDayNames($data)
     {
         return $data->groupBy(function ($item) {
             $date = Carbon::parse($item->created_at);
-            return $date->format('Y-m-d') . ' (' . $date->format('l') . ')'; // Format: "2025-01-21 (Tuesday)"
+            return $date->format('Y-m-d') . ' (' . $date->format('l') . ')';
         })->map(function ($group) {
             return $group->count();
         })->toArray();
     }
 
-    /**
-     * Get revenue trend data grouped by created date with day names.
-     */
+
     private function getRevenueTrendDataWithDayNames($bookings)
     {
         return $bookings->groupBy(function ($booking) {
             $date = Carbon::parse($booking->created_at);
-            return $date->format('Y-m-d') . ' (' . $date->format('l') . ')'; // Format: "2025-01-21 (Tuesday)"
+            return $date->format('Y-m-d') . ' (' . $date->format('l') . ')';
         })->map(function ($group) {
             return $group->sum('price');
         })->toArray();
     }
 
-    /**
-     * Get repeat customers trend data grouped by created date with day names.
-     */
+
     private function getRepeatCustomersTrendDataWithDayNames($bookings)
     {
         return $bookings->groupBy(function ($booking) {
             $date = Carbon::parse($booking->created_at);
-            return $date->format('Y-m-d') . ' (' . $date->format('l') . ')'; // Format: "2025-01-21 (Tuesday)"
+            return $date->format('Y-m-d') . ' (' . $date->format('l') . ')';
         })->map(function ($group) {
             return $group->unique('user_id')->count();
         })->toArray();
