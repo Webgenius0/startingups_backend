@@ -113,10 +113,10 @@ class EventReportController extends Controller
             ->get();
 
         $previousTotals = [
-            'Link Clicks' => 0,
-            'Sign Ups' => 0,
-            'Revenue' => 0.00,
-            'Repeat Customers' => 0,
+            'Link_clicks' => 0,
+            'sign_ups' => 0,
+            'revenue' => 0.00,
+            'repeat_customers' => 0,
         ];
 
         foreach ($events as $event) {

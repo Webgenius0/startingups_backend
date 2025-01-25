@@ -89,8 +89,8 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
     Route::get('onboard-result/{encodedToken}', [StripeOnboardingController::class, 'onboardResult'])->name('stripe.onboard-result');
 
     // stripe payout
-    Route::post('account/payout/withdraw', [BusinessPayoutController::class, 'withdraw']);
     Route::get('account/balance', [BusinessPayoutController::class, 'getBalance']);
+    Route::post('account/payout/withdraw', [BusinessPayoutController::class, 'withdraw']);
     Route::get('account/transactions', [BusinessPayoutController::class, 'getAllTransactionHistory']);
 
 
