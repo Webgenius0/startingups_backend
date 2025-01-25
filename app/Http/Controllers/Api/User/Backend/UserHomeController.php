@@ -585,7 +585,8 @@ class UserHomeController extends Controller
             return $notification->created_at->isToday();
         });
 
-        // return only message and created_at
+        $today = now()->format('Y-m-d');
+
         $data = $notifications->map(function ($notification) {
             return [
                 'message' => $notification->data['message'],
@@ -593,8 +594,12 @@ class UserHomeController extends Controller
             ];
         });
 
-        return $this->success($data, 'Today\'s notifications retrieved successfully.');
+        return $this->success([
+            'today' => $today,
+            'notifications' => $data,
+        ], 'Today\'s notifications retrieved successfully.');
     }
+    
 
 
 
@@ -611,18 +616,16 @@ class UserHomeController extends Controller
             return $notification->created_at->isToday();
         });
 
-        $today = now()->format('Y-m-d');
-
+        // return only message and created_at
         $data = $notifications->map(function ($notification) {
+
+            
             return [
                 'message' => $notification->data['message'],
                 'time' => $notification->created_at->diffForHumans(),
             ];
         });
 
-        return $this->success([
-            'today' => $today,
-            'notifications' => $data,
-        ], 'Today\'s notifications retrieved successfully.');
+        return $this->success($data, 'Previous\'s notifications retrieved successfully.');
     }
 }
