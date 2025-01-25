@@ -281,7 +281,7 @@ class EventReportController extends Controller
     {
         return array_map(function ($date, $value) {
             return [
-                'x' => (int)$date, // You can customize how to map this to your x-axis data
+                'x' => \Carbon\Carbon::createFromFormat('Y-m-d', $date)->format('y-m-d'), // Format as YY-MM-DD
                 'y' => $value,
             ];
         }, array_keys($trendData), $trendData);
