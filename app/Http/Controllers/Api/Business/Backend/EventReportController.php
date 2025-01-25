@@ -261,7 +261,11 @@ class EventReportController extends Controller
             'link_clicks' => [
                 'total' => $linkClicks,
                 'change_percentage' => $this->calculatePercentageChange($linkClicks, $event->event_clicks->count()),
-                'trend_data' => $this->formatTrendData($trendData['link_clicks']),
+                'trend_data' => $linkClicks ? $this->formatTrendData($trendData['link_clicks']) : 
+                    ['x' => Carbon::now()->format('y-m-d'), 'y' => 0],
+
+
+
             ],
 
             'sign_ups' => [
