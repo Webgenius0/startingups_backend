@@ -280,6 +280,7 @@ class EventReportController extends Controller
             ],
             'repeat_customers' => [
                 'total' => $repeatCustomers,
+                'change_percentage' => $this->calculatePercentageChange($repeatCustomers, $event->event_bookings->where('user_id', '!=', null)->count()),
                 'trend_data' => $repeatCustomers ? $this->formatTrendData($trendData['repeat_customers']) : 
                     ['x' => Carbon::now()->format('y-m-d'), 'y' => 0]
             ],
