@@ -79,7 +79,7 @@ class BusinessPayoutController extends Controller
 
             return $this->success([
                 'user_name' => $user->name == null ? $user->full_name : $user->user_name,
-                'user_cover' => $user->avatar ? url($user->avatar) : '',
+                'user_cover' => $user->avatar ? url($user->avatar) : null,
                 'is_connect_stripe' => $user->stripe_account_id ? true : false,
                 'available_balance' => $available,
                 'pending_balance' => $pending,
