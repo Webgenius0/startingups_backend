@@ -115,7 +115,7 @@ class UserHomeController extends Controller
 
             $near_events = $near_events->map(function ($event) {
                 return [
-                    'id' => $event->id,
+                    'id' => $event->business_profile->id,
                     'title' => $event->business_profile->business_name,
                     'time' => $event->open_time,
                     'date' => $event->created_at->format('M d, Y'),
@@ -147,7 +147,7 @@ class UserHomeController extends Controller
 
             $recommated_events = $recommated_events->map(function ($event) {
                 return [
-                    'id' => $event->id,
+                    'id' => $event->business_profile->id,
                     'title' => $event->business_profile->business_name,
                     'time' => $event->open_time,
                     'date' => $event->created_at->format('d M'),
@@ -173,7 +173,7 @@ class UserHomeController extends Controller
 
             $daily_events = $daily_events->map(function ($event) {
                 return [
-                    'id' => $event->id,
+                    'id' => $event->business_profile->id,
                     'title' => $event->business_profile->business_name,
                     'time' => $event->open_time,
                     'date' => $event->created_at->format('d M'),
@@ -214,7 +214,7 @@ class UserHomeController extends Controller
 
             $tailored_event = $tailored_event->map(function ($event) {
                 return [
-                    'id' => $event->id,
+                    'id' => $event->business_profile->id,
                     'title' => $event->business_profile->business_name,
                     'time' => $event->open_time,
                     'date' => $event->date,
