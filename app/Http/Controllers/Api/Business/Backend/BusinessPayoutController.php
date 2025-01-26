@@ -110,6 +110,8 @@ class BusinessPayoutController extends Controller
                 'stripe_account' => $user->stripe_account_id,
             ]);
 
+            dd($paymentIntents);
+
             // retrieve Payouts (withdrawals)
             $payouts = \Stripe\Payout::all([
                 'limit' => 10,  
