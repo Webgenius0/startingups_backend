@@ -110,7 +110,7 @@ class BusinessPayoutController extends Controller
                 'stripe_account' => $user->stripe_account_id,
             ]);
 
-            dd($paymentIntents);
+            // dd($paymentIntents);
 
             // retrieve Payouts (withdrawals)
             $payouts = \Stripe\Payout::all([
@@ -129,7 +129,11 @@ class BusinessPayoutController extends Controller
                     'status' => $payment->status,
                     'created_at' => $payment->created,
                 ];
-            })->merge(collect($payouts->data)->map(function ($payout) {
+            });
+
+            dd($transactions);
+
+            $transactions = $transactions->merge(collect($payouts->data)->map(function ($payout) {
                 return [
                     'transaction_id' => $payout->id,
                     'type' => 'payout',
