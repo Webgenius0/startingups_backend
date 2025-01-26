@@ -78,8 +78,8 @@ class BusinessPayoutController extends Controller
             $pending = $balance->pending[0]->amount / 100;
 
             return $this->success([
-                'user_name' => $user->name,
-                'user_cover' => url($user->cover),
+                'user_name' => $user->name == null ? $user->full_name : $user->user_name,
+                'user_cover' => url($user->avatar),
                 'available_balance' => $available,
                 'pending_balance' => $pending,
             ], 'User Balance retrieved successfully.');
