@@ -312,18 +312,54 @@ class EventReportController extends Controller
         return round((($current - $previous) / $previous) * 100, 2);
     }
 
-    private function getTrendData($data)
+    private function getTrendData($data, $filter)
     {
-        return $data->groupBy(function ($item) {
-            return $item->created_at->format('Y-m-d');
+        $trend = $data->groupBy(function ($item) use ($filter) {
+            $date = $item->created_at;
+            switch ($filter) {
+                case 'daily':
+                    return $date->format('Y-m-d');
+                case 'weekly':
+                    return $date->startOfWeek()->format('Y-m-d');
+                case 'monthly':
+                    return $date->startOfMonth()->format('Y-m-d');
+                default:
+                    return $date->format('Y-m-d');
+            }
         })->map(function ($group) {
             return $group->count();
         })->toArray();
+
+        return $this->fillMissingDates($trend, $filter);
     }
 
-    private function getRevenueTrendData($bookings, $startDate, $filter)
+    private function fillMissingDates($trendData, $filter)
     {
-        return $bookings->groupBy(function ($booking) use ($startDate, $filter) {
+        $startDate = Carbon::now()->startOfMonth();
+        $endDate = Carbon::now();
+        $interval = match ($filter) {
+            'daily' => 1,
+            'weekly' => 7,
+            'monthly' => 30,
+            default => 1,
+        };
+
+        $filledData = [];
+        for ($date = $startDate; $date <= $endDate; $date->addDays($interval)) {
+            $formattedDate = $date->format('Y-m-d');
+            $filledData[$formattedDate] = $trendData[$formattedDate] ?? 0;
+        }
+
+        return array_map(function ($date, $value) {
+            return ['x' => $date, 'y' => $value];
+        }, array_keys($filledData), $filledData);
+    }
+
+
+
+    private function getRevenueTrendData($bookings, $filter)
+    {
+        $trend = $bookings->groupBy(function ($booking) use ($filter) {
             $date = $booking->created_at;
             switch ($filter) {
                 case 'daily':
@@ -338,11 +374,14 @@ class EventReportController extends Controller
         })->map(function ($group) {
             return $group->sum('price');
         })->toArray();
+
+        return $this->fillMissingDates($trend, $filter);
     }
 
-    private function getRepeatCustomersTrendData($bookings, $startDate, $filter)
+
+    private function getRepeatCustomersTrendData($bookings, $filter)
     {
-        return $bookings->groupBy(function ($booking) use ($startDate, $filter) {
+        $trend = $bookings->groupBy(function ($booking) use ($filter) {
             $date = $booking->created_at;
             switch ($filter) {
                 case 'daily':
@@ -357,7 +396,10 @@ class EventReportController extends Controller
         })->map(function ($group) {
             return $group->unique('user_id')->count();
         })->toArray();
+
+        return $this->fillMissingDates($trend, $filter);
     }
+
 
 
     // event analysis
