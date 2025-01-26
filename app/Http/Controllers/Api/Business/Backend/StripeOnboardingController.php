@@ -24,9 +24,9 @@ class StripeOnboardingController extends Controller
     }
 
     // Onboarding User to Stripe
-    public function onboard($id)
+    public function onboard()
     {
-        $user = User::findOrFail($id); // Use findOrFail for better error handling
+        $user = auth('api')->user();
 
         if (!$user->stripe_account_id) {
             try {

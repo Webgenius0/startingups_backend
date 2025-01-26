@@ -85,7 +85,7 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
 
 
     // stripe onboarding
-    Route::post('account/user/{business_id}', [StripeOnboardingController::class, 'onboard']);
+    Route::post('account/user/onboarding', [StripeOnboardingController::class, 'onboard']);
     Route::get('onboard-result/{encodedToken}', [StripeOnboardingController::class, 'onboardResult'])->name('stripe.onboard-result');
 
     // stripe payout
