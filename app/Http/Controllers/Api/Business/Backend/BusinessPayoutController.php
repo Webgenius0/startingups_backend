@@ -66,7 +66,13 @@ class BusinessPayoutController extends Controller
         $user = auth('api')->user();
 
         if (!$user->stripe_account_id) {
-            return $this->error([], 'Stripe account not found. Please complete onboarding.', 400);
+            return $this->success([
+                'user_name' => $user->name == null ? $user->full_name : $user->user_name,
+                'user_cover' => $user->avatar ? url($user->avatar) : null,
+                'is_connect_stripe' => $user->stripe_account_id ? true : false,
+                'available_balance' => 0,
+                'pending_balance' => 0,
+            ], 'User Balance retrieved successfully.');
         }
 
         try {
@@ -105,7 +111,7 @@ class BusinessPayoutController extends Controller
 
             // retrieve PaymentIntents (successful payments)
             $paymentIntents = \Stripe\PaymentIntent::all([
-                'limit' => 10,  
+                'limit' => 10,
             ], [
                 'stripe_account' => $user->stripe_account_id,
             ]);
@@ -114,7 +120,7 @@ class BusinessPayoutController extends Controller
 
             // retrieve Payouts (withdrawals)
             $payouts = \Stripe\Payout::all([
-                'limit' => 10,  
+                'limit' => 10,
             ], [
                 'stripe_account' => $user->stripe_account_id,
             ]);
@@ -124,7 +130,7 @@ class BusinessPayoutController extends Controller
                 return [
                     'transaction_id' => $payment->id,
                     'type' => 'payment',
-                    'amount' => $payment->amount / 100, 
+                    'amount' => $payment->amount / 100,
                     'currency' => $payment->currency,
                     'status' => $payment->status,
                     'created_at' => $payment->created,
@@ -137,26 +143,23 @@ class BusinessPayoutController extends Controller
                 return [
                     'transaction_id' => $payout->id,
                     'type' => 'payout',
-                    'amount' => $payout->amount / 100, 
+                    'amount' => $payout->amount / 100,
                     'currency' => $payout->currency,
                     'status' => $payout->status,
                     'created_at' => $payout->created,
                 ];
             }));
 
-         
+
             $transactions = $transactions->sortByDesc('created_at');
 
             return $this->success($transactions, 'All transaction history retrieved successfully.');
-
         } catch (ApiErrorException $e) {
 
             return $this->error([], 'Stripe error: ' . $e->getMessage(), 500);
-
         } catch (\Exception $e) {
 
             return $this->error([], 'Error: ' . $e->getMessage(), 500);
-            
         }
     }
 }
