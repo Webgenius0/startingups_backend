@@ -257,35 +257,35 @@ class EventReportController extends Controller
         ];
 
         return $this->success([
-           
+
+
+
             'link_clicks' => [
                 'total' => $linkClicks,
                 'change_percentage' => $this->calculatePercentageChange($linkClicks, $event->event_clicks->count()),
-                'trend_data' => $linkClicks ? $this->formatTrendData($trendData['link_clicks']) : 
-                    ['x' => Carbon::now()->format('y-m-d'), 'y' => 0],
-
+                'trend_data' => $linkClicks ? $this->formatTrendData($trendData['link_clicks']) : [
+                    ['x' => Carbon::now()->format('y-m-d'), 'y' => 0]
+                ],
             ],
-
-            
 
             'sign_ups' => [
                 'total' => $signUps,
                 'change_percentage' => $this->calculatePercentageChange($signUps, $event->event_bookings->count()),
-                'trend_data' => $signUps ? $this->formatTrendData($trendData['sign_ups']) : 
+                'trend_data' => $signUps ? $this->formatTrendData($trendData['sign_ups']) :
                     ['x' => Carbon::now()->format('y-m-d'), 'y' => 0],
             ],
-            
+
             'revenue' => [
                 'total' => $revenue,
                 'change_percentage' => $this->calculatePercentageChange($revenue, $event->event_bookings->sum('price')),
-                'trend_data' => $revenue ? $this->formatTrendData($trendData['revenue']) : 
+                'trend_data' => $revenue ? $this->formatTrendData($trendData['revenue']) :
                     ['x' => Carbon::now()->format('y-m-d'), 'y' => 0],
             ],
 
             'repeat_customers' => [
                 'total' => $repeatCustomers,
                 'change_percentage' => $this->calculatePercentageChange($repeatCustomers, $event->event_bookings->where('user_id', '!=', null)->count()),
-                'trend_data' => $repeatCustomers ? $this->formatTrendData($trendData['repeat_customers']) : 
+                'trend_data' => $repeatCustomers ? $this->formatTrendData($trendData['repeat_customers']) :
                     ['x' => Carbon::now()->format('y-m-d'), 'y' => 0]
             ],
 
