@@ -333,27 +333,7 @@ class EventReportController extends Controller
         return $this->fillMissingDates($trend, $filter);
     }
 
-    private function fillMissingDates($trendData, $filter)
-    {
-        $startDate = Carbon::now()->startOfMonth();
-        $endDate = Carbon::now();
-        $interval = match ($filter) {
-            'daily' => 1,
-            'weekly' => 7,
-            'monthly' => 30,
-            default => 1,
-        };
-
-        $filledData = [];
-        for ($date = $startDate; $date <= $endDate; $date->addDays($interval)) {
-            $formattedDate = $date->format('Y-m-d');
-            $filledData[$formattedDate] = $trendData[$formattedDate] ?? 0;
-        }
-
-        return array_map(function ($date, $value) {
-            return ['x' => $date, 'y' => $value];
-        }, array_keys($filledData), $filledData);
-    }
+   
 
 
 
@@ -398,6 +378,28 @@ class EventReportController extends Controller
         })->toArray();
 
         return $this->fillMissingDates($trend, $filter);
+    }
+
+    private function fillMissingDates($trendData, $filter)
+    {
+        $startDate = Carbon::now()->startOfMonth();
+        $endDate = Carbon::now();
+        $interval = match ($filter) {
+            'daily' => 1,
+            'weekly' => 7,
+            'monthly' => 30,
+            default => 1,
+        };
+
+        $filledData = [];
+        for ($date = $startDate; $date <= $endDate; $date->addDays($interval)) {
+            $formattedDate = $date->format('Y-m-d');
+            $filledData[$formattedDate] = $trendData[$formattedDate] ?? 0;
+        }
+
+        return array_map(function ($date, $value) {
+            return ['x' => $date, 'y' => $value];
+        }, array_keys($filledData), $filledData);
     }
 
 
