@@ -150,17 +150,26 @@ class BusinessPayoutController extends Controller
 
             $transactions = $transactions->sortByDesc('created_at');
 
-            // if transaction is empty return default message
-            if ($transactions->isEmpty()) {
-                return $this->success([
-                    'transaction_id' => null,
-                    'type' => null,
-                    'amount' => 0,
+           $dummy_transactions = [
+                [
+                    'transaction_id' => 'txn_1J4J7vLzZQJ9jv1J4J7vLzZQJ9jv',
+                    'type' => 'payment',
+                    'amount' => 100,
                     'currency' => 'usd',
-                    'status' => 'No transaction history found.',
-                    'created_at' => null,
-                ], 'No transaction history found.');
-            }
+                    'status' => 'succeeded',
+                    'created_at' => '2021-09-01 12:00:00',
+                ],
+                [
+                    'transaction_id' => 'txn_1J4J7vLzZQJ9jv1J4J7vLzZQJ9jv',
+                    'type' => 'payout',
+                    'amount' => 50,
+                    'currency' => 'usd',
+                    'status' => 'pending',
+                    'created_at' => '2021-09-01 12:00:00',
+                ],
+            ];
+
+            $transactions = $transactions ? $transactions : $dummy_transactions;
 
             return $this->success($transactions, 'All transaction history retrieved successfully.');
         } catch (ApiErrorException $e) {
