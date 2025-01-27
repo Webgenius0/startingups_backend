@@ -369,7 +369,7 @@ class BusinessAuthController extends Controller
         }
 
         $notifications = $user->notifications->filter(function ($notification) {
-            return !$notification->created_at->isToday();
+            return $notification->created_at->isToday();
         });
 
         // return only message and created_at
