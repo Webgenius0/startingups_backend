@@ -128,29 +128,28 @@ class BusinessPayoutController extends Controller
                 return [
                     'transaction_id' => $payment->id,
                     'type' => 'payment',
-                    'amount' => $payment->amount ? $payment->amount / 100 : 0, 
-                    'currency' => $payment->currency ? $payment->currency : 'usd', 
-                    'status' => $payment->status ? $payment->status : 'succeeded', 
-                    'created_at' => $payment->created ? $payment->created : $payment->created, 
+                    'amount' => $payment->amount ? $payment->amount / 100 : 0,
+                    'currency' => $payment->currency ? $payment->currency : 'usd',
+                    'status' => $payment->status ? $payment->status : 'succeeded',
+                    'created_at' => $payment->created ? $payment->created : now()->timestamp,
                 ];
             });
-
-       
 
             $transactions = $transactions->merge(collect($payouts->data)->map(function ($payout) {
                 return [
                     'transaction_id' => $payout->id,
                     'type' => 'payout',
-                    'amount' => $payout->amount ? $payout->amount / 100 : 0, 
-                    'currency' => $payout->currency ? $payout->currency : 'usd', 
-                    'status' => $payout->status ? $payout->status : 'pending', 
-                    'created_at' => $payout->created ? $payout->created : $payout->arrival_date, 
+                    'amount' => $payout->amount ? $payout->amount / 100 : 0,
+                    'currency' => $payout->currency ? $payout->currency : 'usd',
+                    'status' => $payout->status ? $payout->status : 'pending',
+                    'created_at' => $payout->created ? $payout->created : now()->timestamp,
                 ];
             }));
 
             $transactions = $transactions->sortByDesc('created_at');
 
-           $dummy_transactions = [
+            // Dummy transactions
+            $dummy_transactions = [
                 [
                     'transaction_id' => 'txn_1J4J7vLzZQJ9jv1J4J7vLzZQJ9jv',
                     'type' => 'payment',
@@ -169,7 +168,8 @@ class BusinessPayoutController extends Controller
                 ],
             ];
 
-            $transactions = $transactions->isEmpty() ? $$dummy_transactions : $transactions; 
+            // Use dummy data if no transactions are found
+            $transactions = $transactions->isEmpty() ? collect($dummy_transactions) : $transactions;
 
             return $this->success($transactions, 'All transaction history retrieved successfully.');
         } catch (ApiErrorException $e) {
