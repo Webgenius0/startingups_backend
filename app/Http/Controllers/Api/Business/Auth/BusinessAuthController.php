@@ -368,12 +368,9 @@ class BusinessAuthController extends Controller
             return $this->error([], 'User not found.', 404);
         }
 
-        $notifications = $user->notifications->filter(function ($notification) {
-            return $notification->created_at->isToday();
-        });
-
+       
         // return only message and created_at
-        $data = $notifications->map(function ($notification) {
+        $data = $user->notifications->map(function ($notification) {
             return [
                 'message' => $notification->data['message'],
                 'time' => $notification->created_at->diffForHumans(),
