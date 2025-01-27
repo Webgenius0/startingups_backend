@@ -128,27 +128,39 @@ class BusinessPayoutController extends Controller
                 return [
                     'transaction_id' => $payment->id,
                     'type' => 'payment',
-                    'amount' => $payment->amount ? $payment->amount / 100 : 0, // Default amount set to 0
-                    'currency' => $payment->currency ? $payment->currency : 'usd', // Default currency set to USD
-                    'status' => $payment->status ? $payment->status : 'succeeded', // Default status set to succeeded
-                    'created_at' => $payment->created ? $payment->created : $payment->created, // Default created_at set to created
+                    'amount' => $payment->amount ? $payment->amount / 100 : 0, 
+                    'currency' => $payment->currency ? $payment->currency : 'usd', 
+                    'status' => $payment->status ? $payment->status : 'succeeded', 
+                    'created_at' => $payment->created ? $payment->created : $payment->created, 
                 ];
             });
 
-            dd($transactions);
+       
 
             $transactions = $transactions->merge(collect($payouts->data)->map(function ($payout) {
                 return [
                     'transaction_id' => $payout->id,
                     'type' => 'payout',
-                    'amount' => $payout->amount ? $payout->amount / 100 : 0, // Default amount set to 0
-                    'currency' => $payout->currency ? $payout->currency : 'usd', // Default currency set to USD
-                    'status' => $payout->status ? $payout->status : 'pending', // Default status set to pending
-                    'created_at' => $payout->created ? $payout->created : $payout->arrival_date, // Default created_at set to arrival_date
+                    'amount' => $payout->amount ? $payout->amount / 100 : 0, 
+                    'currency' => $payout->currency ? $payout->currency : 'usd', 
+                    'status' => $payout->status ? $payout->status : 'pending', 
+                    'created_at' => $payout->created ? $payout->created : $payout->arrival_date, 
                 ];
             }));
 
             $transactions = $transactions->sortByDesc('created_at');
+
+            // if transaction is empty return default message
+            if ($transactions->isEmpty()) {
+                return $this->success([
+                    'transaction_id' => null,
+                    'type' => null,
+                    'amount' => 0,
+                    'currency' => 'usd',
+                    'status' => 'No transaction history found.',
+                    'created_at' => null,
+                ], 'No transaction history found.');
+            }
 
             return $this->success($transactions, 'All transaction history retrieved successfully.');
         } catch (ApiErrorException $e) {
