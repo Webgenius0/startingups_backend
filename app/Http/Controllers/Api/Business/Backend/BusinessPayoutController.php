@@ -169,7 +169,7 @@ class BusinessPayoutController extends Controller
                 ],
             ];
 
-            $transactions = $transactions ? $transactions : $dummy_transactions;
+            $transactions = $transactions->isEmpty() ? $$dummy_transactions : $transactions; 
 
             return $this->success($transactions, 'All transaction history retrieved successfully.');
         } catch (ApiErrorException $e) {
