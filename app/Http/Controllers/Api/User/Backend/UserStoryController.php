@@ -120,6 +120,8 @@ class UserStoryController extends Controller
             'reviews_count' => $story->reviews->count(),
 
             'post_time' => $story->created_at->diffForHumans(),
+            'is_liked' => $story->likes->contains('user_id', Auth::id()),
+
 
             'reviews' => $story->reviews->map(function ($review) {
                 return [
