@@ -155,7 +155,7 @@ class BusinessPayoutController extends Controller
                     'type' => 'payment',
                     'amount' => 0,
                     'currency' => 'usd',
-                    'status' => 'succeeded',
+                    'status' =>  'succeeded',
                     'created_at' => '2021-09-01 12:00:00',
                 ],
                 [

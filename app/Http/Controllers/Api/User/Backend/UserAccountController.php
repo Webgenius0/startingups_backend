@@ -82,11 +82,11 @@ class UserAccountController extends Controller
     public function update_profile(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'full_name' => 'required|string|max:255',
-            // 'email' => 'required|email|max:255',
-            'date_of_birth' => 'required|string|max:255',
-            'gender' => 'required|string|max:255',
-            'phone' => 'required|string|max:255',
+            'full_name' => 'nullable|string|max:255',
+            // 'email' => 'nullable|email|max:255',
+            'date_of_birth' => 'nullable|string|max:255',
+            'gender' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
