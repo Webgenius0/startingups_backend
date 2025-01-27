@@ -8,6 +8,7 @@ use App\Models\Event;
 use App\Traits\ApiResponse;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Bus;
 
 class EventReportController extends Controller
 {
@@ -478,5 +479,71 @@ class EventReportController extends Controller
         })->map(function ($group) {
             return $group->unique('user_id')->count();
         })->toArray();
+    }
+
+
+    // schedule_events
+
+    public function schedule_events(Request $request)
+    {
+        
+        $startDate = $request->input('start_date')
+            ? Carbon::parse($request->input('start_date'))
+            : Carbon::now()->startOfMonth();
+
+        $endDate = $request->input('end_date')
+            ? Carbon::parse($request->input('end_date'))
+            : Carbon::now()->endOfMonth();
+
+        
+        $events = BusinessProfile::where('user_id', auth('business')->id())
+            ->orderBy('start_time') 
+            ->get();
+
+        
+        $schedule = [];
+
+        foreach ($events as $event) {
+            
+            $currentDate = Carbon::parse($event->start_time);
+            $recurrenceType = $event->frequency; 
+
+            while ($currentDate->lte($endDate)) {
+                
+                if ($currentDate->gte($startDate)) {
+                    $dayWithDate = $currentDate->format('l, d'); 
+
+                   
+                    if (!isset($schedule[$dayWithDate])) {
+                        $schedule[$dayWithDate] = [
+                            "title" => $event->title ?? $event->business_name,
+                            "start_time" => Carbon::parse($event->start_time)->format('g:i A'),
+                            "end_time" => Carbon::parse($event->end_time)->format('g:i A'),
+                            "progress" => rand(0, 100), 
+                            "location" => $event->location_address ?? $event->location,
+                            "guests" => json_decode($event->guest_list), 
+                        ];
+                    }
+                }
+
+        
+                if ($recurrenceType === 'once') {
+                    break;
+                }
+
+                if ($recurrenceType === 'daily') {
+                    $currentDate->addDay();
+                } elseif ($recurrenceType === 'weekly') {
+                    $currentDate->addWeek();
+                } elseif ($recurrenceType === 'monthly') {
+                    $currentDate->addMonth();
+                }
+            }
+        }
+
+        return response()->json([
+            "schedule" => $schedule,
+           
+        ]);
     }
 }
