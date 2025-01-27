@@ -36,7 +36,7 @@ class BusinessPayoutController extends Controller
             $available = $balance->available[0]->amount / 100;
 
             if ($request->amount > $available) {
-                return $this->error($balance, 'Insufficient balance for withdrawal.', 400);
+                return $this->error($available, 'Insufficient balance for withdrawal.', 400);
             }
 
             // Create the payout
