@@ -135,6 +135,8 @@ class BusinessPayoutController extends Controller
                 ];
             });
 
+            dd($transactions);
+
             $transactions = $transactions->merge(collect($payouts->data)->map(function ($payout) {
                 return [
                     'transaction_id' => $payout->id,
