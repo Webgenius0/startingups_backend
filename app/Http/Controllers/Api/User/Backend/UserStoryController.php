@@ -42,6 +42,7 @@ class UserStoryController extends Controller
                 'likes_count' => $story->likes_count,
                 'reviews_count' => $story->reviews->count(),
                 'date' => $story->created_at->format('d M'),
+                'is_liked' => $story->likes->contains('user_id', Auth::id()),
 
             ];
         });
