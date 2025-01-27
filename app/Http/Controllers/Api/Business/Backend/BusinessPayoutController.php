@@ -154,7 +154,7 @@ class BusinessPayoutController extends Controller
                 [
                     'transaction_id' => 'txn_1J4J7vLzZQJ9jv1J4J7vLzZQJ9jv',
                     'type' => 'payment',
-                    'amount' => 100,
+                    'amount' => 0,
                     'currency' => 'usd',
                     'status' => 'succeeded',
                     'created_at' => '2021-09-01 12:00:00',
@@ -162,7 +162,7 @@ class BusinessPayoutController extends Controller
                 [
                     'transaction_id' => 'txn_1J4J7vLzZQJ9jv1J4J7vLzZQJ9jv',
                     'type' => 'payout',
-                    'amount' => 50,
+                    'amount' => 0,
                     'currency' => 'usd',
                     'status' => 'pending',
                     'created_at' => '2021-09-01 12:00:00',
