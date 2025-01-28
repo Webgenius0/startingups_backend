@@ -554,12 +554,14 @@ class EventReportController extends Controller
     {
         $selectedDate = $request->input('date')
             ? Carbon::parse($request->input('date'))->toDateString()
-            : Carbon::now()->toDateString(); // Default to today's date if no date is selected
+            : Carbon::now()->toDateString(); 
 
         $events = BusinessProfile::where('user_id', auth('business')->id())
-            ->whereDate('date', $selectedDate) // Fetch events for the selected date
+            ->whereDate('date', $selectedDate) 
             ->orderBy('start_time')
             ->get();
+
+       
 
         $eventList = [];
 
