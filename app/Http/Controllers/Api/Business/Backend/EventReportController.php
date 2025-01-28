@@ -526,24 +526,27 @@ class EventReportController extends Controller
                     }
                 }
 
-        
+    
                 if ($recurrenceType === 'once') {
                     break;
                 }
 
                 if ($recurrenceType === 'daily') {
                     $currentDate->addDay();
+
                 } elseif ($recurrenceType === 'weekly') {
                     $currentDate->addWeek();
+
                 } elseif ($recurrenceType === 'monthly') {
                     $currentDate->addMonth();
                 }
             }
         }
 
-        return response()->json([
-            "schedule" => $schedule,
-           
-        ]);
+        $schedule = collect($schedule)->map(function ($event, $day) {
+            return [$day => $event]; // Wrap each event with the day as the key
+        })->values();// Ensures it remains an array
+
+        return $this->success($schedule, 'Schedule events fetched successfully.');
     }
 }
