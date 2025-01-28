@@ -23,7 +23,7 @@
 
         .container {
             width: 375px;
-            background: #fff;
+            background: #efe7e7;
             border-radius: 15px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             overflow: hidden;
