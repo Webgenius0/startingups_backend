@@ -73,7 +73,7 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
     Route::get('event/analysis', [EventReportController::class, 'event_analysis']);
 
     // schedule events
-    Route::get('schedule/events', [EventReportController::class, 'schedule_events']);
+    Route::post('schedule/events', [EventReportController::class, 'schedule_events']);
 
 
     // event ratings

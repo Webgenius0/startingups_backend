@@ -555,6 +555,7 @@ class EventReportController extends Controller
         $selectedDate = $request->input('date')
             ? Carbon::parse($request->input('date'))->toDateString()
             : Carbon::now()->toDateString(); 
+            
 
         $events = BusinessProfile::where('user_id', auth('business')->id())
             ->whereDate('date', $selectedDate) 
