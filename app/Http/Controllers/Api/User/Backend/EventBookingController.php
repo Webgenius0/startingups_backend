@@ -168,6 +168,8 @@ class EventBookingController extends Controller
 
         $data = [
 
+            'download_link' => route('user.event_ticket_download', $booking->id),
+
             'user_id' => $booking->user_id,
             'user_name' => $booking->full_name,
             'user_cover' => $booking->user->avatar ? url($booking->user->avatar) : null,
