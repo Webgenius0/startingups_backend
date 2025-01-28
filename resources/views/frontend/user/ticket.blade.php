@@ -56,11 +56,11 @@
             cursor: pointer;
         }
 
-        .ticket-image {
+        /* .ticket-image {
             width: 100%;
             height: 150px;
             background: url('{{ $data['event_cover'] }}') center/cover no-repeat;
-        }
+        } */
 
         .ticket-content {
             padding: 15px;
@@ -152,7 +152,9 @@
         </div>
 
         <!-- Event Image -->
-        <div class="ticket-image"></div>
+        <div  class="ticket-image">
+            <img style="width: 100%; height:150px" src="https://media.istockphoto.com/id/1486069918/vector/ripped-paper-ticket-for-a-movie-pass-or-a-show-at-the-cinema.jpg?s=612x612&w=0&k=20&c=eNIMUld-ma6DuNok7wTjl8BkpLo9hY4BYjRW7H9Mk64=" alt="Download">
+        </div>
 
         <!-- Ticket Details -->
         <div class="ticket-content">
