@@ -200,12 +200,13 @@ class EventBookingController extends Controller
         $booking = EventBooking::with('guests', 'business_profile')->findOrFail($id);
 
         $data = [
+
             'user_id' => $booking->user_id,
             'user_name' => $booking->full_name,
             'user_cover' => $booking->user->avatar ? url($booking->user->avatar) : null,
             'booking_id' => $booking->id,
             'event_id' => $booking->business_profile->id,
-            'event_cover' => $booking->business_profile->cover ? url($booking->business_profile->cover) : null,
+            'event_cover' => "https://media.istockphoto.com/id/1500283713/vector/cinema-ticket-on-white-background-movie-ticket-on-white-background.jpg?s=612x612&w=0&k=20&c=4J15lHFXyjEs6xBoagcZqq5GYHKk5sMwCJRP8pNM3Zg=" ,
             'price' => $booking->price,
             'person_count' => $booking->guest_count,
             'event_name' => $booking->business_profile->title == null ? $booking->business_profile->business_name : $booking->business_profile->title,
@@ -218,8 +219,10 @@ class EventBookingController extends Controller
         ];
 
         // Load the view and generate the PDF
-        $pdf = app('dompdf.wrapper')->loadView('frontend.user.ticket', compact('data'));
+        // $pdf = app('dompdf.wrapper')->loadView('frontend.user.ticket', compact('data'));
 
-        return $pdf->download('ticket.pdf');
+        // return $pdf->download('ticket.pdf');
+        return view('frontend.user.ticket', compact('data'));
+
     }
 }

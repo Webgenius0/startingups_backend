@@ -28,6 +28,8 @@ Route::prefix('user')->group(function () {
     Route::post('password/reset', [UserAuthController::class, 'resetPassword']);
 });
 
+Route::get('event/{id}/ticket-download', [EventBookingController::class, 'download_ticket']);
+
 
 
 // Protected User API Routes

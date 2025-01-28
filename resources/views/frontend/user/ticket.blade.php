@@ -147,7 +147,8 @@
         <div class="header">
             <button>&larr;</button>
             <h1>Event Ticket</h1>
-            <img src="https://image-processor-storage.s3.us-west-2.amazonaws.com/images/866759932dc5358cee86f6552d1250f2/inside-bubble-spheres.jpg" alt="Download">
+            <img src="https://media.istockphoto.com/id/1486069918/vector/ripped-paper-ticket-for-a-movie-pass-or-a-show-at-the-cinema.jpg?s=612x612&w=0&k=20&c=eNIMUld-ma6DuNok7wTjl8BkpLo9hY4BYjRW7H9Mk64=" alt="Download">
+            
         </div>
 
         <!-- Event Image -->
@@ -157,7 +158,7 @@
         <div class="ticket-content">
             <div class="user-info">
                 <div class="profile">
-                    <img src="{{ $data['user_cover'] }}" alt="User">
+                    <img src="https://media.istockphoto.com/id/1486069918/vector/ripped-paper-ticket-for-a-movie-pass-or-a-show-at-the-cinema.jpg?s=612x612&w=0&k=20&c=eNIMUld-ma6DuNok7wTjl8BkpLo9hY4BYjRW7H9Mk64=" alt="User">
                     <div class="name">{{ $data['user_name'] }}</div>
                 </div>
                 <div class="price">
