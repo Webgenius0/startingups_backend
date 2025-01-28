@@ -3,16 +3,18 @@
 namespace App\Http\Controllers\Api\User\Backend;
 
 use App\Models\Event;
+use Barryvdh\DomPDF\PDF;
 use App\Traits\ApiResponse;
 use App\Models\EventBooking;
 use Illuminate\Http\Request;
 use App\Models\EventBookingQuest;
 use App\Http\Controllers\Controller;
-use App\Notifications\EventBookingNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\NewEventNotification;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\EventBookingNotification;
+// use Barryvdh\DomPDF\Facade as PDF;
 
 class EventBookingController extends Controller
 {
@@ -90,7 +92,7 @@ class EventBookingController extends Controller
         }
 
         $event_owner = $booking->business_profile->user;
-            
+
         Notification::send($event_owner, new NewEventNotification($booking));
 
         // event booking notification
@@ -99,7 +101,7 @@ class EventBookingController extends Controller
 
 
         // event load with guests
-        $booking = $booking->load('guests'); ;
+        $booking = $booking->load('guests');;
 
         return $this->success($booking, 'Event booking successful!', 200);
     }
@@ -155,8 +157,69 @@ class EventBookingController extends Controller
 
 
         return $this->success($data, 'Event order summary retrieved successfully.');
-
-
     }
 
+
+    // __event ticket
+
+    public function event_ticket($id)
+    {
+        $booking = EventBooking::with('guests', 'business_profile')->findOrFail($id);
+
+        $data = [
+
+            'user_id' => $booking->user_id,
+            'user_name' => $booking->full_name,
+            'user_cover' => $booking->user->avatar ? url($booking->user->avatar) : null,
+
+            'booking_id' => $booking->id,
+
+            'event_id' => $booking->business_profile->id,
+            'event_cover' => $booking->business_profile->cover ? url($booking->business_profile->cover) : null,
+            'price' => $booking->price,
+            'person_count' => $booking->guest_count,
+            'event_name' => $booking->business_profile->title == null ? $booking->business_profile->business_name : $booking->business_profile->title,
+            'date' => $booking->event_date,
+            'in_time' => $booking->event_time,
+            'location' => $booking->business_profile->location_address == null ? $booking->business_profile->location : $booking->business_profile->location_address,
+
+
+            'guests' => $booking->guests->map(function ($guest) {
+                return $guest->full_name;
+            }),
+
+
+        ];
+
+        return $this->success($data, 'Event ticket retrieved successfully.');
+    }
+
+    // __event ticket download
+    public function download_ticket($id)
+    {
+        $booking = EventBooking::with('guests', 'business_profile')->findOrFail($id);
+
+        $data = [
+            'user_id' => $booking->user_id,
+            'user_name' => $booking->full_name,
+            'user_cover' => $booking->user->avatar ? url($booking->user->avatar) : null,
+            'booking_id' => $booking->id,
+            'event_id' => $booking->business_profile->id,
+            'event_cover' => $booking->business_profile->cover ? url($booking->business_profile->cover) : null,
+            'price' => $booking->price,
+            'person_count' => $booking->guest_count,
+            'event_name' => $booking->business_profile->title == null ? $booking->business_profile->business_name : $booking->business_profile->title,
+            'date' => $booking->event_date,
+            'in_time' => $booking->event_time,
+            'location' => $booking->business_profile->location_address == null ? $booking->business_profile->location : $booking->business_profile->location_address,
+            'guests' => $booking->guests->map(function ($guest) {
+                return $guest->full_name;
+            }),
+        ];
+
+        // Load the view and generate the PDF
+        $pdf = app('dompdf.wrapper')->loadView('frontend.user.ticket', compact('data'));
+
+        return $pdf->download('ticket.pdf');
+    }
 }

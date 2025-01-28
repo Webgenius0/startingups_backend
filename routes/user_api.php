@@ -69,6 +69,9 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
     // event booking
     Route::post('event/{id}/booking', [EventBookingController::class, 'event_book']);
     Route::get('event-booking/{id}/order-summary', [EventBookingController::class, 'order_summary']);
+    // event ticket
+    Route::get('event/{id}/ticket', [EventBookingController::class, 'event_ticket']);
+    Route::get('event/{id}/ticket-download', [EventBookingController::class, 'download_ticket']);
 
   
 
