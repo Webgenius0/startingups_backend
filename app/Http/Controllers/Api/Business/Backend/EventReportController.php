@@ -484,69 +484,101 @@ class EventReportController extends Controller
 
     // schedule_events
 
+    // public function schedule_events(Request $request)
+    // {
+
+    //     $startDate = $request->input('start_date')
+    //         ? Carbon::parse($request->input('start_date'))
+    //         : Carbon::now()->startOfMonth();
+
+    //     $endDate = $request->input('end_date')
+    //         ? Carbon::parse($request->input('end_date'))
+    //         : Carbon::now()->endOfMonth();
+
+
+    //     $events = BusinessProfile::where('user_id', auth('business')->id())
+    //         ->orderBy('start_time') 
+    //         ->get();
+
+
+    //     $schedule = [];
+
+    //     foreach ($events as $event) {
+
+    //         $currentDate = Carbon::parse($event->start_time);
+    //         $recurrenceType = $event->frequency; 
+
+    //         while ($currentDate->lte($endDate)) {
+
+    //             if ($currentDate->gte($startDate)) {
+    //                 $dayWithDate = $currentDate->format('l, d'); 
+
+
+    //                 if (!isset($schedule[$dayWithDate])) {
+    //                     $schedule[$dayWithDate] = [
+    //                         "title" => $event->title ?? $event->business_name,
+    //                         "start_time" => Carbon::parse($event->start_time)->format('g:i A'),
+    //                         "end_time" => Carbon::parse($event->end_time)->format('g:i A'),
+    //                         "progress" => rand(0, 100), 
+    //                         "location" => $event->location_address ?? $event->location,
+    //                         "guests" => json_decode($event->guest_list), 
+    //                     ];
+    //                 }
+    //             }
+
+
+    //             if ($recurrenceType === 'once') {
+    //                 break;
+    //             }
+
+    //             if ($recurrenceType === 'daily') {
+    //                 $currentDate->addDay();
+
+    //             } elseif ($recurrenceType === 'weekly') {
+    //                 $currentDate->addWeek();
+
+    //             } elseif ($recurrenceType === 'monthly') {
+    //                 $currentDate->addMonth();
+    //             }
+    //         }
+    //     }
+
+    //     $schedule = collect($schedule)->map(function ($event, $day) {
+    //         return [$day => $event]; 
+    //     })->values();
+
+    //     return $this->success($schedule, 'Schedule events fetched successfully.');
+    // }
+
     public function schedule_events(Request $request)
     {
-        
-        $startDate = $request->input('start_date')
-            ? Carbon::parse($request->input('start_date'))
-            : Carbon::now()->startOfMonth();
+        $selectedDate = $request->input('date')
+            ? Carbon::parse($request->input('date'))->toDateString()
+            : Carbon::now()->toDateString(); // Default to today's date if no date is selected
 
-        $endDate = $request->input('end_date')
-            ? Carbon::parse($request->input('end_date'))
-            : Carbon::now()->endOfMonth();
-
-        
         $events = BusinessProfile::where('user_id', auth('business')->id())
-            ->orderBy('start_time') 
+            ->whereDate('date', $selectedDate) // Fetch events for the selected date
+            ->orderBy('start_time')
             ->get();
 
-        
-        $schedule = [];
+        $eventList = [];
 
         foreach ($events as $event) {
-            
-            $currentDate = Carbon::parse($event->start_time);
-            $recurrenceType = $event->frequency; 
-
-            while ($currentDate->lte($endDate)) {
-                
-                if ($currentDate->gte($startDate)) {
-                    $dayWithDate = $currentDate->format('l, d'); 
-
-                   
-                    if (!isset($schedule[$dayWithDate])) {
-                        $schedule[$dayWithDate] = [
-                            "title" => $event->title ?? $event->business_name,
-                            "start_time" => Carbon::parse($event->start_time)->format('g:i A'),
-                            "end_time" => Carbon::parse($event->end_time)->format('g:i A'),
-                            "progress" => rand(0, 100), 
-                            "location" => $event->location_address ?? $event->location,
-                            "guests" => json_decode($event->guest_list), 
-                        ];
-                    }
-                }
-
-    
-                if ($recurrenceType === 'once') {
-                    break;
-                }
-
-                if ($recurrenceType === 'daily') {
-                    $currentDate->addDay();
-
-                } elseif ($recurrenceType === 'weekly') {
-                    $currentDate->addWeek();
-
-                } elseif ($recurrenceType === 'monthly') {
-                    $currentDate->addMonth();
-                }
-            }
+            $eventList[] = [
+                "id" => $event->id,
+                "title" => $event->title ?? $event->business_name,
+                'date' => Carbon::parse($event->date)->format('F j, Y'),
+                "start_time" => Carbon::parse($event->start_time)->format('g:i A'),
+                "end_time" => Carbon::parse($event->end_time)->format('g:i A'),
+                "progress" => rand(0, 100), 
+                "location" => $event->location_address ?? $event->location,
+                "guests" => json_decode($event->guest_list), 
+            ];
         }
 
-        $schedule = collect($schedule)->map(function ($event, $day) {
-            return [$day => $event]; // Wrap each event with the day as the key
-        })->values();// Ensures it remains an array
-
-        return $this->success($schedule, 'Schedule events fetched successfully.');
+        return response()->json([
+            "selected_date" => $selectedDate,
+            "events" => $eventList
+        ]);
     }
 }
