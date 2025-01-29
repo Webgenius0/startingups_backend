@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Helper\Helper;
-use App\Http\Controllers\Controller;
 use App\Models\Category;
-
+use App\Models\SubCategory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use App\Models\BusinessProfile;
 use Yajra\DataTables\DataTables;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class AdminEventController extends Controller
 {
@@ -19,48 +21,52 @@ class AdminEventController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-
-            $data = Category::latest();
+            $data = BusinessProfile::where('status', 'pending')->get();
 
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('image', function ($data) {
-
-                    if (empty($data->image)) {
+                    if (empty($data->cover)) {
                         return ' --- ';
                     }
-                    $url = asset($data->image);
-                    $iamge = '<img src="' . $url . '" width="50px">';
-
-                    return $iamge;
+                    $url = asset($data->cover);
+                    return '<img src="' . $url . '" width="50px">';
                 })
-                ->addColumn('gender_type', function ($data) {
-
-                    if (empty($data->gender_type)) {
-                        return ' --- ';
-                    }
-                    return $data->gender_type;
-
+                ->addColumn('business_name', function ($data) {
+                    return $data->business_name ?? ' --- ';
+                })
+                ->addColumn('location', function ($data) {
+                    return $data->location ?? ' --- ';
+                })
+                ->addColumn('status', function ($data) {
+                    return ucfirst($data->status);
                 })
                 ->addColumn('action', function ($data) {
                     return '<div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                              <a href="' . route('admin.category.edit', ['id' => $data->id]) . '" class="btn btn-primary text-white" title="Edit">
-                              <i class="bi bi-pencil"></i>
+                                <a href="' . route('admin.event.edit', $data->id) . '" class="btn btn-primary text-white" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                              <a href="javascript:void(0);" onclick="showDeleteConfirm(' . $data->id . ')" class="btn btn-danger text-white" title="Delete">
+                              <i class="bi bi-trash"></i>
                               </a>
-                              
                             </div>';
                 })
-                ->rawColumns(['image', 'gender_type', 'action'])
+                ->rawColumns(['image', 'action'])
                 ->make(true);
         }
 
-        return view('backend.layouts.category.index');
+        return view('backend.layouts.event.index');
     }
+
 
 
     public function create()
     {
-        return view('backend.layouts.category.create');
+
+        $categories = Category::all();
+
+        $sub_categories = SubCategory::all();
+        return view('backend.layouts.event.create', compact('categories', 'sub_categories'));
     }
 
     public function store(Request $request)
@@ -68,48 +74,63 @@ class AdminEventController extends Controller
 
         // dd($request->all());
 
-        try {
+        // Create the Event
+        $event = BusinessProfile::create([
+            'user_id' => Auth::id(),
+            'type' => 'business',
+            'business_name' => $request->business_name,
+            'category_id' => $request->category_id,
+            'sub_category_id' => $request->sub_category_id,
+            'activity' => $request->activity,
+            'location' => $request->location,
+            'age_min' => $request->age_min,
+            'age_max' => $request->age_max,
+            'status' => 'pending'
+        ]);
 
-            $validator = Validator::make($request->all(), [
-                'name' => 'required|string|unique:categories|max:100',
-                'image' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
+        // dd($event);
 
-            ]);
 
-            if ($validator->fails()) {
-                return redirect()->back()->withErrors($validator)->withInput();
-            }
-
-            if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                $imagePath = Helper::uploadImage($image, 'categorys');
-            } else {
-                $imagePath = '-';
-            }
-
-            Category::create([
-                'name' => $request->name,
-                'image' => $imagePath,
-
-            ]);
-
-            return to_route('admin.category.index')->with('t-success', 'Category Created Successfully');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('t-error', $e->getMessage());
+        if ($request->hasFile('cover')) {
+            $coverPath = Helper::uploadImage($request->file('cover'), 'business_profiles');
+            $event->cover = $coverPath;
+            $event->save();
         }
+
+        // Store Operating Hours
+
+        foreach ($request->hours as $hour) {
+            $event->business_hours()->create([
+                'day' => $hour['day'],
+                'is_closed' => $hour['is_closed'] ?? false,
+                'open_time' => $hour['open_time'] ?? null,
+                'close_time' => $hour['close_time'] ?? null,
+                'is_second_time' => $hour['is_second_time'] ?? false,
+                're_open_time' => $hour['re_open_time'] ?? null,
+                're_close_time' => $hour['re_close_time'] ?? null,
+            ]);
+        }
+
+
+
+        // Return Success Response
+        return redirect()->route('admin.event.index')->with('success', 'Event created successfully.');
     }
+
 
     public function edit($id)
     {
-
         try {
-            $category = Category::find($id);
+            $event = BusinessProfile::findOrFail($id);
+            $categories = Category::all();
+            $sub_categories = SubCategory::all();
 
-            return view('backend.layouts.category.edit', compact('category'));
+            return view('backend.layouts.event.edit', compact('event', 'categories', 'sub_categories'));
         } catch (\Exception $e) {
             return redirect()->back()->with('t-error', $e->getMessage());
         }
     }
+
 
     // public function update(Request $request, string $id)
     // {
@@ -149,53 +170,46 @@ class AdminEventController extends Controller
     //     }
     // }
 
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
         try {
-            $category = Category::find($id);
+            $event = BusinessProfile::with('business_hours')->find($id);
 
-            if (!$category) {
-                return redirect()->back()->with('t-error', 'Category not found.');
-            }
 
-            // Validation rules
-            $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:100',
-                'image' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
 
+            // Update Event Details
+            $event->update([
+                'business_name' => $request->business_name,
+                'category_id' => $request->category_id,
+                'sub_category_id' => $request->sub_category_id,
+                'activity' => $request->activity,
+                'location' => $request->location,
+                'age_min' => $request->age_min,
+                'age_max' => $request->age_max,
             ]);
 
-            if ($validator->fails()) {
-                return redirect()->back()->withErrors($validator)->withInput();
+            
+            if ($request->hasFile('cover')) {
+                $coverPath = Helper::uploadImage($request->file('cover'), 'business_profiles');
+                $event->update(['cover' => $coverPath]);
             }
 
-            // Check if a new image is uploaded
-            if ($request->hasFile('image')) {
-                // Delete the old image if it exists
-                if ($category->image && file_exists(public_path($category->image))) {
-                    unlink(public_path($category->image));
-                }
-
-                // Upload the new image
-                $image = $request->file('image');
-                $imagePath = Helper::uploadImage($image, 'categorys');
-            } else {
-                // If no image is uploaded, keep the existing image
-                $imagePath = $category->image;
+            
+            $event->business_hours()->delete(); 
+            foreach ($request->hours as $hour) {
+                $event->business_hours()->create([
+                    'day' => $hour['day'],
+                    'open_time' => $hour['open_time'] ?? null,
+                    'close_time' => $hour['close_time'] ?? null,
+                ]);
             }
 
-            // Update the category details
-            $category->update([
-                'name' => $request->name,
-                'image' => $imagePath,
-
-            ]);
-
-            return to_route('admin.category.index')->with('t-success', 'Category updated successfully.');
+            return redirect()->route('admin.event.index')->with('success', 'Event updated successfully.');
         } catch (\Exception $e) {
             return redirect()->back()->with('t-error', $e->getMessage());
         }
     }
+
 
     public function destroy(string $id)
     {

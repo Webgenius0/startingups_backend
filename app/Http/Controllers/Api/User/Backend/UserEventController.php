@@ -32,7 +32,7 @@ class UserEventController extends Controller
             return $this->error([], $validatedData->errors()->first(), 422);
         }
 
-        $event = BusinessProfile::findOrFail($id);
+        $event = BusinessProfile::find($id);
 
         if (!$event) {
             return $this->error([], 'Event not found', 404);

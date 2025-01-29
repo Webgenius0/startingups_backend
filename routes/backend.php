@@ -45,7 +45,7 @@ Route::get('event', [AdminEventController::class, 'index'])->name('admin.event.i
 Route::get('event/create', [AdminEventController::class, 'create'])->name('admin.event.create');
 Route::post('event/store', [AdminEventController::class, 'store'])->name('admin.event.store');
 Route::get('event/edit/{id}', [AdminEventController::class, 'edit'])->name('admin.event.edit');
-Route::put('event/update/{id}', [AdminEventController::class, 'update'])->name('admin.event.update');
+Route::post('event/update/{id}', [AdminEventController::class, 'update'])->name('admin.event.update');
 Route::delete('event/delete/{id}', [AdminEventController::class, 'destroy'])->name('admin.event.destroy');
 Route::post('/event/status/{id}', [AdminEventController::class, 'status'])->name('admin.event.status');
 
