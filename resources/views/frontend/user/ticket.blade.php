@@ -158,7 +158,7 @@
 
         <!-- Ticket Details -->
         <div class="ticket-content">
-            <div class="user-info">
+            {{-- <div class="user-info">
                 <div class="profile">
                     <img src="https://media.istockphoto.com/id/1486069918/vector/ripped-paper-ticket-for-a-movie-pass-or-a-show-at-the-cinema.jpg?s=612x612&w=0&k=20&c=eNIMUld-ma6DuNok7wTjl8BkpLo9hY4BYjRW7H9Mk64=" alt="User">
                     <div class="name">{{ $data['user_name'] }}</div>
@@ -167,10 +167,10 @@
                     <div class="amount">${{ number_format($data['price'], 2) }}</div>
                     <div class="people">{{ $data['person_count'] }} Person</div>
                 </div>
-            </div>
+            </div> --}}
 
             <!-- Order Details -->
-            <div class="details">
+            {{-- <div class="details">
                 <div class="row">
                     <span class="label">Event</span>
                     <span class="value">{{ $data['event_name'] ? $data['event_name'] : '' }}</span>
@@ -191,7 +191,7 @@
                     <span class="label">Guests</span>
                     <span class="value">{{ $data['guests'] ?  implode(', ', $data['guests']->toArray()) : '' }}</span>
                 </div>
-            </div>
+            </div> --}}
         </div>
 
         <!-- Barcode -->
