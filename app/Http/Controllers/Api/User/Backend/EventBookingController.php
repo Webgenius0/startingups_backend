@@ -238,10 +238,10 @@ class EventBookingController extends Controller
         // dd($data);
 
         // Load the view and generate the PDF
-        // $pdf = app('dompdf.wrapper')->loadView('frontend.user.ticket', compact('data'));
+        $pdf = app('dompdf.wrapper')->loadView('frontend.user.ticket', compact('data'));
 
-        // return $pdf->download('ticket.pdf');
-        return view('frontend.user.ticket', compact('data'));
+        return $pdf->download('ticket.pdf');
+        // return view('frontend.user.ticket', compact('data'));
 
     }
 }

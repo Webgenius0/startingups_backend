@@ -93,8 +93,6 @@ class BusinessProfileController extends Controller
             ]);
         }
 
-
-
         $businessProfile->business_prices()->delete();
         foreach ($validatedData['prices'] as $price) {
             $businessProfile->business_prices()->create([
@@ -104,11 +102,6 @@ class BusinessProfileController extends Controller
                 'offerings' => $price['offerings'],
             ]);
         }
-
-
-
-
-
 
         $businessProfile->cover = $businessProfile->cover ? url($businessProfile->cover) : null;
 
