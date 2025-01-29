@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Backend\AdminEventController;
 use App\Http\Controllers\Backend\CategoryController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\ProductController;
@@ -37,6 +38,17 @@ Route::get('category/edit/{id}', [CategoryController::class, 'edit'])->name('adm
 Route::put('category/update/{id}', [CategoryController::class, 'update'])->name('admin.category.update');
 Route::delete('category/delete/{id}', [CategoryController::class, 'destroy'])->name('admin.category.destroy');
 Route::post('/category/status/{id}', [CategoryController::class, 'status'])->name('admin.category.status');
+
+
+//! Category Routes
+Route::get('event', [AdminEventController::class, 'index'])->name('admin.event.index');
+Route::get('event/create', [AdminEventController::class, 'create'])->name('admin.event.create');
+Route::post('event/store', [AdminEventController::class, 'store'])->name('admin.event.store');
+Route::get('event/edit/{id}', [AdminEventController::class, 'edit'])->name('admin.event.edit');
+Route::put('event/update/{id}', [AdminEventController::class, 'update'])->name('admin.event.update');
+Route::delete('event/delete/{id}', [AdminEventController::class, 'destroy'])->name('admin.event.destroy');
+Route::post('/event/status/{id}', [AdminEventController::class, 'status'])->name('admin.event.status');
+
 
 //! Sub Category Routes
 Route::get('sub-category', [SubCategoryController::class, 'index'])->name('admin.sub_category.index');

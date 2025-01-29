@@ -82,6 +82,17 @@
                     </a>
                 </div>
 
+
+                <div class="menu-item">
+                    <a class="menu-link {{ request()->routeIs('admin.event.*') ? 'active' : '' }}"
+                        href="{{ route('admin.event.index') }}">
+                        <span class="menu-icon">
+                            <i class="fas fa-th-list"></i> <!-- Subcategory icon -->
+                        </span>
+                        <span class="menu-title">Event</span>
+                    </a>
+                </div>
+
                 <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs('admin.faq.*') ? 'active' : '' }}"
                         href="{{ route('admin.faq.index') }}">
