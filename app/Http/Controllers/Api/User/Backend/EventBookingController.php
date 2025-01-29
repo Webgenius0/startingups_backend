@@ -220,14 +220,19 @@ class EventBookingController extends Controller
             'event_id' => $booking->business_profile->id,
             'event_cover' => "https://media.istockphoto.com/id/1500283713/vector/cinema-ticket-on-white-background-movie-ticket-on-white-background.jpg?s=612x612&w=0&k=20&c=4J15lHFXyjEs6xBoagcZqq5GYHKk5sMwCJRP8pNM3Zg=" ,
             'price' => $booking->price,
-            // 'person_count' => $booking->guest_count,
-            // 'event_name' => $booking->business_profile->title == null ? $booking->business_profile->business_name : $booking->business_profile->title,
-            // 'date' => $booking->event_date,
-            // 'in_time' => $booking->event_time,
-            // 'location' => $booking->business_profile->location_address == null ? $booking->business_profile->location : $booking->business_profile->location_address,
-            // 'guests' => $booking->guests->map(function ($guest) {
-            //     return $guest->full_name;
-            // }),
+            'person_count' => $booking->guest_count,
+            'event_name' => $booking->business_profile->title == null ? $booking->business_profile->business_name : $booking->business_profile->title,
+            'date' => $booking->event_date,
+            'in_time' => $booking->event_time,
+            'location' => $booking->business_profile->location_address == null ? $booking->business_profile->location : $booking->business_profile->location_address,
+
+            // check if guest is not null then map the guest if null then return empty array
+            'guests' => $booking->guests ? $booking->guests->map(function ($guest) {
+                return $guest->full_name;
+            }) : null,
+
+            
+
         ];
 
         // Load the view and generate the PDF

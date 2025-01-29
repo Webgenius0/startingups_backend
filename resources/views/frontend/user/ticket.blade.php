@@ -156,7 +156,7 @@
             <img style="width: 100%; height:150px" src="https://media.istockphoto.com/id/1486069918/vector/ripped-paper-ticket-for-a-movie-pass-or-a-show-at-the-cinema.jpg?s=612x612&w=0&k=20&c=eNIMUld-ma6DuNok7wTjl8BkpLo9hY4BYjRW7H9Mk64=" alt="Download">
         </div>
 
-        {{-- <!-- Ticket Details -->
+        <!-- Ticket Details -->
         <div class="ticket-content">
             <div class="user-info">
                 <div class="profile">
@@ -173,26 +173,26 @@
             <div class="details">
                 <div class="row">
                     <span class="label">Event</span>
-                    <span class="value">{{ $data['event_name'] }}</span>
+                    <span class="value">{{ $data['event_name'] ? $data['event_name'] : '' }}</span>
                 </div>
                 <div class="row">
                     <span class="label">Date</span>
-                    <span class="value">{{ \Carbon\Carbon::parse($data['date'])->format('F d, Y') }}</span>
+                    <span class="value">{{ $data['date'] ?  \Carbon\Carbon::parse($data['date'])->format('F d, Y') : '' }}</span>
                 </div>
                 <div class="row">
                     <span class="label">In time</span>
-                    <span class="value">{{ \Carbon\Carbon::parse($data['in_time'])->format('h:i A') }}</span>
+                    <span class="value">{{ $data['in_time'] ?  \Carbon\Carbon::parse($data['in_time'])->format('h:i A') : '' }}</span>
                 </div>
                 <div class="row">
                     <span class="label">Location</span>
-                    <span class="value">{{ $data['location'] }}</span>
+                    <span class="value">{{ $data['location'] ? $data['location'] :'' }}</span>
                 </div>
                 <div class="row">
                     <span class="label">Guests</span>
-                    <span class="value">{{ implode(', ', $data['guests']->toArray()) }}</span>
+                    <span class="value">{{ $data['guests'] ?  implode(', ', $data['guests']->toArray()) : '' }}</span>
                 </div>
             </div>
-        </div> --}}
+        </div>
 
         <!-- Barcode -->
         <div class="barcode-section">
