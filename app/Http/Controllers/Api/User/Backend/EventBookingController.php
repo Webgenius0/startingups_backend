@@ -171,23 +171,23 @@ class EventBookingController extends Controller
             'download_link' => route('user.event_ticket_download', $booking->id),
 
             'user_id' => $booking->user_id,
-            'user_name' => $booking->full_name,
+            'user_name' => $booking->full_name ? $booking->full_name : '',
             'user_cover' => $booking->user->avatar ? url($booking->user->avatar) : null,
 
             'booking_id' => $booking->id,
 
             'event_id' => $booking->business_profile->id,
             'event_cover' => $booking->business_profile->cover ? url($booking->business_profile->cover) : null,
-            'price' => $booking->price,
-            'person_count' => $booking->guest_count,
+            'price' => $booking->price ? $booking->price : 0,
+            'person_count' => $booking->guest_count ? $booking->guest_count : 0,
             'event_name' => $booking->business_profile->title == null ? $booking->business_profile->business_name : $booking->business_profile->title,
-            'date' => $booking->event_date,
-            'in_time' => $booking->event_time,
+            'date' => $booking->event_date ? $booking->event_date : '',
+            'in_time' => $booking->event_time ? $booking->event_time : '',
             'location' => $booking->business_profile->location_address == null ? $booking->business_profile->location : $booking->business_profile->location_address,
 
 
             'guests' => $booking->guests->map(function ($guest) {
-                return $guest->full_name;
+                return $guest->full_name ? $guest->full_name : '';
             }),
 
 
