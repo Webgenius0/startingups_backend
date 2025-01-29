@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Api\User\Backend;
 
 use App\Models\Event;
-use Barryvdh\DomPDF\PDF;
+// use Barryvdh\DomPDF\PDF;
 use App\Traits\ApiResponse;
 use App\Models\EventBooking;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\EventBookingQuest;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -238,8 +239,8 @@ class EventBookingController extends Controller
         // dd($data);
 
         // Load the view and generate the PDF
-        $pdf = app('dompdf.wrapper')->loadView('frontend.user.ticket', compact('data'));
-
+        // $pdf = app('dompdf.wrapper')->loadView('frontend.user.ticket', compact('data'));
+        $pdf = Pdf::loadView('frontend.user.ticket', compact('data'))->setPaper('a4', 'portrait');
         return $pdf->download('ticket.pdf');
         // return view('frontend.user.ticket', compact('data'));
 
