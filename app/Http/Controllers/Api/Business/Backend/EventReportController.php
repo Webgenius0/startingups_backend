@@ -573,7 +573,7 @@ class EventReportController extends Controller
                 'date' => Carbon::parse($event->date)->format('F j, Y'),
                 "start_time" => Carbon::parse($event->start_time)->format('g:i A'),
                 "end_time" => Carbon::parse($event->end_time)->format('g:i A'),
-                "progress" => rand(0, 100), 
+                "progress" => rand(0.0, 1.0), 
                 "location" => $event->location_address ?? $event->location,
                 "guests" => json_decode($event->guest_list), 
             ];
