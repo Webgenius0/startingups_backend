@@ -164,7 +164,7 @@ class EventBookingController extends Controller
 
     public function event_ticket($id)
     {
-        $booking = EventBooking::with('guests', 'business_profile')->findOrFail($id);
+        $booking = EventBooking::with('guests', 'business_profile')->find($id);
 
         // if event booking not found
         if (!$booking) {
