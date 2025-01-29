@@ -579,9 +579,8 @@ class EventReportController extends Controller
             ];
         }
 
-        return response()->json([
-            "selected_date" => $selectedDate,
-            "events" => $eventList
-        ]);
+        return $this->success($eventList, 'Schedule events fetched successfully.');
+
+        
     }
 }
