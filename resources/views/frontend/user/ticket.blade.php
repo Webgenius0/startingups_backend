@@ -181,7 +181,7 @@
                 </div>
                 <div class="row">
                     <span class="label">In time</span>
-                    <span class="value">{{ $data['in_time'] ?  \Carbon\Carbon::parse($data['in_time'])->format('h:i A') : '' }}</span>
+                    <span class="value">{{ $data['in_time'] ? $data['in_time'] : '' }}</span>
                 </div>
                 <div class="row">
                     <span class="label">Location</span>
