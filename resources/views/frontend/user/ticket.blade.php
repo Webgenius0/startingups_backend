@@ -156,7 +156,7 @@
             <img style="width: 100%; height:150px" src="https://media.istockphoto.com/id/1486069918/vector/ripped-paper-ticket-for-a-movie-pass-or-a-show-at-the-cinema.jpg?s=612x612&w=0&k=20&c=eNIMUld-ma6DuNok7wTjl8BkpLo9hY4BYjRW7H9Mk64=" alt="Download">
         </div>
 
-        <!-- Ticket Details -->
+        {{-- <!-- Ticket Details -->
         <div class="ticket-content">
             <div class="user-info">
                 <div class="profile">
@@ -192,7 +192,7 @@
                     <span class="value">{{ implode(', ', $data['guests']->toArray()) }}</span>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         <!-- Barcode -->
         <div class="barcode-section">
