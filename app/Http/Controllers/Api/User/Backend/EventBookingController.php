@@ -166,6 +166,11 @@ class EventBookingController extends Controller
     {
         $booking = EventBooking::with('guests', 'business_profile')->findOrFail($id);
 
+        // if event booking not found
+        if (!$booking) {
+            return $this->error([], 'Event booking not found.', 404);
+        }
+
         $data = [
 
             'download_link' => route('user.event_ticket_download', $booking->id),
