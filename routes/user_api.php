@@ -30,6 +30,7 @@ Route::prefix('user')->group(function () {
 
 Route::get('event/{id}/ticket-download', [EventBookingController::class, 'download_ticket']);
 
+Route::get('event/{id}/ticket-download', [EventBookingController::class, 'download_ticket'])->name('user.event_ticket_download');
 
 
 // Protected User API Routes
@@ -73,8 +74,7 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
     Route::get('event-booking/{id}/order-summary', [EventBookingController::class, 'order_summary']);
     // event ticket
     Route::get('event-booking/{id}/ticket', [EventBookingController::class, 'event_ticket']);
-    Route::get('event/{id}/ticket-download', [EventBookingController::class, 'download_ticket'])->name('user.event_ticket_download');
-
+  
   
 
     Route::post('/stripe/create-payment-intent', [UserPaymentController::class, 'createPaymentIntent']);
