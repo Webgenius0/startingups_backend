@@ -11,7 +11,6 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\EventBookingQuest;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\NewEventNotification;
 use Illuminate\Support\Facades\Notification;
@@ -174,7 +173,8 @@ class EventBookingController extends Controller
         }
 
         $data = [
-            'download_link' => route('user.event_ticket_download', Crypt::encrypt($booking->id)),
+
+            'download_link' => route('user.event_ticket_download', $booking->id),
 
             'user_id' => $booking->user_id,
             'user_name' => $booking->full_name ? $booking->full_name : '',
@@ -205,13 +205,8 @@ class EventBookingController extends Controller
     // __event ticket download
     public function download_ticket($id)
     {
-        try {
-            $bookingId = Crypt::decrypt($id);
-        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
-            return $this->error([], 'Invalid booking ID.', 400);
-        }
-
-        $booking = EventBooking::with('guests', 'business_profile')->find($bookingId);
+        
+        $booking = EventBooking::with('guests', 'business_profile')->find($id);
 
         // if event booking not found
         if (!$booking) {
@@ -224,7 +219,7 @@ class EventBookingController extends Controller
             'user_cover' => $booking->user->avatar ? url($booking->user->avatar) : null,
             'booking_id' => $booking->id,
             'event_id' => $booking->business_profile->id,
-            'event_cover' => "https://media.istockphoto.com/id/1500283713/vector/cinema-ticket-on-white-background-movie-ticket-on-white-background.jpg?s=612x612&w=0&k=20&c=4J15lHFXyjEs6xBoagcZqq5GYHKk5sMwCJRP8pNM3Zg=",
+            'event_cover' => "https://media.istockphoto.com/id/1500283713/vector/cinema-ticket-on-white-background-movie-ticket-on-white-background.jpg?s=612x612&w=0&k=20&c=4J15lHFXyjEs6xBoagcZqq5GYHKk5sMwCJRP8pNM3Zg=" ,
             'price' => $booking->price,
             'person_count' => $booking->guest_count,
             'event_name' => $booking->business_profile->title == null ? $booking->business_profile->business_name : $booking->business_profile->title,
@@ -237,7 +232,7 @@ class EventBookingController extends Controller
                 return $guest->full_name;
             }) : null,
 
-
+            
 
         ];
 
@@ -245,7 +240,7 @@ class EventBookingController extends Controller
 
         // Load the view and generate the PDF
         // $pdf = app('dompdf.wrapper')->loadView('frontend.user.ticket', compact('data'));
-        $pdf = Pdf::loadView('frontend.user.ticket', compact('data'))->setPaper('a4', 'portrait');
+        $pdf = Pdf::loadView('ticket', compact('data'))->setPaper('a4', 'portrait');
         return $pdf->download('ticket.pdf');
         // return view('frontend.user.ticket', compact('data'));
 
