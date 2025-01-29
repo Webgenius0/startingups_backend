@@ -41,7 +41,7 @@ class BusinessProfileController extends Controller
             'hours.*.open_time' => 'nullable|string',
             'hours.*.close_time' => 'nullable|string',
 
-            'hours.*.is_second_time' => 'required|boolean',
+            'hours.*.is_second_time' => 'required',
 
             'hours.*.re_open_time' => 'nullable|string',
             'hours.*.re_close_time' => 'nullable|string',
