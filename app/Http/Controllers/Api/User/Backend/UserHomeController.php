@@ -86,11 +86,11 @@ class UserHomeController extends Controller
 
 
             $business_events = BusinessProfile::with('business_hours', 'event_clicks', 'event_bookings')
-                ->where('type', 'business')
-                ->where(function ($query) {
-                    $query->whereHas('event_clicks')
-                        ->orWhereHas('event_bookings');
-                })
+                ->where('type', 'business_profile')
+                // ->where(function ($query) {
+                //     $query->whereHas('event_clicks')
+                //         ->orWhereHas('event_bookings');
+                // })
                 ->get();
 
             $near_events = $business_events->map(function ($event) {
