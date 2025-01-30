@@ -196,7 +196,7 @@ class BusinessProfileController extends Controller
             'business_name' => 'required|string',
             'category_id' => 'required|integer',
             'sub_category_id' => 'required|integer',
-            'activity' => 'required|in:Indoor,Outdoor',
+            'activity' => 'required',
             'location' => 'required|string',
 
 
