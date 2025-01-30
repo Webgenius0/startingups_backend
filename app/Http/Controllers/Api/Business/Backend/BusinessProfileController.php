@@ -214,7 +214,7 @@ class BusinessProfileController extends Controller
 
         // Update Business Hours only if provided
         if (!empty($hours) && is_array($hours)) {
-            $businessProfile->business_hours()->delete(); // Remove old hours
+            // $businessProfile->business_hours()->delete(); // Remove old hours
 
             foreach ($hours as $hour) {
                 $businessProfile->business_hours()->create([
