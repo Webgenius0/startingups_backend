@@ -160,7 +160,7 @@ class CategoryController extends Controller
 
             // Validation rules
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:100',
+                // 'name' => 'required|string|max:100',
                 'image' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
 
             ]);
@@ -186,7 +186,7 @@ class CategoryController extends Controller
 
             // Update the category details
             $category->update([
-                'name' => $request->name,
+                'name' => $category->name,
                 'image' => $imagePath,
 
             ]);
