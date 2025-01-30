@@ -1,5 +1,5 @@
 @extends('backend.app')
-@section('title', 'category')
+@section('title', 'Business category')
 @section('content')
     <!--begin::Toolbar-->
     <div class="toolbar" id="kt_toolbar">

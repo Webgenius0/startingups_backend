@@ -14,6 +14,7 @@ use App\Models\BusinessHour;
 use App\Models\EventBooking;
 use App\Models\BusinessProfile;
 use App\Http\Controllers\Controller;
+use App\Models\BusinessCategory;
 
 class UserHomeController extends Controller
 {
@@ -35,7 +36,7 @@ class UserHomeController extends Controller
     {
         try {
 
-            $categories = Category::with('sub_categories')->get();
+            $categories = BusinessCategory::with('sub_categories')->get();
 
             if ($categories->isEmpty()) {
                 return $this->error([], 'No categories found', 404);
@@ -51,6 +52,9 @@ class UserHomeController extends Controller
             return $this->error([], 'Error retrieving categories: ' . $e->getMessage(), 500);
         }
     }
+
+
+    
 
     public function sub_categories($category_id)
     {
