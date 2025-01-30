@@ -92,7 +92,7 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
 
     // Categories
     Route::get('categories', [UserHomeController::class, 'categories']);
-    Route::get('categories/{id}/explore-events', [UserHomeController::class, 'explore_event']);
+    Route::get('categories/explore-events', [UserHomeController::class, 'explore_event']);
 
     Route::get('/categories/{id}/tailored-events', [UserHomeController::class, 'tailored_event']);
     Route::get('/categories/{id}/random-events', [UserHomeController::class, 'random_event']);

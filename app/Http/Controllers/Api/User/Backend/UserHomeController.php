@@ -78,52 +78,39 @@ class UserHomeController extends Controller
     }
 
     // _categories event details
-    public function explore_event($id)
+    public function explore_event()
     {
 
         // dd(Carbon::now()->format('d/m/Y'));
         try {
 
-            $category = Category::find($id);
 
-            if (!$category) {
-                return $this->error([], 'Category not found', 404);
-            }
-
-            $user = auth()->user();
-
-            // dd($user);
-
-            $business_events = BusinessProfile::where('type', 'business_profile')->where('category_id', $category->id)
-                // ->where(function ($query) use ($user) {
-                //     $query->where('location', 'like', '%' . $user->city . '%')
-                //         ->orWhere('location', 'like', '%' . $user->street_address . '%');
-                // })
-                // ->limit(5)
+            $business_events = BusinessProfile::with('business_hours', 'event_clicks', 'event_bookings')
+                ->where('type', 'business')
+                ->where(function ($query) {
+                    $query->whereHas('event_clicks')
+                        ->orWhereHas('event_bookings');
+                })
                 ->get();
 
-            // dd($business_events);
-
-            $near_events = collect();
-
-            foreach ($business_events as $event) {
-                $event_hours = BusinessHour::whereNotNull('open_time')->where('business_profile_id', $event->id)->get();
-                $near_events = $near_events->merge($event_hours);
-            }
-
-
-
-            $near_events = $near_events->map(function ($event) {
+            $near_events = $business_events->map(function ($event) {
+                $business_hour = $event->business_hours->first();
                 return [
-                    'id' => $event->business_profile->id,
-                    'title' => $event->business_profile->business_name,
-                    'time' => $event->open_time,
+                    'id' => $event->id,
+                    'title' => $event->business_name,
+                    'time' => $business_hour ? $business_hour->open_time . "-" .  $business_hour->close_time  : 'N/A',
                     'date' => $event->created_at->format('M d, Y'),
-
-                    'location' => $event->business_profile->location,
-                    'cover' => $event->business_profile->cover ? url($event->business_profile->cover) : null,
+                    'location' => $event->location,
+                    'cover' => $event->cover ? url($event->cover) : null,
+                    // 'click_count' => $event->event_clicks->count(),  // Count clicks
+                    // 'booking_count' => $event->event_bookings->count(), // Count bookings
                 ];
             });
+
+
+
+
+            // dd($near_events);
 
             if ($near_events->isEmpty()) {
                 return $this->error([], 'No events found near you', 404);
@@ -133,7 +120,7 @@ class UserHomeController extends Controller
 
             // recommated events
 
-            $business_events = BusinessProfile::where('category_id', $category->id)->get();
+            $business_events = BusinessProfile::all();
 
             $recommated_events = collect();
 
@@ -599,7 +586,7 @@ class UserHomeController extends Controller
             'notifications' => $data,
         ], 'Today\'s notifications retrieved successfully.');
     }
-    
+
 
 
 
@@ -619,7 +606,7 @@ class UserHomeController extends Controller
         // return only message and created_at
         $data = $notifications->map(function ($notification) {
 
-            
+
             return [
                 'message' => $notification->data['message'],
                 'time' => $notification->created_at->diffForHumans(),
