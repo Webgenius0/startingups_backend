@@ -192,7 +192,9 @@ class BusinessProfileController extends Controller
             ], 404);
         }
 
-        // Update business profile details
+        // Decode hours from JSON if needed
+        $hours = is_string($request->hours) ? json_decode($request->hours, true) : $request->hours;
+
         $businessProfile->update([
             'business_name' => $request->business_name,
             'category_id' => $request->category_id,
@@ -201,19 +203,20 @@ class BusinessProfileController extends Controller
             'location' => $request->location,
         ]);
 
-        // Handle cover image upload
         if ($request->hasFile('cover')) {
             if ($businessProfile->cover) {
                 Helper::deleteImage($businessProfile->cover);
             }
-            $businessProfile->cover = Helper::uploadImage($request->file('cover'), 'business_profiles');
+            $coverPath = Helper::uploadImage($request->file('cover'), 'business_profiles');
+            $businessProfile->cover = $coverPath;
             $businessProfile->save();
         }
 
-        // Update business hours only if provided
-        if ($request->has('hours')) {
-            $businessProfile->business_hours()->delete();
-            foreach ($request->hours as $hour) {
+        // Update Business Hours only if provided
+        if (!empty($hours) && is_array($hours)) {
+            $businessProfile->business_hours()->delete(); // Remove old hours
+
+            foreach ($hours as $hour) {
                 $businessProfile->business_hours()->create([
                     'day' => $hour['day'],
                     'is_closed' => $hour['is_closed'],
@@ -226,59 +229,23 @@ class BusinessProfileController extends Controller
             }
         }
 
-        // Update business prices only if provided
-        if ($request->has('prices')) {
-            $businessProfile->business_prices()->delete();
-            foreach ($request->prices as $price) {
-                $businessProfile->business_prices()->create([
-                    'type' => $price['type'],
-                    'amount' => $price['amount'],
-                    'offerings' => $price['offerings'],
-                ]);
-            }
-        }
+        $businessProfile->load('business_hours');
 
-        // Load updated relationships
-        $businessProfile->load('business_hours', 'business_prices', 'category', 'sub_category');
-
-        // Prepare response data
-        $data = [
-            'id' => $businessProfile->id,
-            'user_id' => $businessProfile->user_id,
-            'cover' => $businessProfile->cover ? url($businessProfile->cover) : null,
-            'business_name' => $businessProfile->business_name,
-            'category_id' => $businessProfile->category_id,
-            'category_name' => $businessProfile->category->name ?? '',
-            'subcategory_id' => $businessProfile->sub_category_id,
-            'subcategory_name' => $businessProfile->sub_category->name ?? '',
-            'activity' => $businessProfile->activity,
-            'location' => $businessProfile->location,
-            'business_hours' => $businessProfile->business_hours->map(function ($hour) {
-                return [
-                    'id' => $hour->id,
-                    'business_profile_id' => $hour->business_profile_id,
-                    'day' => $hour->day,
-                    'is_closed' => (bool) $hour->is_closed,
-                    'open_time' => $hour->open_time,
-                    'close_time' => $hour->close_time,
-                    'is_second_time' => (bool) $hour->is_second_time,
-                    're_open_time' => $hour->re_open_time,
-                    're_close_time' => $hour->re_close_time,
-                ];
-            }),
-            'business_prices' => $businessProfile->business_prices->map(function ($price) {
-                return [
-                    'id' => $price->id,
-                    'business_profile_id' => $price->business_profile_id,
-                    'type' => $price->type,
-                    'amount' => $price->amount,
-                    'offerings' => $price->offerings,
-                ];
-            }),
-        ];
-
-        return $this->success($data, 'Business Profile updated successfully', 200);
+        return response()->json([
+            'success' => true,
+            'message' => 'Business Profile updated successfully',
+            'data' => [
+                'id' => $businessProfile->id,
+                'business_name' => $businessProfile->business_name,
+                'category_id' => $businessProfile->category_id,
+                'subcategory_id' => $businessProfile->sub_category_id,
+                'activity' => $businessProfile->activity,
+                'location' => $businessProfile->location,
+                'business_hours' => $businessProfile->business_hours,
+            ]
+        ], 200);
     }
+
 
 
     public function destroy(string $id)
