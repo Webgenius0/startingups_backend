@@ -54,6 +54,7 @@ class UserAuthController extends Controller
 
         $data = User::create([
             'avatar' => $coverPath ? $coverPath : '',
+            'name' => $request->full_name,
             'full_name' => $request->full_name,
             'user_name' => $request->user_name,
             'email' => $request->email,
@@ -67,7 +68,7 @@ class UserAuthController extends Controller
             'date_of_birth' => $request->date_of_birth,
             'country' => $request->country,
             // 'street_address' => $request->street_address,
-            // 'city' => $request->city,
+            'phone' => $request->phone,
 
         ]);
 

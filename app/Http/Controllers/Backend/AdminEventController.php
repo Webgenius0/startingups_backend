@@ -214,7 +214,7 @@ class AdminEventController extends Controller
     public function destroy(string $id)
     {
 
-        $data = Category::findOrFail($id);
+        $data = BusinessProfile::findOrFail($id);
         if (empty($data)) {
             return response()->json([
                 'success' => false,

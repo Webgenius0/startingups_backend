@@ -121,12 +121,12 @@
                                         <div class="row">
                                             <div class="col-md-6 mb-2">
                                                 <label class="form-label">Open Time</label>
-                                                <input type="time" name="hours[{{ $index }}][open_time]"
+                                                <input type="text" name="hours[{{ $index }}][open_time]"
                                                     class="form-control">
                                             </div>
                                             <div class="col-md-6 mb-2">
                                                 <label class="form-label">Close Time</label>
-                                                <input type="time" name="hours[{{ $index }}][close_time]"
+                                                <input type="text" name="hours[{{ $index }}][close_time]"
                                                     class="form-control">
                                             </div>
                                         </div>
@@ -137,12 +137,12 @@
                                         <div class="row">
                                             <div class="col-md-6 mb-2">
                                                 <label class="form-label">Reopen Time</label>
-                                                <input type="time" name="hours[{{ $index }}][re_open_time]"
+                                                <input type="text" name="hours[{{ $index }}][re_open_time]"
                                                     class="form-control">
                                             </div>
                                             <div class="col-md-6 mb-2">
                                                 <label class="form-label">Reclose Time</label>
-                                                <input type="time" name="hours[{{ $index }}][re_close_time]"
+                                                <input type="text" name="hours[{{ $index }}][re_close_time]"
                                                     class="form-control">
                                             </div>
                                         </div>
