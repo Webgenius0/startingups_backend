@@ -87,7 +87,7 @@ class UserAccountController extends Controller
             // 'email' => 'nullable|email|max:255',
             'date_of_birth' => 'nullable|string|max:255',
             'gender' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:255',
+            // 'phone' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -106,7 +106,7 @@ class UserAccountController extends Controller
         $user->email = auth('api')->user()->email;
         $user->date_of_birth = $request->date_of_birth;
         $user->gender = $request->gender;
-        $user->phone = $request->phone;
+        $user->phone = $user->phone;
         $user->avatar = $coverPath;
         $user->save();
 

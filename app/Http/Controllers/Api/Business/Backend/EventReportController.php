@@ -68,6 +68,8 @@ class EventReportController extends Controller
                 'sign_ups' => $signUps,
                 'revenue' => $revenue,
                 'reported_customers' => $reportedCustomers,
+
+                'status' => 'active'
             ];
         });
 
