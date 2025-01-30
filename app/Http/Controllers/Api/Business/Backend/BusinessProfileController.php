@@ -184,57 +184,36 @@ class BusinessProfileController extends Controller
         $businessProfile = BusinessProfile::where('user_id', Auth::id())
             ->where('type', 'business_profile')
             ->first();
-    
+
         if (!$businessProfile) {
             return response()->json([
                 'success' => false,
                 'message' => 'Business profile not found or unauthorized access.',
             ], 404);
         }
-    
-        $validatedData = $request->validate([
-            'cover' => 'nullable|image|mimes:jpg,jpeg,png',
-            'business_name' => 'required|string',
-            'category_id' => 'required|integer',
-            'sub_category_id' => 'required|integer',
-            'activity' => 'required|string',
-            'location' => 'required|string',
-            'hours' => 'required|array',
-            'hours.*.day' => 'required|string',
-            'hours.*.is_closed' => 'required',
-            'hours.*.open_time' => 'nullable|string',
-            'hours.*.close_time' => 'nullable|string',
-            'hours.*.is_second_time' => 'required',
-            'hours.*.re_open_time' => 'nullable|string',
-            'hours.*.re_close_time' => 'nullable|string',
-            
-        ]);
-    
+
         // Update business profile details
         $businessProfile->update([
-            'business_name' => $validatedData['business_name'],
-            'category_id' => $validatedData['category_id'],
-            'sub_category_id' => $validatedData['sub_category_id'],
-            'activity' => $validatedData['activity'],
-            'location' => $validatedData['location'],
+            'business_name' => $request->business_name,
+            'category_id' => $request->category_id,
+            'sub_category_id' => $request->sub_category_id,
+            'activity' => $request->activity,
+            'location' => $request->location,
         ]);
-    
-        
+
+        // Handle cover image upload
         if ($request->hasFile('cover')) {
             if ($businessProfile->cover) {
                 Helper::deleteImage($businessProfile->cover);
             }
-    
-            $coverPath = Helper::uploadImage($request->file('cover'), 'business_profiles');
-            $businessProfile->cover = $coverPath;
+            $businessProfile->cover = Helper::uploadImage($request->file('cover'), 'business_profiles');
             $businessProfile->save();
         }
-    
-        
+
+        // Update business hours only if provided
         if ($request->has('hours')) {
             $businessProfile->business_hours()->delete();
-    
-            foreach ($validatedData['hours'] as $hour) {
+            foreach ($request->hours as $hour) {
                 $businessProfile->business_hours()->create([
                     'day' => $hour['day'],
                     'is_closed' => $hour['is_closed'],
@@ -246,12 +225,11 @@ class BusinessProfileController extends Controller
                 ]);
             }
         }
-    
-        
+
+        // Update business prices only if provided
         if ($request->has('prices')) {
             $businessProfile->business_prices()->delete();
-    
-            foreach ($validatedData['prices'] as $price) {
+            foreach ($request->prices as $price) {
                 $businessProfile->business_prices()->create([
                     'type' => $price['type'],
                     'amount' => $price['amount'],
@@ -259,10 +237,10 @@ class BusinessProfileController extends Controller
                 ]);
             }
         }
-    
+
         // Load updated relationships
         $businessProfile->load('business_hours', 'business_prices', 'category', 'sub_category');
-    
+
         // Prepare response data
         $data = [
             'id' => $businessProfile->id,
@@ -298,10 +276,10 @@ class BusinessProfileController extends Controller
                 ];
             }),
         ];
-    
+
         return $this->success($data, 'Business Profile updated successfully', 200);
     }
-    
+
 
     public function destroy(string $id)
     {
