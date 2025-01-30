@@ -36,7 +36,7 @@ class UserHomeController extends Controller
     {
         try {
 
-            $categories = BusinessCategory::with('sub_categories')->get();
+            $categories = BusinessCategory::all();
 
             if ($categories->isEmpty()) {
                 return $this->error([], 'No categories found', 404);
