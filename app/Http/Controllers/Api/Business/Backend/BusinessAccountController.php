@@ -93,7 +93,7 @@ class BusinessAccountController extends Controller
             // 'email' => 'required|email|max:255',
             'date_of_birth' => 'required|string|max:255',
             'gender' => 'required|string|max:255',
-            'phone' => 'required|string|max:255',
+            // 'phone' => 'required|string|max:255',
 
         ]);
 
@@ -113,7 +113,7 @@ class BusinessAccountController extends Controller
         $user->email = auth('api')->user()->email;
         $user->date_of_birth = $request->date_of_birth;
         $user->gender = $request->gender;
-        $user->phone = $request->phone;
+        $user->phone = $user->phone;
         $user->country_code = $request->country_code;
         $user->avatar = $coverPath;
         $user->save();
