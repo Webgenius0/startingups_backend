@@ -192,7 +192,7 @@ class BusinessProfileController extends Controller
         }
 
         $validatedData = $request->validate([
-            'cover' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
+            'cover' => 'nullable|image|mimes:jpg,jpeg,png',
             'business_name' => 'required|string',
             'category_id' => 'required|integer',
             'sub_category_id' => 'required|integer',
