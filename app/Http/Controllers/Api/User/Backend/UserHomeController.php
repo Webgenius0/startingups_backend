@@ -36,7 +36,7 @@ class UserHomeController extends Controller
     {
         try {
 
-            $categories = BusinessCategory::all();
+            $categories = Category::with('sub_categories')->get();
 
             if ($categories->isEmpty()) {
                 return $this->error([], 'No categories found', 404);
@@ -52,6 +52,29 @@ class UserHomeController extends Controller
             return $this->error([], 'Error retrieving categories: ' . $e->getMessage(), 500);
         }
     }
+
+
+     // _categories
+     public function business_categories()
+     {
+         try {
+ 
+             $categories = BusinessCategory::all();
+ 
+             if ($categories->isEmpty()) {
+                 return $this->error([], 'No categories found', 404);
+             }
+ 
+             $categories->map(function ($category) {
+                 $category->image = $category->image ? url($category->image) : null;
+             });
+ 
+             return $this->success($categories, 'Categories retrieved successfully', 200);
+         } catch (\Exception $e) {
+ 
+             return $this->error([], 'Error retrieving categories: ' . $e->getMessage(), 500);
+         }
+     }
 
 
     

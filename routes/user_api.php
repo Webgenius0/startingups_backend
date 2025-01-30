@@ -91,7 +91,7 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
     Route::post('event/{id}/review', [UserEventController::class, 'event_review']);
 
     // Categories
-    Route::get('categories', [UserHomeController::class, 'categories']);
+    Route::get('categories', [UserHomeController::class, 'business_categories']);
     Route::get('categories/explore-events', [UserHomeController::class, 'explore_event']);
 
     Route::get('/categories/tailored-events', [UserHomeController::class, 'tailored_event']);
