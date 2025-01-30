@@ -120,7 +120,7 @@ class UserHomeController extends Controller
 
             // recommated events
 
-            $business_events = BusinessProfile::all();
+            $business_events = BusinessProfile::whereNull('status')->get();
 
             $recommated_events = collect();
 
@@ -188,7 +188,7 @@ class UserHomeController extends Controller
 
            
 
-            $business_events = BusinessProfile::all();
+            $business_events = BusinessProfile::whereNull('status')->get();
 
             $tailored_event = collect();
 
@@ -224,7 +224,7 @@ class UserHomeController extends Controller
             
 
             // random events
-            $business_events = BusinessProfile::orderBy('created_at', 'desc')->get();
+            $business_events = BusinessProfile::orderBy('created_at', 'desc')->whereNull('status')->get();
 
             $random_event = collect();
 
@@ -315,6 +315,7 @@ class UserHomeController extends Controller
             $query->whereIn('user_id', $user->followees->pluck('followee_id'));
         })
             ->limit(5)
+            ->whereNull('status')
             ->get();
         //  dd($friends_events);
         $friends_events = $friends_events->map(function ($event) {
