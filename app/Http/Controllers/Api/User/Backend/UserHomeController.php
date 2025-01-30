@@ -216,7 +216,7 @@ class UserHomeController extends Controller
     }
 
     // __random events
-    public function random_event($id)
+    public function random_event()
     {
 
         try {
