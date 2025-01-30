@@ -49,7 +49,7 @@ class NewEventNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'message' => 'A new ' . $this->booking->business_profile->title . ' event has been booking',
+            'message' => 'A new ' . $this->booking->business_profile->title . ' event has been booked',
         ];
 
     }
