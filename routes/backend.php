@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Backend\AdminEventController;
+use App\Http\Controllers\Backend\BusinessCategoryController;
 use App\Http\Controllers\Backend\CategoryController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\ProductController;
@@ -38,6 +39,17 @@ Route::get('category/edit/{id}', [CategoryController::class, 'edit'])->name('adm
 Route::put('category/update/{id}', [CategoryController::class, 'update'])->name('admin.category.update');
 Route::delete('category/delete/{id}', [CategoryController::class, 'destroy'])->name('admin.category.destroy');
 Route::post('/category/status/{id}', [CategoryController::class, 'status'])->name('admin.category.status');
+
+
+//! Category Routes
+Route::get('business-category', [BusinessCategoryController::class, 'index'])->name('admin.business_category.index');
+Route::get('business-category/create', [BusinessCategoryController::class, 'create'])->name('admin.business_category.create');
+Route::post('business-category/store', [BusinessCategoryController::class, 'store'])->name('admin.business_category.store');
+Route::get('business-category/edit/{id}', [BusinessCategoryController::class, 'edit'])->name('admin.business_category.edit');
+Route::put('business-category/update/{id}', [BusinessCategoryController::class, 'update'])->name('admin.business_category.update');
+Route::delete('business-category/delete/{id}', [BusinessCategoryController::class, 'destroy'])->name('admin.business_category.destroy');
+Route::post('business-category/status/{id}', [BusinessCategoryController::class, 'status'])->name('admin.business_category.status');
+
 
 
 //! Category Routes

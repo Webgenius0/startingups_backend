@@ -44,7 +44,7 @@
                         @method('PUT')
                         <div>
                             <label for="name" class="form-label">Name</label>
-                            <input  type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" placeholder="Enter Name" value="{{ $category->name }}">
+                            <input disabled type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" placeholder="Enter Name" value="{{ $category->name }}">
                             @error('name')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>

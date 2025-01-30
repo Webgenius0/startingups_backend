@@ -45,6 +45,26 @@
                         <span class="menu-title">Dashboard</span>
                     </a>
                 </div>
+
+                <div class="menu-item">
+                    <div class="menu-content">
+                        <div class="separator mx-1 my-2"></div>
+                    </div>
+                </div>
+
+
+                <div class="menu-item">
+                    <a class="menu-link {{ request()->routeIs('admin.business_category.*') ? 'active' : '' }}"
+                        href="{{ route('admin.business_category.index') }}">
+                        <span class="menu-icon">
+                            <i class="ki-duotone ki-folder fs-2">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                            </i>
+                        </span>
+                        <span class="menu-title">Business Categories</span>
+                    </a>
+                </div>
                
 
                 <div class="menu-item">
@@ -68,7 +88,7 @@
                                 <span class="path2"></span>
                             </i>
                         </span>
-                        <span class="menu-title">Categories</span>
+                        <span class="menu-title">User Categories</span>
                     </a>
                 </div>
 

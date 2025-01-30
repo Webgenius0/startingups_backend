@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Backend;
 
 use App\Helper\Helper;
 use App\Http\Controllers\Controller;
-use App\Models\Category;
+
+use App\Models\BusinessCategory;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\DataTables;
 
-class CategoryController extends Controller
+class BusinessCategoryController extends Controller
 {
 
 
@@ -20,7 +21,7 @@ class CategoryController extends Controller
     {
         if ($request->ajax()) {
 
-            $data = Category::latest();
+            $data = BusinessCategory::latest();
 
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -40,15 +41,12 @@ class CategoryController extends Controller
                         return ' --- ';
                     }
                     return $data->gender_type;
-
                 })
                 ->addColumn('action', function ($data) {
                     return '<div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                              <a href="' . route('admin.category.edit', ['id' => $data->id]) . '" class="btn btn-primary text-white" title="Edit">
+                              <a href="' . route('admin.business_category.edit', ['id' => $data->id]) . '" class="btn btn-primary text-white" title="Edit">
                               <i class="bi bi-pencil"></i>
                               </a>
-                               <a href="#" onclick="showDeleteConfirm(' . $data->id . ')" type="button" class="btn btn-danger text-white" title="Delete">
-                              <i class="bi bi-trash"></i>
                               
                             </div>';
                 })
@@ -56,13 +54,13 @@ class CategoryController extends Controller
                 ->make(true);
         }
 
-        return view('backend.layouts.category.index');
+        return view('backend.layouts.business_category.index');
     }
 
 
     public function create()
     {
-        return view('backend.layouts.category.create');
+        return view('backend.layouts.business_category.create');
     }
 
     public function store(Request $request)
@@ -73,7 +71,7 @@ class CategoryController extends Controller
         try {
 
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string|unique:categories|max:100',
+                'name' => 'required|string|unique:business_categories|max:100',
                 'image' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
 
             ]);
@@ -89,13 +87,13 @@ class CategoryController extends Controller
                 $imagePath = '-';
             }
 
-            Category::create([
+            BusinessCategory::create([
                 'name' => $request->name,
                 'image' => $imagePath,
 
             ]);
 
-            return to_route('admin.category.index')->with('t-success', 'Category Created Successfully');
+            return to_route('admin.business_category.index')->with('t-success', 'Category Created Successfully');
         } catch (\Exception $e) {
             return redirect()->back()->with('t-error', $e->getMessage());
         }
@@ -105,9 +103,9 @@ class CategoryController extends Controller
     {
 
         try {
-            $category = Category::find($id);
+            $category = BusinessCategory::find($id);
 
-            return view('backend.layouts.category.edit', compact('category'));
+            return view('backend.layouts.business_category.edit', compact('category'));
         } catch (\Exception $e) {
             return redirect()->back()->with('t-error', $e->getMessage());
         }
@@ -117,7 +115,7 @@ class CategoryController extends Controller
     // {
     //     try {
 
-    //         $category = Category::find($id);
+    //         $category = BusinessCategory::find($id);
     //         if (!$category) {
     //         }
 
@@ -143,7 +141,7 @@ class CategoryController extends Controller
     //             'type' => $request->type,
     //         ]);
 
-    //         return to_route('admin.category.index')->with('t-success', 'Category updated Successfull.');
+    //         return to_route('admin.business_category.index')->with('t-success', 'Category updated Successfull.');
 
     //     } catch (\Exception $e) {
 
@@ -154,7 +152,7 @@ class CategoryController extends Controller
     public function update(Request $request, string $id)
     {
         try {
-            $category = Category::find($id);
+            $category = BusinessCategory::find($id);
 
             if (!$category) {
                 return redirect()->back()->with('t-error', 'Category not found.');
@@ -162,7 +160,7 @@ class CategoryController extends Controller
 
             // Validation rules
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:100',
+                // 'name' => 'required|string|max:100',
                 'image' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
 
             ]);
@@ -188,12 +186,12 @@ class CategoryController extends Controller
 
             // Update the category details
             $category->update([
-                'name' => $request->name,
+                'name' => $category->name,
                 'image' => $imagePath,
 
             ]);
 
-            return to_route('admin.category.index')->with('t-success', 'Category updated successfully.');
+            return to_route('admin.business_category.index')->with('t-success', 'Category updated successfully.');
         } catch (\Exception $e) {
             return redirect()->back()->with('t-error', $e->getMessage());
         }
@@ -202,7 +200,7 @@ class CategoryController extends Controller
     public function destroy(string $id)
     {
 
-        $data = Category::findOrFail($id);
+        $data = BusinessCategory::findOrFail($id);
         if (empty($data)) {
             return response()->json([
                 'success' => false,
