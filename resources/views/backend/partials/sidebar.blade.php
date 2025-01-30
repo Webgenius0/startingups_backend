@@ -62,7 +62,7 @@
                                 <span class="path2"></span>
                             </i>
                         </span>
-                        <span class="menu-title">Business Categories</span>
+                        <span class="menu-title">User Categories</span>
                     </a>
                 </div>
                
@@ -88,7 +88,7 @@
                                 <span class="path2"></span>
                             </i>
                         </span>
-                        <span class="menu-title">User Categories</span>
+                        <span class="menu-title">Business Categories</span>
                     </a>
                 </div>
 
