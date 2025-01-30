@@ -199,7 +199,7 @@ class BusinessProfileController extends Controller
             'sub_category_id' => 'required|integer',
             'activity' => 'required|string',
             'location' => 'required|string',
-            'hours' => 'nullable|array',
+            'hours' => 'required|array',
             'hours.*.day' => 'required|string',
             'hours.*.is_closed' => 'required',
             'hours.*.open_time' => 'nullable|string',
@@ -219,7 +219,7 @@ class BusinessProfileController extends Controller
             'location' => $validatedData['location'],
         ]);
     
-        // Handle cover image upload
+        
         if ($request->hasFile('cover')) {
             if ($businessProfile->cover) {
                 Helper::deleteImage($businessProfile->cover);
@@ -230,7 +230,7 @@ class BusinessProfileController extends Controller
             $businessProfile->save();
         }
     
-        // Update business hours only if 'hours' data is provided
+        
         if ($request->has('hours')) {
             $businessProfile->business_hours()->delete();
     
@@ -247,7 +247,7 @@ class BusinessProfileController extends Controller
             }
         }
     
-        // Update business prices only if 'prices' data is provided
+        
         if ($request->has('prices')) {
             $businessProfile->business_prices()->delete();
     
