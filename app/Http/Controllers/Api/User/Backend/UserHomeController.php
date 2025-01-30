@@ -182,15 +182,13 @@ class UserHomeController extends Controller
     }
 
     // __tailored events
-    public function tailored_event($id)
+    public function tailored_event()
     {
         try {
 
-            $category = Category::find($id);
+           
 
-            // $user = auth()->user();
-
-            $business_events = BusinessProfile::where('category_id', $category->id)->get();
+            $business_events = BusinessProfile::all();
 
             $tailored_event = collect();
 
@@ -223,14 +221,10 @@ class UserHomeController extends Controller
 
         try {
 
-            $category = Category::find($id);
-
-            if (!$category) {
-                return $this->error([], 'Category not found', 404);
-            }
+            
 
             // random events
-            $business_events = BusinessProfile::where('category_id', $category->id)->get();
+            $business_events = BusinessProfile::orderBy('created_at', 'desc')->get();
 
             $random_event = collect();
 
