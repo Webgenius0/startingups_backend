@@ -68,6 +68,8 @@ class BusinessAuthController extends Controller
             'password' => bcrypt($request->password),
             'role' => 'business',
             'avatar' => $coverPath ? $coverPath : '',
+            'phone' => $request->phone,
+
         ]);
 
         // Cover with URL
