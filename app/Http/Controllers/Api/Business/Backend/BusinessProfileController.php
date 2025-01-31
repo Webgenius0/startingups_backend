@@ -237,7 +237,7 @@ class BusinessProfileController extends Controller
                             'open_time' =>  $hour['open_time'],
                             'close_time' =>  $hour['close_time'],
 
-                            'is_second_time' => $hour['is_second_time'] == true ? 1 : 0,
+                            'is_second_time' => $hour['is_second_time'] == true ? 0 : 1,
                             're_open_time' =>  $hour['re_open_time'] ,
                             're_close_time' =>  $hour['re_close_time'] ,
                         ]);

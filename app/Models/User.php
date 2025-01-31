@@ -28,6 +28,10 @@ class User extends Authenticatable implements JWTSubject
             'password' => 'hashed',
         ];
     }
+    protected $casts = [
+        'preferences' => 'array',
+    ];
+    
 
     public function getJWTIdentifier()
     {
