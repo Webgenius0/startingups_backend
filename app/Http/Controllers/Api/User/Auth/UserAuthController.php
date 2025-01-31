@@ -25,7 +25,7 @@ class UserAuthController extends Controller
 
     public function register(Request $request)
     {
-       
+
         $validator = Validator::make($request->all(), [
             'cover' => 'nullable|image|mimes:jpg,jpeg,png',
             'gender' => 'required|string|max:255',
@@ -271,15 +271,19 @@ class UserAuthController extends Controller
             return $this->error([], 'User not found.', 404);
         }
 
-
-
-
-        $preferencesArray = is_string($user->preferences) && !empty($user->preferences)
-            ? explode(',', $user->preferences)
-            : [];
+        // Handle preferences stored as a JSON string
+        if (is_string($user->preferences) && str_starts_with($user->preferences, '[')) {
+            $preferencesArray = json_decode($user->preferences, true);
+        } else {
+            // Explode string and trim each value
+            $preferencesArray = is_string($user->preferences) && !empty($user->preferences)
+                ? array_map('trim', explode(',', $user->preferences))
+                : [];
+        }
 
         return $this->success($preferencesArray, 'Preferences retrieved successfully.');
     }
+
 
 
 
