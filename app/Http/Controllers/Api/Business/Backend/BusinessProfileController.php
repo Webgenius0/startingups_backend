@@ -88,7 +88,7 @@ class BusinessProfileController extends Controller
                 'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
                 'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
 
-               
+
                 'is_second_time' => $hour['is_second_time'] == true ? 1 : 0,
                 're_open_time' => isset($hour['re_open_time']) && !$hour['is_closed'] ? $hour['re_open_time'] : null,
                 're_close_time' => isset($hour['re_close_time']) && !$hour['is_closed'] ? $hour['re_close_time'] : null,
@@ -107,10 +107,54 @@ class BusinessProfileController extends Controller
 
         $businessProfile->cover = $businessProfile->cover ? url($businessProfile->cover) : null;
 
-        // load business hours
-        $businessProfile->load('business_hours', 'business_prices');
 
-        return $this->success($businessProfile, 'Business Profile created successfully', 200);
+        $data = [
+            'id' => $businessProfile->id,
+            // 'type' => $businessProfile->type,
+            'user_id' => $businessProfile->user_id,
+            'cover' => $businessProfile->cover ? url($businessProfile->cover) : null,
+            'business_name' => $businessProfile->business_name,
+            'category_id' => $businessProfile->category_id,
+            'category_name' => $businessProfile->category->name,
+
+            'subcategory_id' => $businessProfile->sub_category_id,
+            'subcategory_name' => $businessProfile->sub_category ?  $businessProfile->sub_category->name : '',
+            'activity' => $businessProfile->activity,
+            'location' => $businessProfile->location,
+            'age_min' => $businessProfile->age_min,
+            'age_max' => $businessProfile->age_max,
+
+
+            'business_hours' => $businessProfile->business_hours->map(function ($hour) {
+                return [
+                    'id' => $hour->id,
+                    'business_profile_id' => $hour->business_profile_id,
+                    'day' => $hour->day,
+
+                    'is_closed' => $hour->is_closed == 1 ? true : false,
+                    'open_time' => $hour->open_time ? $hour->open_time : null,
+                    'close_time' => $hour->close_time ?  $hour->close_time : null,
+
+
+                    'is_second_time' => $hour->is_second_time == 1 ? true : false,
+                    're_open_time' => $hour->re_open_time ? $hour->re_open_time : null,
+                    're_close_time' => $hour->re_close_time ? $hour->re_close_time : null,
+
+
+                ];
+            }),
+
+            'business_prices' => $businessProfile->business_prices->map(function ($price) {
+                return [
+                    'id' => $price->id,
+                    'tyype' => $price->type,
+                    'amount' => $price->amount,
+                    'offerings' => $price->offerings,
+                ];
+            }),
+        ];
+
+        return $this->success($data, 'Business Profile created successfully', 200);
     }
 
     public function business_profile_details()
