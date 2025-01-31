@@ -27,7 +27,12 @@ class BusinessHour extends Model
         'updated_at',
     ];
 
+    protected $casts = [
+        'is_closed' => 'boolean',
+        'is_second_time' => 'boolean',
+    ];
     
+
 
     public function business_profile()
     {
