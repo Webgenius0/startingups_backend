@@ -226,7 +226,7 @@ class BusinessProfileController extends Controller
 
                 if (!empty($hours) && is_array($hours)) {
 
-                    $businessProfile->business_hours()->delete();
+                    // $businessProfile->business_hours()->delete();
 
 
                     // Insert new hours
