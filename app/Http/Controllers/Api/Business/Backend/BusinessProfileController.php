@@ -24,8 +24,6 @@ class BusinessProfileController extends Controller
     public function store(Request $request)
     {
 
-        // dd($request->all());
-
         $validatedData = $request->validate([
 
             'cover' => 'nullable',
@@ -33,17 +31,13 @@ class BusinessProfileController extends Controller
             'category_id' => 'required|integer',
             'sub_category_id' => 'required|integer',
             'activity' => 'required|in:Indoor,Outdoor',
-
             'location' => 'required|string',
             'hours' => 'required|array',
             'hours.*.day' => 'required|string',
             'hours.*.is_closed' => 'required',
-
             'hours.*.open_time' => 'nullable|string',
             'hours.*.close_time' => 'nullable|string',
-
             'hours.*.is_second_time' => 'required',
-
             'hours.*.re_open_time' => 'nullable|string',
             'hours.*.re_close_time' => 'nullable|string',
 
@@ -147,7 +141,7 @@ class BusinessProfileController extends Controller
             'business_prices' => $businessProfile->business_prices->map(function ($price) {
                 return [
                     'id' => $price->id,
-                    'tyype' => $price->type,
+                    'type' => $price->type,
                     'amount' => $price->amount,
                     'offerings' => $price->offerings,
                 ];
