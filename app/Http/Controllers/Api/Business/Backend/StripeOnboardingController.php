@@ -67,23 +67,26 @@ class StripeOnboardingController extends Controller
         }
     }
 
-    // Generate return URL with deep link for Flutter
+    // Generate a valid return URL for Stripe with web URL, redirecting to the deep link later
     protected function generateReturnUrl($stripeAccountId)
     {
-        // Generate a custom deep link URL for Flutter app
+        // Generate a web URL for Stripe's return URL (e.g., a route on your server)
         $encodedAccountId = Crypt::encrypt($stripeAccountId);
-        return "yourapp://stripe-onboarding?status=completed&account_id={$encodedAccountId}";
+        return route('stripe.onboard-result', ['token' => $encodedAccountId]);
     }
 
     public function onboardResult($encodedToken)
     {
         try {
+            // Decrypt and find the user by Stripe account ID
             $user = User::where('stripe_account_id', Crypt::decrypt($encodedToken))->firstOrFail();
 
+            // Mark onboarding as completed
             $user->stripe_boarding_completed = 'completed';
             $user->save();
 
-            return redirect(route('dashboard'));
+            // Redirect to the Flutter app via deep link
+            return redirect()->away("yourapp://stripe-onboarding?status=completed&account_id={$encodedToken}");
         } catch (\Exception $e) {
             Log::error('Error processing Stripe Onboarding result', [
                 'error_message' => $e->getMessage(),
@@ -95,3 +98,4 @@ class StripeOnboardingController extends Controller
         }
     }
 }
+
