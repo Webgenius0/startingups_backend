@@ -57,7 +57,7 @@ class StripeOnboardingController extends Controller
                 $onBoardLink = AccountLink::create([
                     'account' => $user->stripe_account_id,
                     'refresh_url' => route('business.event_reports'),
-                    'return_url' => route('stripe.onboard-result', Crypt::encrypt($user->stripe_account_id)),
+                    'return_url' => route('stripe.onboard-result'),
                     'type' => 'account_onboarding',
                 ]);
 
