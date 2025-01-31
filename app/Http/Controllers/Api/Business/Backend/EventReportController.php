@@ -432,7 +432,7 @@ class EventReportController extends Controller
     {
         return array_map(function ($date, $value) {
             return [
-                'x' => Carbon::createFromFormat('Y-m-d', $date)->format('Y-m-d'),
+                'x' => Carbon::createFromFormat('Y-m-d', $date)->format('l, M j'),
                 'y' => $value,
             ];
         }, array_keys($trendData), $trendData);
