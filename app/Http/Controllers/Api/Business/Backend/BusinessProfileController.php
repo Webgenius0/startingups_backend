@@ -184,7 +184,7 @@ class BusinessProfileController extends Controller
 
     public function business_profile_update(Request $request)
     {
-        DB::beginTransaction(); 
+        DB::beginTransaction();
 
         try {
             $businessProfile = BusinessProfile::where('user_id', Auth::id())
@@ -198,10 +198,10 @@ class BusinessProfileController extends Controller
                 ], 404);
             }
 
-            
+
             $hours = is_string($request->hours) ? json_decode($request->hours, true) : $request->hours;
 
-            
+
             $businessProfile->update([
                 'business_name' => $request->business_name,
                 'category_id' => $request->category_id,
@@ -210,7 +210,7 @@ class BusinessProfileController extends Controller
                 'location' => $request->location,
             ]);
 
-            
+
             if ($request->hasFile('cover')) {
                 if ($businessProfile->cover) {
                     Helper::deleteImage($businessProfile->cover);
@@ -220,22 +220,23 @@ class BusinessProfileController extends Controller
                 $businessProfile->save();
             }
 
-           
+
             if ($request->has('hours')) {
                 $hours = is_string($request->hours) ? json_decode($request->hours, true) : $request->hours;
 
                 if (!empty($hours) && is_array($hours)) {
-                    
+
                     // $businessProfile->business_hours()->delete();
 
-                   
+
+                    // Insert new hours
                     foreach ($hours as $hour) {
                         $businessProfile->business_hours()->create([
                             'day' => $hour['day'],
-                            'is_closed' => $hour['is_closed'],
+                            'is_closed' => (int) $hour['is_closed'], // Cast to integer (0 or 1)
                             'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
                             'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
-                            'is_second_time' => $hour['is_second_time'],
+                            'is_second_time' => (int) $hour['is_second_time'], // Cast to integer (0 or 1)
                             're_open_time' => isset($hour['re_open_time']) && !$hour['is_closed'] ? $hour['re_open_time'] : null,
                             're_close_time' => isset($hour['re_close_time']) && !$hour['is_closed'] ? $hour['re_close_time'] : null,
                         ]);
@@ -245,7 +246,7 @@ class BusinessProfileController extends Controller
 
             $businessProfile->load('business_hours');
 
-            DB::commit(); 
+            DB::commit();
 
             return response()->json([
                 'success' => true,
@@ -261,7 +262,7 @@ class BusinessProfileController extends Controller
                 ]
             ], 200);
         } catch (\Exception $e) {
-            DB::rollBack(); 
+            DB::rollBack();
 
             return response()->json([
                 'success' => false,

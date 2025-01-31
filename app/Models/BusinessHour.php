@@ -27,6 +27,8 @@ class BusinessHour extends Model
         'updated_at',
     ];
 
+    
+
     public function business_profile()
     {
         return $this->belongsTo(BusinessProfile::class);
