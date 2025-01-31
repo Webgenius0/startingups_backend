@@ -267,23 +267,26 @@ class UserAuthController extends Controller
             return $this->error([], 'User not found.', 404);
         }
 
-        
-        $preferences = json_decode($user->preferences, true);
+        // Check if preferences is a valid JSON string and decode it
+        $preferences = $user->preferences;
 
-        // dd($preferences);
-
-
-        $preferencesArray = is_array($preferences) ? $preferences : [];
+        if (is_string($preferences)) {
+            $decoded = json_decode($preferences, true);
+            $preferencesArray = is_array($decoded) ? $decoded : [];
+        } else {
+            $preferencesArray = is_array($preferences) ? $preferences : [];
+        }
 
         return $this->success($preferencesArray, 'Preferences retrieved successfully.');
     }
 
 
 
+
     public function update_preferences(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'preferences.*' => 'required|string|max:255', 
+            'preferences.*' => 'required|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -296,27 +299,26 @@ class UserAuthController extends Controller
             return $this->error([], 'User not found.', 404);
         }
 
-        
+
         $preferences = $request->preferences;
         if (is_string($preferences)) {
             $preferences = explode(',', $preferences);
         }
 
-        
-        $sanitizedPreferences = array_map(function ($preference) {
-            return trim(strip_tags($preference), '{}'); 
 
+        $sanitizedPreferences = array_map(function ($preference) {
+            return trim(strip_tags($preference), '{}');
         }, $preferences);
 
-        
+
         $user->preferences = null;
         $user->save();
 
-       
+
         $user->preferences = json_encode($sanitizedPreferences);
         $user->save();
 
-       
+
         $data = json_decode($user->preferences);
 
         return $this->success($data, 'Preferences updated successfully.');
