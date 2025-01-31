@@ -1,24 +1,26 @@
 <?php
 
-use App\Http\Controllers\Backend\AdminEventController;
-use App\Http\Controllers\Backend\BusinessCategoryController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Backend\StyleController;
+use App\Http\Controllers\Backend\ThemesController;
+use App\Http\Controllers\Backend\ProductController;
 use App\Http\Controllers\Backend\CategoryController;
 use App\Http\Controllers\Backend\DashboardController;
-use App\Http\Controllers\Backend\ProductController;
-use App\Http\Controllers\Backend\Settings\DynamicPageController;
-use App\Http\Controllers\Backend\Settings\FacebookSettingController;
+use App\Http\Controllers\Backend\AdminEventController;
+use App\Http\Controllers\Backend\SubCategoryController;
 use App\Http\Controllers\Backend\Settings\FaqController;
-use App\Http\Controllers\Backend\Settings\GoogleSettingController;
-use App\Http\Controllers\Backend\Settings\MailSettingController;
+use App\Http\Controllers\Backend\BusinessCategoryController;
 use App\Http\Controllers\Backend\Settings\ProfileController;
+use App\Http\Controllers\Backend\Settings\DynamicPageController;
+use App\Http\Controllers\Backend\Settings\MailSettingController;
 use App\Http\Controllers\Backend\Settings\SocialMediaController;
+use App\Http\Controllers\Backend\Settings\GoogleSettingController;
 use App\Http\Controllers\Backend\Settings\StripeSettingController;
 use App\Http\Controllers\Backend\Settings\SystemSettingController;
-use App\Http\Controllers\Backend\StyleController;
-use App\Http\Controllers\Backend\SubCategoryController;
-use App\Http\Controllers\Backend\ThemesController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Backend\Settings\FacebookSettingController;
+use App\Http\Controllers\Api\Business\Backend\StripeOnboardingController;
 
+Route::get('onboard-result/{encodedToken}', [StripeOnboardingController::class, 'onboardResult'])->name('stripe.onboard-result');
 
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
