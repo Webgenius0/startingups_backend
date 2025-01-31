@@ -267,7 +267,7 @@ class UserAuthController extends Controller
             return $this->error([], 'User not found.', 404);
         }
 
-        // Check if preferences is a valid JSON string and decode it
+       
         $preferences = $user->preferences;
 
         if (is_string($preferences)) {

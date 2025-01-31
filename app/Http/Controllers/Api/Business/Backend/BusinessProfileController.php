@@ -256,7 +256,7 @@ class BusinessProfileController extends Controller
         $businessProfile->cover = $businessProfile->cover ? url($businessProfile->cover) : null;
 
         // load business hours
-        $businessProfile->load('business_hours', 'business_prices');
+        $businessProfile->load('business_hours');
 
         return $this->success($businessProfile, 'Business Profile created successfully', 200);
     }
