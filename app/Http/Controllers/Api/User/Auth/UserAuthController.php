@@ -273,7 +273,7 @@ class UserAuthController extends Controller
 
         $preferencesArray = is_array($preferences) ? $preferences : [];
 
-        return $this->success($preferences, 'Preferences retrieved successfully.');
+        return $this->success($preferencesArray, 'Preferences retrieved successfully.');
     }
 
 
