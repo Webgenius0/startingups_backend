@@ -20,7 +20,7 @@ use App\Http\Controllers\Backend\Settings\SystemSettingController;
 use App\Http\Controllers\Backend\Settings\FacebookSettingController;
 use App\Http\Controllers\Api\Business\Backend\StripeOnboardingController;
 
-Route::get('onboard-result/{encodedToken}', [StripeOnboardingController::class, 'onboardResult'])->name('stripe.onboard-result');
+Route::get('onboard-result', [StripeOnboardingController::class, 'onboardResult'])->name('stripe.onboard-result');
 
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');

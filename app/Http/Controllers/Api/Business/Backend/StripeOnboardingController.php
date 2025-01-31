@@ -77,23 +77,13 @@ class StripeOnboardingController extends Controller
 
 
 
-    public function onboardResult($encodedToken)
+    public function onboardResult()
     {
         try {
-            $user = User::where('stripe_account_id', Crypt::decrypt($encodedToken))->firstOrFail();
-
-
-            $user->stripe_boarding_completed = 'completed';
-            $user->save();
-
-            return redirect(route('dashboard'));
+            return response()->json(['message' => 'Onboarding Sucess']);
         } catch (\Exception $e) {
 
-            Log::error('Error processing Stripe Onboarding result', [
-                'error_message' => $e->getMessage(),
-                'encoded_token' => $encodedToken,
-                'stack_trace' => $e->getTraceAsString(),
-            ]);
+           
 
 
             return $this->error([], 'Error processing onboarding result: ' . $e->getMessage(), 500);
