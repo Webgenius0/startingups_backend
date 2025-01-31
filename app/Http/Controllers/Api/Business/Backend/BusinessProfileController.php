@@ -248,10 +248,10 @@ class BusinessProfileController extends Controller
                     foreach ($hours as $hour) {
                         $businessProfile->business_hours()->create([
                             'day' => $hour['day'],
-                            'is_closed' => (int) ($hour['is_closed'] ?? 0), 
+                            'is_closed' => (int) $hour['is_closed'] , 
                             'open_time' => !empty($hour['is_closed']) ? null : ($hour['open_time'] ?? null),
                             'close_time' => !empty($hour['is_closed']) ? null : ($hour['close_time'] ?? null),
-                            'is_second_time' => (int) ($hour['is_second_time'] ?? 0), 
+                            'is_second_time' => (int) $hour['is_second_time'] , 
                             're_open_time' => !empty($hour['is_closed']) ? null : ($hour['re_open_time'] ?? null),
                             're_close_time' => !empty($hour['is_closed']) ? null : ($hour['re_close_time'] ?? null),
                         ]);
