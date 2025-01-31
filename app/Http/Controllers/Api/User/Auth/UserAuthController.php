@@ -270,7 +270,7 @@ class UserAuthController extends Controller
         
         $preferences = json_decode($user->preferences, true);
 
-        dd($preferences);
+        // dd($preferences);
 
 
         $preferencesArray = is_array($preferences) ? $preferences : [];
