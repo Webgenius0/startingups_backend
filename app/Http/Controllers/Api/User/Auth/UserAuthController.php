@@ -25,11 +25,11 @@ class UserAuthController extends Controller
 
     public function register(Request $request)
     {
-        // validation for user register
+       
         $validator = Validator::make($request->all(), [
             'cover' => 'nullable|image|mimes:jpg,jpeg,png',
             'gender' => 'required|string|max:255',
-            'preferences.*' => 'required|string|max:255',
+            'preferences' => 'required|string|max:255',
 
             'full_name' => 'required|string|max:255',
             'date_of_birth' => 'required|string|max:255',
@@ -50,7 +50,11 @@ class UserAuthController extends Controller
             $coverPath = Helper::uploadImage($request->file('cover'), 'business_profiles');
         }
 
-        // $validatedData = $validator->validated();
+        // Convert the comma-separated string into an array
+        $preferencesArray = explode(',', $request->preferences);
+
+        // Store the preferences as a JSON string in the database
+        $preferences = json_encode($preferencesArray);
 
         $data = User::create([
             'avatar' => $coverPath ? $coverPath : '',
@@ -64,7 +68,7 @@ class UserAuthController extends Controller
             'role' => 'user',
 
             'gender' => $request->gender,
-            'preferences' => json_encode($request->preferences),
+            'preferences' => $preferences,
             'date_of_birth' => $request->date_of_birth,
             'country' => $request->country,
             // 'street_address' => $request->street_address,
@@ -267,15 +271,12 @@ class UserAuthController extends Controller
             return $this->error([], 'User not found.', 404);
         }
 
-       
-        $preferences = $user->preferences;
 
-        if (is_string($preferences)) {
-            $decoded = json_decode($preferences, true);
-            $preferencesArray = is_array($decoded) ? $decoded : [];
-        } else {
-            $preferencesArray = is_array($preferences) ? $preferences : [];
-        }
+
+
+        $preferencesArray = is_string($user->preferences) && !empty($user->preferences)
+            ? explode(',', $user->preferences)
+            : [];
 
         return $this->success($preferencesArray, 'Preferences retrieved successfully.');
     }
