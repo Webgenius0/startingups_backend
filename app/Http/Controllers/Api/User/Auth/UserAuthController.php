@@ -52,6 +52,23 @@ class UserAuthController extends Controller
 
         // $validatedData = $validator->validated();
 
+        $preferences = $request->preferences;
+        if (is_string($preferences)) {
+            $preferences = explode(',', $preferences);
+        }
+
+        
+        $sanitizedPreferences = array_map(function ($preference) {
+            return trim(strip_tags($preference), '{}'); 
+
+        }, $preferences);
+
+        
+        
+
+       
+        $preferences = json_encode($sanitizedPreferences);
+
         $data = User::create([
             'avatar' => $coverPath ? $coverPath : '',
             'name' => $request->full_name,
@@ -64,7 +81,7 @@ class UserAuthController extends Controller
             'role' => 'user',
 
             'gender' => $request->gender,
-            'preferences' => json_encode($request->preferences),
+            'preferences' => $preferences,
             'date_of_birth' => $request->date_of_birth,
             'country' => $request->country,
             // 'street_address' => $request->street_address,

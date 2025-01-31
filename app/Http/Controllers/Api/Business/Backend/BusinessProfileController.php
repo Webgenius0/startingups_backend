@@ -230,16 +230,30 @@ class BusinessProfileController extends Controller
 
 
                     // Insert new hours
+                    // foreach ($hours as $hour) {
+                    //     $businessProfile->business_hours()->create([
+                    //         'day' => $hour['day'],
+                    //         'is_closed' => $hour['is_closed'] == true ? 0 : 1,
+                    //         'open_time' =>  $hour['open_time'],
+                    //         'close_time' =>  $hour['close_time'],
+
+                    //         'is_second_time' => $hour['is_second_time'] == true ? 0 : 1,
+                    //         're_open_time' =>  $hour['re_open_time'],
+                    //         're_close_time' =>  $hour['re_close_time'],
+                    //     ]);
+                    // }
+
+
+                    // Insert new hours
                     foreach ($hours as $hour) {
                         $businessProfile->business_hours()->create([
                             'day' => $hour['day'],
-                            'is_closed' => $hour['is_closed'] == true ? 0 : 1,
-                            'open_time' =>  $hour['open_time'],
-                            'close_time' =>  $hour['close_time'],
-
-                            'is_second_time' => $hour['is_second_time'] == true ? 0 : 1,
-                            're_open_time' =>  $hour['re_open_time'] ,
-                            're_close_time' =>  $hour['re_close_time'] ,
+                            'is_closed' => (int) ($hour['is_closed'] ?? 0), 
+                            'open_time' => !empty($hour['is_closed']) ? null : ($hour['open_time'] ?? null),
+                            'close_time' => !empty($hour['is_closed']) ? null : ($hour['close_time'] ?? null),
+                            'is_second_time' => (int) ($hour['is_second_time'] ?? 0), 
+                            're_open_time' => !empty($hour['is_closed']) ? null : ($hour['re_open_time'] ?? null),
+                            're_close_time' => !empty($hour['is_closed']) ? null : ($hour['re_close_time'] ?? null),
                         ]);
                     }
                 }
