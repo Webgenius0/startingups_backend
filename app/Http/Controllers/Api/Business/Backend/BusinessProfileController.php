@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Api\Business\Backend;
 
 use App\Helper\Helper;
-use App\Http\Controllers\Controller;
-use App\Models\BusinessProfile;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use App\Models\BusinessProfile;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
 class BusinessProfileController extends Controller
@@ -27,7 +28,7 @@ class BusinessProfileController extends Controller
 
         $validatedData = $request->validate([
 
-            'cover' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
+            'cover' => 'nullable',
             'business_name' => 'required|string',
             'category_id' => 'required|integer',
             'sub_category_id' => 'required|integer',
@@ -36,15 +37,20 @@ class BusinessProfileController extends Controller
             'location' => 'required|string',
             'hours' => 'required|array',
             'hours.*.day' => 'required|string',
-            // 'hours.*.date' => 'required',
             'hours.*.is_closed' => 'required',
 
             'hours.*.open_time' => 'nullable|string',
             'hours.*.close_time' => 'nullable|string',
 
+            'hours.*.is_second_time' => 'required',
+
+            'hours.*.re_open_time' => 'nullable|string',
+            'hours.*.re_close_time' => 'nullable|string',
+
             'prices' => 'required|array',
             'prices.*.type' => 'required|string',
             'prices.*.amount' => 'required',
+            'prices.*.days' => 'required',
             'prices.*.offerings' => 'nullable|string',
 
             // age limit
@@ -74,31 +80,30 @@ class BusinessProfileController extends Controller
             $businessProfile->save();
         }
 
-        $businessProfile->business_hours()->delete(); // __clear existing hours
+        $businessProfile->business_hours()->delete();
         foreach ($validatedData['hours'] as $hour) {
             $businessProfile->business_hours()->create([
                 'day' => $hour['day'],
-                // 'date' => $hour['date'],
-
-                'is_closed' => $hour['is_closed'] == true,
+                'is_closed' => $hour['is_closed'] == true ? 1 : 0,
                 'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
                 'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
+
+               
+                'is_second_time' => $hour['is_second_time'] == true ? 1 : 0,
+                're_open_time' => isset($hour['re_open_time']) && !$hour['is_closed'] ? $hour['re_open_time'] : null,
+                're_close_time' => isset($hour['re_close_time']) && !$hour['is_closed'] ? $hour['re_close_time'] : null,
             ]);
         }
 
-        $businessProfile->business_prices()->delete(); // __clear existing hours
+        $businessProfile->business_prices()->delete();
         foreach ($validatedData['prices'] as $price) {
             $businessProfile->business_prices()->create([
                 'type' => $price['type'],
                 'amount' => $price['amount'],
+                'days' => isset($price['days']) ? $price['days'] : null,
                 'offerings' => $price['offerings'],
-
             ]);
         }
-
-
-
-
 
         $businessProfile->cover = $businessProfile->cover ? url($businessProfile->cover) : null;
 
@@ -147,9 +152,16 @@ class BusinessProfileController extends Controller
                     'id' => $hour->id,
                     'business_profile_id' => $hour->business_profile_id,
                     'day' => $hour->day,
+
                     'is_closed' => $hour->is_closed == 1 ? true : false,
-                    'open_time' => $hour->open_time,
-                    'close_time' => $hour->close_time,
+                    'open_time' => $hour->open_time ? $hour->open_time : null,
+                    'close_time' => $hour->close_time ?  $hour->close_time : null,
+
+
+                    'is_second_time' => $hour->is_second_time == 1 ? true : false,
+                    're_open_time' => $hour->re_open_time ? $hour->re_open_time : null,
+                    're_close_time' => $hour->re_close_time ? $hour->re_close_time : null,
+
 
                 ];
             }),
@@ -169,61 +181,58 @@ class BusinessProfileController extends Controller
         //
     }
 
+
+
     public function business_profile_update(Request $request)
     {
 
-        $businessProfile = BusinessProfile::where('user_id', Auth::id())->where('type', 'business_profile')->first();
-
-        if (!$businessProfile || $businessProfile->user_id !== Auth::id()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Business profile not found or unauthorized access.',
-            ], 404);
-        }
+        // dd($request->all());
 
         $validatedData = $request->validate([
-            'cover' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
+
+            'cover' => 'nullable',
             'business_name' => 'required|string',
             'category_id' => 'required|integer',
             'sub_category_id' => 'required|integer',
             'activity' => 'required|in:Indoor,Outdoor',
+
             'location' => 'required|string',
-
-            // 'age_min' => 'nullable',
-            // 'age_max' => 'nullable',
-
             'hours' => 'required|array',
             'hours.*.day' => 'required|string',
-            'hours.*.is_closed' => 'required|boolean',
+            'hours.*.is_closed' => 'required',
+
             'hours.*.open_time' => 'nullable|string',
             'hours.*.close_time' => 'nullable|string',
 
+            'hours.*.is_second_time' => 'required',
 
-            // 'prices' => 'required|array',
-            // 'prices.*.type' => 'required|string',
-            // 'prices.*.amount' => 'required',
-            // 'prices.*.offerings' => 'nullable|string',
-        ]);
+            'hours.*.re_open_time' => 'nullable|string',
+            'hours.*.re_close_time' => 'nullable|string',
 
-        $businessProfile->update([
-            'business_name' => $validatedData['business_name'],
-            'category_id' => $validatedData['category_id'],
-            'sub_category_id' => $validatedData['sub_category_id'],
-            'activity' => $validatedData['activity'],
-            'location' => $validatedData['location'],
 
-            // 'age_min' => $validatedData['age_min'],
-            // 'age_max' => $validatedData['age_max'],
+
 
         ]);
+
+        $businessProfile = BusinessProfile::where('user_id', Auth::id())
+            ->where('type', 'business_profile')
+            ->first();
+
+        $businessProfile->update(
+
+            [
+                'type' => 'business_profile',
+                'business_name' => $validatedData['business_name'],
+                'category_id' => $validatedData['category_id'],
+                'sub_category_id' => $validatedData['sub_category_id'],
+                'activity' => $validatedData['activity'],
+                'location' => $validatedData['location'],
+
+
+            ]
+        );
 
         if ($request->hasFile('cover')) {
-
-            if ($businessProfile->cover) {
-                Helper::deleteImage($businessProfile->cover);
-            }
-
-            // __new cover image
             $coverPath = Helper::uploadImage($request->file('cover'), 'business_profiles');
             $businessProfile->cover = $coverPath;
             $businessProfile->save();
@@ -233,69 +242,31 @@ class BusinessProfileController extends Controller
         foreach ($validatedData['hours'] as $hour) {
             $businessProfile->business_hours()->create([
                 'day' => $hour['day'],
-                'is_closed' => $hour['is_closed'],
+                'is_closed' => $hour['is_closed'] == true ? 1 : 0,
                 'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
                 'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
+
+                'is_second_time' => $hour['is_second_time'] == true ? 1 : 0,
+                're_open_time' => isset($hour['re_open_time']) && !$hour['is_closed'] ? $hour['re_open_time'] : null,
+                're_close_time' => isset($hour['re_close_time']) && !$hour['is_closed'] ? $hour['re_close_time'] : null,
             ]);
-        }
-
-        if ($request->prices) {
-            // business prices
-            $businessProfile->business_prices()->delete();
-
-            foreach ($request->prices as $price) {
-                $businessProfile->business_prices()->create([
-                    'type' => $price['type'],
-                    'amount' => $price['amount'],
-                    'offerings' => $price['offerings'],
-                ]);
-            }
         }
 
 
 
         $businessProfile->cover = $businessProfile->cover ? url($businessProfile->cover) : null;
 
-        $businessProfile->load('business_hours');
+        // load business hours
+        $businessProfile->load('business_hours', 'business_prices');
 
-        // Structure the data in serialized order
-        $data = [
-            'id' => $businessProfile->id,
-            // 'type' => $businessProfile->type,
-            'user_id' => $businessProfile->user_id,
-            'cover' => $businessProfile->cover ? url($businessProfile->cover) : null,
-            'business_name' => $businessProfile->business_name,
-            'category_id' => $businessProfile->category_id,
-            'category_name' => $businessProfile->category->name,
-
-            'subcategory_id' => $businessProfile->sub_category_id,
-            'subcategory_name' => $businessProfile->sub_category ?  $businessProfile->sub_category->name : '',
-            'activity' => $businessProfile->activity,
-            'location' => $businessProfile->location,
-            // 'age_min' => $businessProfile->age_min,
-            // 'age_max' => $businessProfile->age_max,
-
-
-            'business_hours' => $businessProfile->business_hours->map(function ($hour) {
-                return [
-                    'id' => $hour->id,
-                    'business_profile_id' => $hour->business_profile_id,
-                    'day' => $hour->day,
-                    'is_closed' => $hour->is_closed == 1 ? true : false,
-                    'open_time' => $hour->open_time,
-                    'close_time' => $hour->close_time,
-
-                ];
-            }),
-        ];
-
-        return $this->success(
-            $data,
-
-            'Business Profile updated successfully',
-            200
-        );
+        return $this->success($businessProfile, 'Business Profile created successfully', 200);
     }
+
+
+
+
+
+
 
     public function destroy(string $id)
     {
