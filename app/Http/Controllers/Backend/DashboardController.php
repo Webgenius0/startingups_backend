@@ -14,7 +14,7 @@ class DashboardController extends Controller
         $categories = Category::get()->count();
         $subcategories = SubCategory::get()->count();
         $user = User::get()->count();
-        $userData = User::get();
+        $userData = User::paginate(10);
         return view('backend.layouts.index', compact('categories', 'subcategories', 'user','userData'));
     }
 }

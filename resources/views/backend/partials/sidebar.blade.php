@@ -113,7 +113,7 @@
                     </a>
                 </div>
 
-                <div class="menu-item">
+                {{-- <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs('admin.faq.*') ? 'active' : '' }}"
                         href="{{ route('admin.faq.index') }}">
                         <span class="question"></span>
@@ -121,9 +121,9 @@
                         </span>
                         <span class="menu-title">Faq</span>
                     </a>
-                </div>
+                </div> --}}
 
-                <div data-kt-menu-trigger="click"
+                {{-- <div data-kt-menu-trigger="click"
                     class="menu-item {{ request()->routeIs(['admin.themes.*', 'admin.styles.*', 'admin.products.*']) ? 'here show' : '' }} menu-accordion">
                     <span class="menu-link">
                         <span class="menu-icon">
@@ -168,7 +168,7 @@
                        
                        
                     </div>
-                </div>
+                </div> --}}
 
                 <div data-kt-menu-trigger="click"
                     class="menu-item {{ request()->routeIs(['profile.setting', 'system.index', 'mail.setting', 'social.index', 'dynamic_page.index', 'stripe.index', 'analytics.index', 'google.index', 'facebook.index']) ? 'active show' : '' }} menu-accordion">
