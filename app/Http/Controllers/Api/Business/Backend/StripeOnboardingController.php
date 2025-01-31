@@ -86,7 +86,10 @@ class StripeOnboardingController extends Controller
             $user->stripe_boarding_completed = 'completed';
             $user->save();
 
-            return redirect(route('dashboard'));
+            $result = "success";
+
+            return $result;
+        
         } catch (\Exception $e) {
 
             Log::error('Error processing Stripe Onboarding result', [
