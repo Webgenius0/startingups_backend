@@ -29,7 +29,7 @@ class UserAuthController extends Controller
         $validator = Validator::make($request->all(), [
             'cover' => 'nullable|image|mimes:jpg,jpeg,png',
             'gender' => 'required|string|max:255',
-            'preferences.*' => 'required|string|max:255',
+            // 'preferences.*' => 'required|string|max:255',
 
             'full_name' => 'required|string|max:255',
             'date_of_birth' => 'required|string|max:255',
@@ -50,23 +50,15 @@ class UserAuthController extends Controller
             $coverPath = Helper::uploadImage($request->file('cover'), 'business_profiles');
         }
 
-        // $validatedData = $validator->validated();
-
         $preferences = $request->preferences;
         if (is_string($preferences)) {
             $preferences = explode(',', $preferences);
         }
 
-        
         $sanitizedPreferences = array_map(function ($preference) {
             return trim(strip_tags($preference), '{}'); 
-
         }, $preferences);
 
-        
-        
-
-       
         $preferences = json_encode($sanitizedPreferences);
 
         $data = User::create([
