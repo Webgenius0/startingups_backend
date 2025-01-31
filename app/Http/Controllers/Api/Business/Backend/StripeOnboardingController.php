@@ -28,7 +28,7 @@ class StripeOnboardingController extends Controller
     {
         $user = auth('api')->user();
 
-        if (!$user->stripe_account_id) {
+        // if (!$user->stripe_account_id) {
             try {
                 Stripe::setApiKey(config('services.stripe.secret'));
 
@@ -65,14 +65,14 @@ class StripeOnboardingController extends Controller
             } catch (\Exception $e) {
                 return $this->error([], 'Stripe Onboarding Error: ' . $e->getMessage(), 500);
             }
-        }
+        // }
 
-        try {
-            $loginLink = $this->stripeClient->accounts->createLoginLink($user->stripe_account_id, []);
-            return $this->success(['url' => $loginLink->url], 'Login link generated successfully.');
-        } catch (\Exception $e) {
-            return $this->error([], 'Error generating login link: ' . $e->getMessage(), 500);
-        }
+        // try {
+        //     $loginLink = $this->stripeClient->accounts->createLoginLink($user->stripe_account_id, []);
+        //     return $this->success(['url' => $loginLink->url], 'Login link generated successfully.');
+        // } catch (\Exception $e) {
+        //     return $this->error([], 'Error generating login link: ' . $e->getMessage(), 500);
+        // }
     }
 
 
