@@ -48,7 +48,6 @@ class UserAuthController extends Controller
         $coverPath = '';
         if ($request->hasFile('cover')) {
             $coverPath = Helper::uploadImage($request->file('cover'), 'business_profiles');
-
         }
 
         // $validatedData = $validator->validated();
@@ -72,8 +71,8 @@ class UserAuthController extends Controller
 
         ]);
 
-         // cover with url
-         $data->avatar = $data->avatar ? url($data->avatar) : null;
+        // cover with url
+        $data->avatar = $data->avatar ? url($data->avatar) : null;
 
 
 
@@ -85,7 +84,6 @@ class UserAuthController extends Controller
         $data['preferences'] = json_decode($data['preferences']);
 
         return $this->success($data, ' Sign Up Successfull.', 201);
-
     }
 
     // user_location update
@@ -261,6 +259,7 @@ class UserAuthController extends Controller
 
 
     // __get user preferences
+    // __get user preferences
     public function preferences()
     {
         $user = auth('api')->user();
@@ -270,11 +269,20 @@ class UserAuthController extends Controller
             return $this->error([], 'User not found.', 404);
         }
 
-        // return user preferences
-        $preferences = json_decode($user->preferences);
+        // Split preferences string into an array (by commas) and trim extra spaces
+        $preferences = explode(',', $user->preferences);
 
-        return $this->success($preferences, 'Preferences retrieved successfully.');
+        // Trim any extra whitespace and remove any surrounding quotes
+        $preferences = array_map(function ($preference) {
+            return trim($preference, '"');
+        }, $preferences);
+
+        // Return preferences as 'data' in the response
+        return $this->success(['data' => $preferences], 'Preferences retrieved successfully.');
     }
+
+
+
 
 
     // __update user preferences
@@ -299,9 +307,16 @@ class UserAuthController extends Controller
         $user->save();
 
 
-        $data = json_decode($user->preferences);
 
-        return $this->success($data, 'Preferences updated successfully.');
+        // Split preferences string into an array (by commas) and trim extra spaces
+        $preferences = explode(',', $user->preferences);
+
+        // Trim any extra whitespace and remove any surrounding quotes
+        $preferences = array_map(function ($preference) {
+            return trim($preference, '"');
+        }, $preferences);
+
+        return $this->success($preferences, 'Preferences updated successfully.');
     }
 
 
@@ -327,6 +342,4 @@ class UserAuthController extends Controller
             return $this->error([], $e->getMessage(), 500);
         }
     }
-
-
 }
