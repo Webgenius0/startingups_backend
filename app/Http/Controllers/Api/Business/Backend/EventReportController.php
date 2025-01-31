@@ -379,36 +379,30 @@ class EventReportController extends Controller
         }
 
         // Get the selected filter (daily, weekly, monthly)
-        $filter = $request->input('filter', 'daily');
+        $filter = $request->input('filter', 'monthly');
         $startDate = $this->getStartDateByFilter($filter);
 
-        // Fetch the events for the user, filtering by the date range
+        // Fetch all events owned by this business user
         $events = BusinessProfile::with(['event_clicks', 'event_bookings'])
             ->where('user_id', $user->id)
-            ->whereHas('event_clicks', function ($query) use ($startDate) {
-                $query->where('created_at', '>=', $startDate);
-            })
-            ->whereHas('event_bookings', function ($query) use ($startDate) {
-                $query->where('created_at', '>=', $startDate);
-            })
             ->get();
 
-        // Combine clicks and bookings into a single collection, filtered by start date
+        // Aggregate event data
         $combinedClicks = $events->flatMap(fn($event) => $event->event_clicks);
         $combinedBookings = $events->flatMap(fn($event) => $event->event_bookings);
 
-        // Calculate the total metrics
+        // Calculate totals
         $totalLinkClicks = $combinedClicks->count();
         $totalSignUps = $combinedBookings->count();
         $totalRevenue = $combinedBookings->sum('price');
         $totalRepeatCustomers = $combinedBookings->whereNotNull('user_id')->unique('user_id')->count();
 
-        // Generate trend data for each metric
+        // Generate x-y trend data for each metric
         $trendData = [
-            'link_clicks' => $this->getTrendDataWithDayNames($combinedClicks),
-            'sign_ups' => $this->getTrendDataWithDayNames($combinedBookings),
-            'revenue' => $this->getRevenueTrendDataWithDayNames($combinedBookings),
-            'repeat_customers' => $this->getRepeatCustomersTrendDataWithDayNames($combinedBookings),
+            'link_clicks' => $this->formatTrendData1($this->getTrendData($combinedClicks)),
+            'sign_ups' => $this->formatTrendData1($this->getTrendData($combinedBookings)),
+            'revenue' => $this->formatTrendData1($this->getRevenueTrendData($combinedBookings, $startDate, $filter)),
+            'repeat_customers' => $this->formatTrendData1($this->getRepeatCustomersTrendData($combinedBookings, $startDate, $filter)),
         ];
 
         return $this->success(
@@ -434,7 +428,15 @@ class EventReportController extends Controller
         );
     }
 
-
+    private function formatTrendData1($trendData)
+    {
+        return array_map(function ($date, $value) {
+            return [
+                'x' => Carbon::createFromFormat('Y-m-d', $date)->format('Y-m-d'),
+                'y' => $value,
+            ];
+        }, array_keys($trendData), $trendData);
+    }
 
     private function getStartDateByFilter($filter)
     {
@@ -449,6 +451,10 @@ class EventReportController extends Controller
                 return Carbon::now();
         }
     }
+
+
+
+
 
 
     private function getTrendDataWithDayNames($data)
@@ -556,15 +562,15 @@ class EventReportController extends Controller
     {
         $selectedDate = $request->input('date')
             ? Carbon::parse($request->input('date'))->toDateString()
-            : Carbon::now()->toDateString(); 
-            
+            : Carbon::now()->toDateString();
+
 
         $events = BusinessProfile::where('user_id', auth('business')->id())
-            ->whereDate('date', $selectedDate) 
+            ->whereDate('date', $selectedDate)
             ->orderBy('start_time')
             ->get();
 
-       
+
 
         $eventList = [];
 
@@ -575,14 +581,12 @@ class EventReportController extends Controller
                 'date' => Carbon::parse($event->date)->format('F j, Y'),
                 "start_time" => Carbon::parse($event->start_time)->format('g:i A'),
                 "end_time" => Carbon::parse($event->end_time)->format('g:i A'),
-                "progress" => rand(0, 100), 
+                "progress" => rand(0, 100),
                 "location" => $event->location_address ?? $event->location,
-                "guests" => json_decode($event->guest_list), 
+                "guests" => json_decode($event->guest_list),
             ];
         }
 
         return $this->success($eventList, 'Schedule events fetched successfully.');
-
-        
     }
 }
