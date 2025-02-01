@@ -59,7 +59,7 @@ class UserAuthController extends Controller
             'password' => bcrypt($request->password),
             'role' => 'user',
             'gender' => $request->gender,
-            'preferences' => $request->preferences, // No need to encode manually
+            'preferences' => $request->preferences, 
             'date_of_birth' => $request->date_of_birth,
             'country' => $request->country,
             'phone' => $request->phone,
@@ -186,19 +186,16 @@ class UserAuthController extends Controller
         $email = $request->email;
         $otp = $request->otp;
 
-        // retrieve OTP from cache
         $cachedOtp = Cache::get('otp_' . $email);
 
         if (!$cachedOtp || $cachedOtp != $otp) {
             return response()->json(['message' => 'Invalid or expired OTP.'], 401);
         }
 
-        // OTP is valid, clear it from cache
+        
         Cache::forget('otp_' . $email);
 
         $resetToken = Str::random(64);
-
-        // Store reset token in cache (optional)
         Cache::put('reset_token_' . $email, $resetToken, now()->addMinutes(15));
 
         return response()->json(['reset_token' => $resetToken, 'message' => 'OTP verified.'], 200);

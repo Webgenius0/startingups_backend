@@ -79,50 +79,51 @@ class UserAccountController extends Controller
         return $this->success($user, 'Profile retrieved successfully.');
     }
 
-    //  __update user profile
     public function update_profile(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'full_name' => 'nullable|string|max:255',
-            // 'email' => 'nullable|email|max:255',
             'date_of_birth' => 'nullable|string|max:255',
             'gender' => 'nullable|string|max:255',
-            // 'phone' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
             return $this->error([], $validator->errors()->first(), 422);
         }
 
-        $coverPath = '';
+        $user = auth('api')->user(); 
 
-
+        
         if ($request->hasFile('avatar')) {
-            $coverPath = Helper::uploadImage($request->file('avatar'), 'user_profiles');
+            $avatarPath = Helper::uploadImage($request->file('avatar'), 'user_profiles');
+            $user->avatar = $avatarPath; 
         }
 
-        $user = auth('api')->user();
-        $user->full_name = $request->full_name;
-        $user->email = auth('api')->user()->email;
-        $user->date_of_birth = $request->date_of_birth;
-        $user->gender = $request->gender;
-        $user->phone = $user->phone;
-        $user->avatar = $coverPath;
-        $user->save();
+        
+        if ($request->filled('full_name')) {
+            $user->full_name = $request->full_name;
+        }
 
-        $user = [
+        if ($request->filled('date_of_birth')) {
+            $user->date_of_birth = $request->date_of_birth;
+        }
+
+        if ($request->filled('gender')) {
+            $user->gender = $request->gender;
+        }
+
+        $user->save(); 
+
+        
+        $updatedUser = [
             'full_name' => $user->full_name,
             'email' => $user->email,
             'phone' => $user->phone,
             'gender' => $user->gender,
             'date_of_birth' => $user->date_of_birth,
-            'avatar' => $user->avatar ?  url($user->avatar) : '',
-
+            'avatar' => $user->avatar ? url($user->avatar) : '',
         ];
 
-
-
-
-        return $this->success($user, 'Profile updated successfully.');
+        return $this->success($updatedUser, 'Profile updated successfully.');
     }
 }
