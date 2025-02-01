@@ -27,7 +27,7 @@ class EventController extends Controller
         try {
             // Validate the incoming request
             $data = $request->validate([
-                'cover' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
+                'cover' => 'nullable|image|mimes:jpg,jpeg,png',
                 'title' => 'required|max:255',
                 'category_id' => 'required',
                 'age_min' => 'nullable|integer',
