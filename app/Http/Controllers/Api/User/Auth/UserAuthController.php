@@ -29,7 +29,7 @@ class UserAuthController extends Controller
         $validator = Validator::make($request->all(), [
             'cover' => 'nullable|image|mimes:jpg,jpeg,png',
             'gender' => 'required|string|max:255',
-            'preferences' => 'required|array', // Ensure preferences is an array
+            // 'preferences' => 'required', // Ensure preferences is an array
             'preferences.*' => 'required|string|max:255',
 
             'full_name' => 'required|string|max:255',
@@ -256,17 +256,21 @@ class UserAuthController extends Controller
             return $this->error([], 'User not found.', 404);
         }
 
-        // Check if preferences is a valid JSON string and decode it
-        $preferences = $user->preferences;
+        
+        // if not found
+    if (!$user) {
+        return $this->error([], 'User not found.', 404);
+    }
 
-        if (is_string($preferences)) {
-            $decoded = json_decode($preferences, true);
-            $preferencesArray = is_array($decoded) ? $decoded : [];
-        } else {
-            $preferencesArray = is_array($preferences) ? $preferences : [];
-        }
+    // Split preferences string into an array (by commas) and trim extra spaces
+    $preferences = explode(',', $user->preferences);
 
-        return $this->success($preferencesArray, 'Preferences retrieved successfully.');
+    // Trim any extra whitespace and remove any surrounding quotes
+    $preferences = array_map(function($preference) {
+        return trim($preference, '"');
+    }, $preferences);
+
+        return $this->success($preferences, 'Preferences retrieved successfully.');
     }
 
 
