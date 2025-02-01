@@ -276,7 +276,7 @@ class UserAuthController extends Controller
     public function update_preferences(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'preferences.*' => 'required|string|max:255',
+            'preferences' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -290,22 +290,14 @@ class UserAuthController extends Controller
         }
 
 
-        $preferences = $request->preferences;
-        if (is_string($preferences)) {
-            $preferences = explode(',', $preferences);
-        }
-
-
-        $sanitizedPreferences = array_map(function ($preference) {
-            return trim(strip_tags($preference), '{}');
-        }, $preferences);
+       
 
 
         $user->preferences = null;
         $user->save();
 
 
-        $user->preferences = json_encode($sanitizedPreferences);
+        $user->preferences = $request->preferences;
         $user->save();
 
 
