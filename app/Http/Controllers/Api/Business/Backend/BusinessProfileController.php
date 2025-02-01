@@ -243,13 +243,12 @@ class BusinessProfileController extends Controller
 
             
             $businessProfile->update([
-                'business_name' => $request->business_name,
-                'category_id' => $request->category_id,
-                'sub_category_id' => $request->sub_category_id,
-                'activity' => $request->activity,
-                'location' => $request->location,
+                'business_name' => $request->input('business_name', $businessProfile->business_name),
+                'category_id' => $request->input('category_id', $businessProfile->category_id),
+                'sub_category_id' => $request->input('sub_category_id', $businessProfile->sub_category_id),
+                'activity' => $request->input('activity', $businessProfile->activity),
+                'location' => $request->input('location', $businessProfile->location),
             ]);
-
             
             if ($request->hasFile('cover')) {
                 if ($businessProfile->cover) {
