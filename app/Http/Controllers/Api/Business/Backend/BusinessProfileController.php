@@ -291,7 +291,7 @@ class BusinessProfileController extends Controller
                 'message' => 'Business Profile updated successfully',
                 'data' => [
                     'id' => $businessProfile->id,
-                    'cover' => $businessProfile->cover,
+                    'cover' => url($businessProfile->cover),
                     'business_name' => $businessProfile->business_name,
                     'category_id' => $businessProfile->category_id,
                     'subcategory_id' => $businessProfile->sub_category_id,
