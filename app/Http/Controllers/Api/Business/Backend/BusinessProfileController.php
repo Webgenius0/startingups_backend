@@ -224,6 +224,7 @@ class BusinessProfileController extends Controller
 
     public function business_profile_update(Request $request)
     {
+        
         DB::beginTransaction(); 
 
         try {

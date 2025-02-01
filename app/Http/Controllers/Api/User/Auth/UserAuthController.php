@@ -25,17 +25,15 @@ class UserAuthController extends Controller
 
     public function register(Request $request)
     {
-        // validation for user register
+        // Validation for user registration
         $validator = Validator::make($request->all(), [
             'cover' => 'nullable|image|mimes:jpg,jpeg,png',
             'gender' => 'required|string|max:255',
+            'preferences' => 'required|array', // Ensure preferences is an array
             'preferences.*' => 'required|string|max:255',
 
             'full_name' => 'required|string|max:255',
             'date_of_birth' => 'required|string|max:255',
-            // 'street_address' => 'required|string|max:255',
-            // 'city' => 'required|string|max:255',
-
             'user_name' => 'required|unique:users,user_name|max:255',
             'email' => 'required|email|unique:users,email|max:255',
             'password' => ['required', 'confirmed', 'min:8'],
@@ -45,46 +43,38 @@ class UserAuthController extends Controller
             return $this->error([], $validator->errors()->first(), 422);
         }
 
+        // Handle image upload
         $coverPath = '';
         if ($request->hasFile('cover')) {
             $coverPath = Helper::uploadImage($request->file('cover'), 'business_profiles');
         }
 
-        // $validatedData = $validator->validated();
-
-        $data = User::create([
-            'avatar' => $coverPath ? $coverPath : '',
+        // Store user data
+        $user = User::create([
+            'avatar' => $coverPath ?: '',
+            'name' => $request->full_name,
             'full_name' => $request->full_name,
             'user_name' => $request->user_name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
-
-
             'role' => 'user',
-
             'gender' => $request->gender,
-            'preferences' => json_encode($request->preferences),
+            'preferences' => $request->preferences, // No need to encode manually
             'date_of_birth' => $request->date_of_birth,
             'country' => $request->country,
-            // 'street_address' => $request->street_address,
-            // 'city' => $request->city,
-
+            'phone' => $request->phone,
         ]);
 
-        // cover with url
-        $data->avatar = $data->avatar ? url($data->avatar) : null;
+        // Generate token
+        $token = auth('api')->login($user);
+        $user->token = $token;
 
+        // Cover with full URL
+        $user->avatar = $user->avatar ? url($user->avatar) : null;
 
-
-        // generate token
-        $token = auth('api')->login($data);
-        $data['token'] = $token;
-
-        // prefernces
-        $data['preferences'] = json_decode($data['preferences']);
-
-        return $this->success($data, ' Sign Up Successfull.', 201);
+        return $this->success($user, 'Sign Up Successful.', 201);
     }
+
 
     // user_location update
 
@@ -258,34 +248,30 @@ class UserAuthController extends Controller
 
 
 
-    // __get user preferences
-    // __get user preferences
     public function preferences()
     {
         $user = auth('api')->user();
 
-        // if not found
         if (!$user) {
             return $this->error([], 'User not found.', 404);
         }
 
-        // Split preferences string into an array (by commas) and trim extra spaces
-        $preferences = explode(',', $user->preferences);
+        // Check if preferences is a valid JSON string and decode it
+        $preferences = $user->preferences;
 
-        // Trim any extra whitespace and remove any surrounding quotes
-        $preferences = array_map(function ($preference) {
-            return trim($preference, '"');
-        }, $preferences);
+        if (is_string($preferences)) {
+            $decoded = json_decode($preferences, true);
+            $preferencesArray = is_array($decoded) ? $decoded : [];
+        } else {
+            $preferencesArray = is_array($preferences) ? $preferences : [];
+        }
 
-        // Return preferences as 'data' in the response
-        return $this->success(['data' => $preferences], 'Preferences retrieved successfully.');
+        return $this->success($preferencesArray, 'Preferences retrieved successfully.');
     }
 
 
 
 
-
-    // __update user preferences
     public function update_preferences(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -298,26 +284,37 @@ class UserAuthController extends Controller
 
         $user = auth('api')->user();
 
-        // if not found
         if (!$user) {
             return $this->error([], 'User not found.', 404);
         }
 
-        $user->preferences = json_encode($request->preferences);
+
+        $preferences = $request->preferences;
+        if (is_string($preferences)) {
+            $preferences = explode(',', $preferences);
+        }
+
+
+        $sanitizedPreferences = array_map(function ($preference) {
+            return trim(strip_tags($preference), '{}');
+        }, $preferences);
+
+
+        $user->preferences = null;
         $user->save();
 
 
+        $user->preferences = json_encode($sanitizedPreferences);
+        $user->save();
 
-        // Split preferences string into an array (by commas) and trim extra spaces
-        $preferences = explode(',', $user->preferences);
 
-        // Trim any extra whitespace and remove any surrounding quotes
-        $preferences = array_map(function ($preference) {
-            return trim($preference, '"');
-        }, $preferences);
+        $data = json_decode($user->preferences);
 
-        return $this->success($preferences, 'Preferences updated successfully.');
+        return $this->success($data, 'Preferences updated successfully.');
     }
+
+
+
 
 
 
