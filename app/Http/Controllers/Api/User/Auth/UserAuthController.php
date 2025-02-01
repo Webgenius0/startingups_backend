@@ -59,7 +59,7 @@ class UserAuthController extends Controller
             'password' => bcrypt($request->password),
             'role' => 'user',
             'gender' => $request->gender,
-            'preferences' => $request->preferences, 
+            'preferences' => $request->preferences,
             'date_of_birth' => $request->date_of_birth,
             'country' => $request->country,
             'phone' => $request->phone,
@@ -192,7 +192,7 @@ class UserAuthController extends Controller
             return response()->json(['message' => 'Invalid or expired OTP.'], 401);
         }
 
-        
+
         Cache::forget('otp_' . $email);
 
         $resetToken = Str::random(64);
@@ -253,19 +253,19 @@ class UserAuthController extends Controller
             return $this->error([], 'User not found.', 404);
         }
 
-        
+
         // if not found
-    if (!$user) {
-        return $this->error([], 'User not found.', 404);
-    }
+        if (!$user) {
+            return $this->error([], 'User not found.', 404);
+        }
 
-    // Split preferences string into an array (by commas) and trim extra spaces
-    $preferences = explode(',', $user->preferences);
+        // Split preferences string into an array (by commas) and trim extra spaces
+        $preferences = explode(',', $user->preferences);
 
-    // Trim any extra whitespace and remove any surrounding quotes
-    $preferences = array_map(function($preference) {
-        return trim($preference, '"');
-    }, $preferences);
+        // Trim any extra whitespace and remove any surrounding quotes
+        $preferences = array_map(function ($preference) {
+            return trim($preference, '"');
+        }, $preferences);
 
         return $this->success($preferences, 'Preferences retrieved successfully.');
     }
@@ -290,7 +290,7 @@ class UserAuthController extends Controller
         }
 
 
-       
+
 
 
         $user->preferences = null;
@@ -301,9 +301,18 @@ class UserAuthController extends Controller
         $user->save();
 
 
-        $data = $user->preferences;
+        // Split preferences string into an array (by commas) and trim extra spaces
+        $preferences = explode(',', $user->preferences);
 
-        return $this->success($data, 'Preferences updated successfully.');
+        // Trim any extra whitespace and remove any surrounding quotes
+        $preferences = array_map(function ($preference) {
+            return trim($preference, '"');
+        }, $preferences);
+
+
+        
+
+        return $this->success($preferences, 'Preferences updated successfully.');
     }
 
 
