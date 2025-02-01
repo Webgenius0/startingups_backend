@@ -221,83 +221,94 @@ class BusinessProfileController extends Controller
 
 
 
+
     public function business_profile_update(Request $request)
     {
+        DB::beginTransaction(); 
 
-        // dd($request->all());
+        try {
+            $businessProfile = BusinessProfile::where('user_id', Auth::id())
+                ->where('type', 'business_profile')
+                ->first();
 
-        $validatedData = $request->validate([
+            if (!$businessProfile) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Business profile not found or unauthorized access.',
+                ], 404);
+            }
 
-            'cover' => 'nullable',
-            'business_name' => 'required|string',
-            'category_id' => 'required|integer',
-            'sub_category_id' => 'required|integer',
-            'activity' => 'required|in:Indoor,Outdoor',
+            // Decode hours from JSON if needed
+            $hours = is_string($request->hours) ? json_decode($request->hours, true) : $request->hours;
 
-            'location' => 'required|string',
-            'hours' => 'required|array',
-            'hours.*.day' => 'required|string',
-            'hours.*.is_closed' => 'required',
-
-            'hours.*.open_time' => 'nullable|string',
-            'hours.*.close_time' => 'nullable|string',
-
-            'hours.*.is_second_time' => 'required',
-
-            'hours.*.re_open_time' => 'nullable|string',
-            'hours.*.re_close_time' => 'nullable|string',
-
-
-
-
-        ]);
-
-        $businessProfile = BusinessProfile::where('user_id', Auth::id())
-            ->where('type', 'business_profile')
-            ->first();
-
-        $businessProfile->update(
-
-            [
-                'type' => 'business_profile',
-                'business_name' => $validatedData['business_name'],
-                'category_id' => $validatedData['category_id'],
-                'sub_category_id' => $validatedData['sub_category_id'],
-                'activity' => $validatedData['activity'],
-                'location' => $validatedData['location'],
-
-
-            ]
-        );
-
-        if ($request->hasFile('cover')) {
-            $coverPath = Helper::uploadImage($request->file('cover'), 'business_profiles');
-            $businessProfile->cover = $coverPath;
-            $businessProfile->save();
-        }
-
-        $businessProfile->business_hours()->delete();
-        foreach ($validatedData['hours'] as $hour) {
-            $businessProfile->business_hours()->create([
-                'day' => $hour['day'],
-                'is_closed' => $hour['is_closed'] == true ? 1 : 0,
-                'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
-                'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
-
-                'is_second_time' => $hour['is_second_time'] == true ? 1 : 0,
-                're_open_time' => isset($hour['re_open_time']) && !$hour['is_closed'] ? $hour['re_open_time'] : null,
-                're_close_time' => isset($hour['re_close_time']) && !$hour['is_closed'] ? $hour['re_close_time'] : null,
+            
+            $businessProfile->update([
+                'business_name' => $request->business_name,
+                'category_id' => $request->category_id,
+                'sub_category_id' => $request->sub_category_id,
+                'activity' => $request->activity,
+                'location' => $request->location,
             ]);
+
+            
+            if ($request->hasFile('cover')) {
+                if ($businessProfile->cover) {
+                    Helper::deleteImage($businessProfile->cover);
+                }
+                $coverPath = Helper::uploadImage($request->file('cover'), 'business_profiles');
+                $businessProfile->cover = $coverPath;
+                $businessProfile->save();
+            }
+
+            
+            if ($request->has('hours')) {
+                $hours = is_string($request->hours) ? json_decode($request->hours, true) : $request->hours;
+
+                if (!empty($hours) && is_array($hours)) {
+                    
+                    $businessProfile->business_hours()->delete();
+
+                    
+                    foreach ($hours as $hour) {
+                        $businessProfile->business_hours()->create([
+                            'day' => $hour['day'],
+                            'is_closed' => $hour['is_closed'],
+                            'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
+                            'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
+                            'is_second_time' => $hour['is_second_time'],
+                            're_open_time' => isset($hour['re_open_time']) && !$hour['is_closed'] ? $hour['re_open_time'] : null,
+                            're_close_time' => isset($hour['re_close_time']) && !$hour['is_closed'] ? $hour['re_close_time'] : null,
+                        ]);
+                    }
+                }
+            }
+
+            $businessProfile->load('business_hours');
+
+            DB::commit(); 
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Business Profile updated successfully',
+                'data' => [
+                    'id' => $businessProfile->id,
+                    'business_name' => $businessProfile->business_name,
+                    'category_id' => $businessProfile->category_id,
+                    'subcategory_id' => $businessProfile->sub_category_id,
+                    'activity' => $businessProfile->activity,
+                    'location' => $businessProfile->location,
+                    'business_hours' => $businessProfile->business_hours,
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack(); 
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while updating the business profile. Please try again later.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-
-
-        $businessProfile->cover = $businessProfile->cover ? url($businessProfile->cover) : null;
-
-        // load business hours
-        $businessProfile->load('business_hours', 'business_prices');
-
-        return $this->success($businessProfile, 'Business Profile created successfully', 200);
     }
 
 
