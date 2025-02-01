@@ -306,7 +306,7 @@ class UserAuthController extends Controller
 
         // Trim any extra whitespace and remove any surrounding quotes
         $preferences = array_map(function ($preference) {
-            return trim($preference, '"');
+            return trim($preference, '{}"');
         }, $preferences);
 
 
