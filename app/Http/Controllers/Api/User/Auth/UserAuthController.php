@@ -30,7 +30,7 @@ class UserAuthController extends Controller
             'cover' => 'nullable|image|mimes:jpg,jpeg,png',
             'gender' => 'required|string|max:255',
             // 'preferences' => 'required', // Ensure preferences is an array
-            'preferences.*' => 'required|string|max:255',
+            'preferences.*' => 'required|max:255',
 
             'full_name' => 'required|string|max:255',
             'date_of_birth' => 'required|string|max:255',
