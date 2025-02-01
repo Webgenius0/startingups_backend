@@ -301,7 +301,7 @@ class UserAuthController extends Controller
         $user->save();
 
 
-        $data = json_decode($user->preferences);
+        $data = $user->preferences;
 
         return $this->success($data, 'Preferences updated successfully.');
     }
