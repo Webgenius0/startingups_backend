@@ -32,17 +32,7 @@
                                     </select>
                                 </div>
 
-                                <!-- Subcategory -->
-                                <div class="mb-3">
-                                    <label class="form-label">Sub Category</label>
-                                    <select name="sub_category_id" class="form-control">
-                                        @foreach ($sub_categories as $sub)
-                                            <option value="{{ $sub->id }}" {{ $event->sub_category_id == $sub->id ? 'selected' : '' }}>
-                                                {{ $sub->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                               
 
                                 <!-- Activity (Indoor/Outdoor) -->
                                 <div class="mb-3">

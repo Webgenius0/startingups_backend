@@ -29,9 +29,13 @@ class BusinessProfileController extends Controller
             'cover' => 'nullable',
             'business_name' => 'required|string',
             'category_id' => 'required|integer',
-            'sub_category_id' => 'required|integer',
-            'activity' => 'required|in:Indoor,Outdoor',
+            'activity' => 'required',
             'location' => 'required|string',
+
+            // age limit
+            'age_min' => 'nullable',
+            'age_max' => 'nullable',
+
             'hours' => 'required|array',
             'hours.*.day' => 'required|string',
             'hours.*.is_closed' => 'required',
@@ -47,19 +51,15 @@ class BusinessProfileController extends Controller
             'prices.*.days' => 'required',
             'prices.*.offerings' => 'nullable|string',
 
-            // age limit
-            'age_min' => 'nullable',
-            'age_max' => 'nullable',
+            
 
         ]);
 
         $businessProfile = BusinessProfile::updateOrCreate(
             ['user_id' => Auth::id()],
             [
-                'type' => 'business_profile',
                 'business_name' => $validatedData['business_name'],
                 'category_id' => $validatedData['category_id'],
-                'sub_category_id' => $validatedData['sub_category_id'],
                 'activity' => $validatedData['activity'],
                 'location' => $validatedData['location'],
                 'age_min' => $validatedData['age_min'],
@@ -111,8 +111,6 @@ class BusinessProfileController extends Controller
             'category_id' => $businessProfile->category_id,
             'category_name' => $businessProfile->category->name,
 
-            'subcategory_id' => $businessProfile->sub_category_id,
-            'subcategory_name' => $businessProfile->sub_category ?  $businessProfile->sub_category->name : '',
             'activity' => $businessProfile->activity,
             'location' => $businessProfile->location,
             'age_min' => $businessProfile->age_min,
@@ -153,9 +151,7 @@ class BusinessProfileController extends Controller
 
     public function business_profile_details()
     {
-        $businessProfile = BusinessProfile::where('user_id', Auth::id())
-            ->where('type', 'business_profile')
-            ->first();
+        $businessProfile = BusinessProfile::where('user_id', Auth::id())->first();
 
         if (!$businessProfile) {
             return $this->error([], 'Business Profile not found', 404);
@@ -177,8 +173,7 @@ class BusinessProfileController extends Controller
             'category_id' => $businessProfile->category_id,
             'category_name' => $businessProfile->category->name,
 
-            'subcategory_id' => $businessProfile->sub_category_id,
-            'subcategory_name' => $businessProfile->sub_category ?  $businessProfile->sub_category->name : '',
+           
             'activity' => $businessProfile->activity,
             'location' => $businessProfile->location,
             'age_min' => $businessProfile->age_min,
@@ -228,9 +223,7 @@ class BusinessProfileController extends Controller
         DB::beginTransaction(); 
 
         try {
-            $businessProfile = BusinessProfile::where('user_id', Auth::id())
-                ->where('type', 'business_profile')
-                ->first();
+            $businessProfile = BusinessProfile::where('user_id', Auth::id())->first();
 
             if (!$businessProfile) {
                 return response()->json([
@@ -246,7 +239,7 @@ class BusinessProfileController extends Controller
             $businessProfile->update([
                 'business_name' => $request->input('business_name', $businessProfile->business_name),
                 'category_id' => $request->input('category_id', $businessProfile->category_id),
-                'sub_category_id' => $request->input('sub_category_id', $businessProfile->sub_category_id),
+                
                 'activity' => $request->input('activity', $businessProfile->activity),
                 'location' => $request->input('location', $businessProfile->location),
             ]);
@@ -272,7 +265,7 @@ class BusinessProfileController extends Controller
                     foreach ($hours as $hour) {
                         $businessProfile->business_hours()->create([
                             'day' => $hour['day'],
-                            'is_closed' => $hour['is_closed'],
+                            'is_closed' => $hour['is_closed'] ,
                             'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
                             'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
                             'is_second_time' => $hour['is_second_time'],
@@ -295,7 +288,8 @@ class BusinessProfileController extends Controller
                     'cover' => url($businessProfile->cover),
                     'business_name' => $businessProfile->business_name,
                     'category_id' => $businessProfile->category_id,
-                    'subcategory_id' => $businessProfile->sub_category_id,
+                    'category_name' => $businessProfile->category->name,
+                    
                     'activity' => $businessProfile->activity,
                     'location' => $businessProfile->location,
                     'business_hours' => $businessProfile->business_hours,

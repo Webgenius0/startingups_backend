@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('business_profile_id')->constrained()->onDelete('cascade');
             $table->string('type');
             $table->decimal('amount', 8, 2);
+            $table->string('days')->nullable(); 
             $table->text('offerings')->nullable();
 
             $table->timestamps();

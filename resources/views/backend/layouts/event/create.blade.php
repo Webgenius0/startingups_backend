@@ -38,7 +38,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <h2>Create Event</h2>
+                    <h2 class="my-3">Create Event</h2>
                     <form action="{{ route('admin.event.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
@@ -49,7 +49,7 @@
 
                         <div class="mb-3">
                             <label for="business_name" class="form-label">Business Name</label>
-                            <input type="text" name="business_name" class="form-control" required>
+                            <input type="text" name="business_name" class="form-control" placeholder="Enter business name" required>
                         </div>
 
                         <div class="mb-3">
@@ -64,20 +64,11 @@
                             </select>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="sub_category_id" class="form-label">Subcategory</label>
-                            <select name="sub_category_id" class="form-select">
-                                <option value="">Select</option>
-                                @foreach ($sub_categories as $sub_category)
-                                    
-                                <option value="{{ $sub_category->id }}">{{ $sub_category->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                        
 
                         <div class="mb-3">
                             <label for="location" class="form-label">Location</label>
-                            <input type="text" name="location" class="form-control" required>
+                            <input type="text" name="location" class="form-control" placeholder="Enter location" required>
                         </div>
 
                         <div class="mb-3">

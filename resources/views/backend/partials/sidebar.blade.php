@@ -53,7 +53,7 @@
                 </div>
 
 
-                <div class="menu-item">
+                {{-- <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs('admin.business_category.*') ? 'active' : '' }}"
                         href="{{ route('admin.business_category.index') }}">
                         <span class="menu-icon">
@@ -64,7 +64,7 @@
                         </span>
                         <span class="menu-title">User Categories</span>
                     </a>
-                </div>
+                </div> --}}
                
 
                 <div class="menu-item">
@@ -79,7 +79,7 @@
                     </div>
                 </div> --}}
 
-                <div class="menu-item">
+                {{-- <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs('admin.category.*') ? 'active' : '' }}"
                         href="{{ route('admin.category.index') }}">
                         <span class="menu-icon">
@@ -100,7 +100,7 @@
                         </span>
                         <span class="menu-title">Sub Categories</span>
                     </a>
-                </div>
+                </div> --}}
 
 
                 <div class="menu-item">

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('age')->nullable();
             $table->string('event_date')->nullable();
             $table->string('event_time')->nullable();
-            $table->boolean('is_guest')->default(false);
+            $table->string('is_guest')->nullable();
             $table->integer('guest_count')->nullable();
             $table->string('notes')->nullable();
 

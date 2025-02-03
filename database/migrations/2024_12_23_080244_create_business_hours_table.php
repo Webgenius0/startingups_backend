@@ -19,8 +19,14 @@ return new class extends Migration
                 $table->string('date')->nullable(); // Sunday, Monday, etc.
                 $table->boolean('is_closed')->default(false);
 
-                $table->time('open_time')->nullable(); // Null if closed
-                $table->time('close_time')->nullable(); // Null if closed
+                $table->string('open_time')->nullable();
+                $table->string('close_time')->nullable();
+
+                $table->boolean('is_second_time')->default(false); 
+                $table->string('re_open_time')->nullable(); // Null if closed
+                $table->string('re_close_time')->nullable(); // Null if closed
+
+
                 $table->timestamps();
 
         });

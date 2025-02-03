@@ -24,14 +24,20 @@ return new class extends Migration
             $table->string('gender')->nullable();
             $table->string('phone')->nullable();
             $table->string('date_of_birth')->nullable();
-            $table->json('preferences')->nullable();
+            $table->json('preferences_ids')->nullable();
             $table->string('location')->nullable();
             $table->string('city')->nullable();
             $table->string('street_address')->nullable();
             $table->string('country')->nullable();
+            $table->string('country_code', 3)->nullable();
 
             // role enum
             $table->enum('role', ['admin', 'user', 'business'])->default('user');
+
+            $table->string('stripe_account_id')->nullable();
+            $table->string('stripe_boarding_completed')->nullable();
+            $table->string('google_id')->nullable();
+            
 
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();

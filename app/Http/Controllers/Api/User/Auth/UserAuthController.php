@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api\User\Auth;
 use Exception;
 use App\Models\User;
 use App\Helper\Helper;
+use App\Models\Category;
 use App\Traits\ApiResponse;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\UserPreference;
 use App\Mail\OtpMailNotification;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -25,31 +27,28 @@ class UserAuthController extends Controller
 
     public function register(Request $request)
     {
-        // Validation for user registration
         $validator = Validator::make($request->all(), [
             'cover' => 'nullable|image|mimes:jpg,jpeg,png',
             'gender' => 'required|string|max:255',
-            // 'preferences' => 'required', // Ensure preferences is an array
-            'preferences' => 'required',
-
+            'preferences_id' => 'required|array',
+            'preferences_id.*' => 'integer',
             'full_name' => 'required|string|max:255',
             'date_of_birth' => 'required|string|max:255',
             'user_name' => 'required|unique:users,user_name|max:255',
             'email' => 'required|email|unique:users,email|max:255',
             'password' => ['required', 'confirmed', 'min:8'],
+
         ]);
 
         if ($validator->fails()) {
             return $this->error([], $validator->errors()->first(), 422);
         }
 
-        // Handle image upload
         $coverPath = '';
         if ($request->hasFile('cover')) {
             $coverPath = Helper::uploadImage($request->file('cover'), 'business_profiles');
         }
 
-        // Store user data
         $user = User::create([
             'avatar' => $coverPath ?: '',
             'name' => $request->full_name,
@@ -59,18 +58,23 @@ class UserAuthController extends Controller
             'password' => bcrypt($request->password),
             'role' => 'user',
             'gender' => $request->gender,
-            'preferences' => $request->preferences,
             'date_of_birth' => $request->date_of_birth,
             'country' => $request->country,
             'phone' => $request->phone,
         ]);
 
-        // Generate token
+        foreach ($request->preferences_id as $preference) {
+            $user->user_preferences()->create([
+                'user_id' => $user->id,
+                'category_id' => (int)$preference
+            ]);
+        }
+
         $token = auth('api')->login($user);
         $user->token = $token;
 
-        // Cover with full URL
-        $user->avatar = $user->avatar ? url($user->avatar) : null;
+        $preferences = Category::whereIn('id', $request->preferences_id)->pluck('name');
+        $user['preferences'] = $preferences;
 
         return $this->success($user, 'Sign Up Successful.', 201);
     }
@@ -247,25 +251,18 @@ class UserAuthController extends Controller
 
     public function preferences()
     {
-        $user = auth('api')->user();
+        $user_id = auth('api')->user()->id;
+        $user = User::with('user_preferences')->find($user_id);
 
         if (!$user) {
             return $this->error([], 'User not found.', 404);
         }
 
 
-        // if not found
-        if (!$user) {
-            return $this->error([], 'User not found.', 404);
-        }
+        $user_preferences = $user->user_preferences->pluck('category_id');
 
-        // Split preferences string into an array (by commas) and trim extra spaces
-        $preferences = explode(',', $user->preferences);
 
-        // Trim any extra whitespace and remove any surrounding quotes
-        $preferences = array_map(function ($preference) {
-            return trim($preference, '"');
-        }, $preferences);
+        $preferences = Category::whereIn('id', $user_preferences)->pluck('name');
 
         return $this->success($preferences, 'Preferences retrieved successfully.');
     }
@@ -273,46 +270,33 @@ class UserAuthController extends Controller
 
 
 
+
     public function update_preferences(Request $request)
     {
+        $user = auth('api')->user();
+
+        // Validate input
         $validator = Validator::make($request->all(), [
-            'preferences' => 'required',
+            'preferences_id' => 'required|array',
+            'preferences_id.*' => 'integer|exists:categories,id',
         ]);
 
         if ($validator->fails()) {
             return $this->error([], $validator->errors()->first(), 422);
         }
 
-        $user = auth('api')->user();
-
-        if (!$user) {
-            return $this->error([], 'User not found.', 404);
+        UserPreference::where('user_id', $user->id)->delete();
+        foreach ($request->preferences_id as $preference) {
+            $user->user_preferences()->create([
+                'user_id' => $user->id,
+                'category_id' => (int) $preference
+            ]);
         }
 
-
-
-
-
-        $user->preferences = null;
-        $user->save();
-
-
-        $user->preferences = $request->preferences;
-        $user->save();
-
-
-        // Split preferences string into an array (by commas) and trim extra spaces
-        $preferences = explode(',', $user->preferences);
-
-        // Trim any extra whitespace and remove any surrounding quotes
-        $preferences = array_map(function ($preference) {
-            return trim($preference, '{}"');
-        }, $preferences);
-
-
         
+        $updatedPreferences = Category::whereIn('id', $request->preferences_id)->pluck('name');
 
-        return $this->success($preferences, 'Preferences updated successfully.');
+        return $this->success($updatedPreferences, 'Preferences updated successfully.');
     }
 
 

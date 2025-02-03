@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\BusinessProfile;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
+use App\Models\BusinessCategory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -63,10 +64,9 @@ class AdminEventController extends Controller
     public function create()
     {
 
-        $categories = Category::all();
+        $categories = BusinessCategory::all();
 
-        $sub_categories = SubCategory::all();
-        return view('backend.layouts.event.create', compact('categories', 'sub_categories'));
+        return view('backend.layouts.event.create', compact('categories'));
     }
 
     public function store(Request $request)
@@ -122,10 +122,10 @@ class AdminEventController extends Controller
     {
         try {
             $event = BusinessProfile::findOrFail($id);
-            $categories = Category::all();
-            $sub_categories = SubCategory::all();
+            $categories = BusinessCategory::all();
+           
 
-            return view('backend.layouts.event.edit', compact('event', 'categories', 'sub_categories'));
+            return view('backend.layouts.event.edit', compact('event', 'categories'));
         } catch (\Exception $e) {
             return redirect()->back()->with('t-error', $e->getMessage());
         }
@@ -181,7 +181,6 @@ class AdminEventController extends Controller
             $event->update([
                 'business_name' => $request->business_name,
                 'category_id' => $request->category_id,
-                'sub_category_id' => $request->sub_category_id,
                 'activity' => $request->activity,
                 'location' => $request->location,
                 'age_min' => $request->age_min,
