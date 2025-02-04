@@ -24,6 +24,7 @@ class BusinessProfileController extends Controller
     public function store(Request $request)
     {
 
+        // dd($request->all());
         $validatedData = $request->validate([
 
             'cover' => 'nullable',
@@ -36,14 +37,7 @@ class BusinessProfileController extends Controller
             'age_min' => 'nullable',
             'age_max' => 'nullable',
 
-            'hours' => 'required|array',
-            'hours.*.day' => 'required|string',
-            'hours.*.is_closed' => 'required',
-            'hours.*.open_time' => 'nullable|string',
-            'hours.*.close_time' => 'nullable|string',
-            'hours.*.is_second_time' => 'required',
-            'hours.*.re_open_time' => 'nullable|string',
-            'hours.*.re_close_time' => 'nullable|string',
+
 
             'prices' => 'required|array',
             'prices.*.type' => 'required|string',
@@ -51,7 +45,7 @@ class BusinessProfileController extends Controller
             'prices.*.days' => 'required',
             'prices.*.offerings' => 'nullable|string',
 
-            
+
 
         ]);
 
@@ -74,20 +68,22 @@ class BusinessProfileController extends Controller
             $businessProfile->save();
         }
 
+
         $businessProfile->business_hours()->delete();
-        foreach ($validatedData['hours'] as $hour) {
+        foreach ($request->hours as $hour) {
             $businessProfile->business_hours()->create([
                 'day' => $hour['day'],
-                'is_closed' => $hour['is_closed'] == true ? 1 : 0,
-                'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
-                'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
+                'is_closed' => $hour['is_closed'] ,
+                'open_time' => !$hour['is_closed'] ? $hour['open_time'] : null,
+                'close_time' => !$hour['is_closed'] ? $hour['close_time'] : null,
+                'is_second_time' => $hour['is_second_time'] ,
+                're_open_time' => ($hour['is_second_time'] && !$hour['is_closed'] && isset($hour['re_open_time'])) ? $hour['re_open_time'] : null,
+                're_close_time' => ($hour['is_second_time'] && !$hour['is_closed'] && isset($hour['re_close_time'])) ? $hour['re_close_time'] : null,
 
-
-                'is_second_time' => $hour['is_second_time'] == true ? 1 : 0,
-                're_open_time' => isset($hour['re_open_time']) && !$hour['is_closed'] ? $hour['re_open_time'] : null,
-                're_close_time' => isset($hour['re_close_time']) && !$hour['is_closed'] ? $hour['re_close_time'] : null,
             ]);
         }
+
+
 
         $businessProfile->business_prices()->delete();
         foreach ($validatedData['prices'] as $price) {
@@ -173,7 +169,7 @@ class BusinessProfileController extends Controller
             'category_id' => $businessProfile->category_id,
             'category_name' => $businessProfile->category->name,
 
-           
+
             'activity' => $businessProfile->activity,
             'location' => $businessProfile->location,
             'age_min' => $businessProfile->age_min,
@@ -219,8 +215,8 @@ class BusinessProfileController extends Controller
 
     public function business_profile_update(Request $request)
     {
-        
-        DB::beginTransaction(); 
+
+        DB::beginTransaction();
 
         try {
             $businessProfile = BusinessProfile::where('user_id', Auth::id())->first();
@@ -235,15 +231,15 @@ class BusinessProfileController extends Controller
             // Decode hours from JSON if needed
             $hours = is_string($request->hours) ? json_decode($request->hours, true) : $request->hours;
 
-            
+
             $businessProfile->update([
                 'business_name' => $request->input('business_name', $businessProfile->business_name),
                 'category_id' => $request->input('category_id', $businessProfile->category_id),
-                
+
                 'activity' => $request->input('activity', $businessProfile->activity),
                 'location' => $request->input('location', $businessProfile->location),
             ]);
-            
+
             if ($request->hasFile('cover')) {
                 if ($businessProfile->cover) {
                     Helper::deleteImage($businessProfile->cover);
@@ -253,19 +249,19 @@ class BusinessProfileController extends Controller
                 $businessProfile->save();
             }
 
-            
+
             if ($request->has('hours')) {
                 $hours = is_string($request->hours) ? json_decode($request->hours, true) : $request->hours;
 
                 if (!empty($hours) && is_array($hours)) {
-                    
+
                     $businessProfile->business_hours()->delete();
 
-                    
+
                     foreach ($hours as $hour) {
                         $businessProfile->business_hours()->create([
                             'day' => $hour['day'],
-                            'is_closed' => $hour['is_closed'] ,
+                            'is_closed' => $hour['is_closed'],
                             'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
                             'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
                             'is_second_time' => $hour['is_second_time'],
@@ -278,7 +274,7 @@ class BusinessProfileController extends Controller
 
             $businessProfile->load('business_hours');
 
-            DB::commit(); 
+            DB::commit();
 
             return response()->json([
                 'success' => true,
@@ -289,14 +285,14 @@ class BusinessProfileController extends Controller
                     'business_name' => $businessProfile->business_name,
                     'category_id' => $businessProfile->category_id,
                     'category_name' => $businessProfile->category->name,
-                    
+
                     'activity' => $businessProfile->activity,
                     'location' => $businessProfile->location,
                     'business_hours' => $businessProfile->business_hours,
                 ]
             ], 200);
         } catch (\Exception $e) {
-            DB::rollBack(); 
+            DB::rollBack();
 
             return response()->json([
                 'success' => false,
