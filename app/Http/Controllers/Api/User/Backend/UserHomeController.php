@@ -108,9 +108,7 @@ class UserHomeController extends Controller
     public function explore_event()
     {
 
-        // dd(Carbon::now()->format('d/m/Y'));
         try {
-
 
             $business_events = BusinessProfile::with('business_hours', 'event_clicks', 'event_bookings')
                                 ->where(function ($query) {
@@ -134,18 +132,6 @@ class UserHomeController extends Controller
             });
 
 
-
-
-            // dd($near_events);
-
-            // if ($near_events->isEmpty()) {
-            //     return $this->error([], 'No events found ', 404);
-            // }
-
-            // return $near_events;
-
-            // recommated events
-
             $recommated_events  = BusinessProfile::with('business_hours', 'event_clicks', 'event_bookings')
                                     // ->where('type', 'business_profile')
                                     // ->where(function ($query) {
@@ -153,10 +139,6 @@ class UserHomeController extends Controller
                                     //         ->orWhereHas('event_bookings');
                                     // })
                                     ->get();
-
-
-
-
 
             $recommated_events = $recommated_events->map(function ($event) {
                 $business_hour = $event->business_hours->first();
@@ -172,37 +154,13 @@ class UserHomeController extends Controller
                 ];
             });
 
-            // daily events
-
-            // $daily_events = collect();
-
-            // foreach ($business_events as $event) {
-            //     $event_hours = BusinessHour::whereNotNull('open_time')->where('business_profile_id', $event->id)
-            //         // ->where('date', '>', Carbon::now()->format('d/m/Y'))
-            //         ->orderBy('day', 'desc')
-            //         ->get();
-
-
-            //     $daily_events = $daily_events->merge($event_hours);
-            // }
-
-            // $daily_events = $daily_events->map(function ($event) {
-            //     return [
-            //         'id' => $event->business_profile->id,
-            //         'title' => $event->business_profile->business_name,
-            //         'time' => $event->open_time,
-            //         'date' => $event->created_at->format('d M'),
-
-            //         'location' => $event->business_profile->location,
-            //         'cover' => $event->business_profile->cover ? url($event->business_profile->cover) : null,
-            //     ];
-            // });
-
+            
             return $this->success([
                 'near_events' => $near_events,
                 'recommated_events' => $recommated_events,
-                // 'daily_events' => $daily_events,
             ], 'Events retrieved successfully', 200);
+
+
         } catch (\Exception $e) {
 
             return $this->error([], 'Error retrieving events: ' . $e->getMessage(), 500);
@@ -214,23 +172,19 @@ class UserHomeController extends Controller
     {
         try {
 
-            $business_events = BusinessProfile::whereNull('status')->get();
-
-            $tailored_event = collect();
-
-            foreach ($business_events as $event) {
-                $event_hours = BusinessHour::whereNotnull('open_time')->where('business_profile_id', $event->id)->get();
-                $tailored_event = $tailored_event->merge($event_hours);
-            }
+            $tailored_event  = BusinessProfile::with('business_hours', 'event_clicks', 'event_bookings')->get();
 
             $tailored_event = $tailored_event->map(function ($event) {
+                $business_hour = $event->business_hours->first();
                 return [
-                    'id' => $event->business_profile->id,
-                    'title' => $event->business_profile->business_name,
-                    'time' => $event->open_time,
-                    'date' => $event->date,
-                    'location' => $event->business_profile->location,
-                    'cover' => $event->business_profile->cover ? url($event->business_profile->cover) : null,
+                    'id' => $event->id,
+                    'title' => $event->business_name,
+                    'time' => $business_hour ? $business_hour->open_time . "-" .  $business_hour->close_time  : 'N/A',
+                    'date' => $event->created_at->format('M d, Y'),
+                    'location' => $event->location,
+                    'cover' => $event->cover ? url($event->cover) : null,
+                    // 'click_count' => $event->event_clicks->count(),  // Count clicks
+                    // 'booking_count' => $event->event_bookings->count(), // Count bookings
                 ];
             });
 
@@ -244,12 +198,8 @@ class UserHomeController extends Controller
     // __random events
     public function random_event()
     {
-
         try {
 
-
-
-            // random events
             $business_events = BusinessProfile::orderBy('created_at', 'desc')->whereNull('status')->get();
 
             $random_event = collect();
@@ -286,32 +236,6 @@ class UserHomeController extends Controller
     {
 
         $upcoming_events = BusinessProfile::with('business_hours')->orderBy('created_at', 'asc')->get();
-
-        // if ($upcoming_events->isEmpty()) {
-
-        //     $user = auth()->user()->load('followees');
-
-        //     $friends_events = BusinessProfile::whereHas('event_bookings', function ($query) use ($user) {
-        //         $query->whereIn('user_id', $user->followees->pluck('followee_id'));
-        //     })
-        //         ->limit(5)
-        //         ->get();
-
-        //     $friends_events = $friends_events->map(function ($event) {
-        //         return [
-        //             'id' => $event->id,
-        //             'title' => $event->title,
-        //             'time' => Carbon::parse($event->date)->format('h:i A'),
-        //             'date' => Carbon::parse($event->date)->format('d M Y'),
-        //             'location' => $event->location_address,
-        //             'cover' => $event->cover ? url($event->cover) : null,
-        //         ];
-        //     });
-
-        //     $friends_events = 0;
-
-        //     return $this->success($friends_events, 'Here are some events where your friends are going.', 200);
-        // }
 
         $upcoming_events = $upcoming_events->map(function ($event) {
             $business_hour = $event->business_hours->first();
