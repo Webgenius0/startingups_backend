@@ -285,7 +285,7 @@ class UserHomeController extends Controller
     public function events()
     {
 
-        $upcoming_events = BusinessProfile::with('business_hours')->orderBy('date', 'asc')
+        $upcoming_events = BusinessProfile::with('business_hours')->orderBy('created_at', 'asc')
             ->get();
 
         // if ($upcoming_events->isEmpty()) {
