@@ -200,29 +200,24 @@ class UserHomeController extends Controller
     {
         try {
 
-            $business_events = BusinessProfile::orderBy('created_at', 'desc')->whereNull('status')->get();
+            
+            $business_events  = BusinessProfile::with('business_hours', 'event_clicks', 'event_bookings')->orderBy('created_at', 'desc')->get();
 
-            $random_event = collect();
-
-            foreach ($business_events as $event) {
-                $event_hours = BusinessHour::whereNotnull('open_time')->where('business_profile_id', $event->id)
-                    ->orderBy('day', 'asc')
-                    ->get();
-
-
-                $random_event = $random_event->merge($event_hours);
-            }
-
-            $random_event = $random_event->map(function ($event) {
+            $random_event = $business_events->map(function ($event) {
+                $business_hour = $event->business_hours->first();
                 return [
                     'id' => $event->id,
-                    'title' => $event->business_profile->business_name,
-                    'time' => $event->open_time == null ? 'Closed' : $event->open_time,
-                    'date' => $event->date,
-                    'location' => $event->business_profile->location,
-                    'cover' => $event->business_profile->cover ? url($event->business_profile->cover) : null,
+                    'title' => $event->business_name,
+                    'time' => $business_hour ? $business_hour->open_time . "-" .  $business_hour->close_time  : 'N/A',
+                    'date' => $event->created_at->format('M d, Y'),
+                    'location' => $event->location,
+                    'cover' => $event->cover ? url($event->cover) : null,
+                    // 'click_count' => $event->event_clicks->count(),  // Count clicks
+                    // 'booking_count' => $event->event_bookings->count(), // Count bookings
                 ];
             });
+
+            
 
             return $this->success($random_event, 'Random Events retrieved successfully', 200);
         } catch (\Exception $e) {
