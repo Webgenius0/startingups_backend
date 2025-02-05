@@ -285,9 +285,7 @@ class UserHomeController extends Controller
     public function events()
     {
 
-        $upcoming_events = BusinessProfile::whereNull('frequency_end_date')
-            ->where('date', '>', Carbon::now())
-            ->orderBy('date', 'asc')
+        $upcoming_events = BusinessProfile::orderBy('date', 'asc')
             ->get();
 
         // if ($upcoming_events->isEmpty()) {
@@ -317,14 +315,16 @@ class UserHomeController extends Controller
         // }
 
         $upcoming_events = $upcoming_events->map(function ($event) {
-            return [
-                'id' => $event->id,
-                'title' => $event->title,
-                'time' => Carbon::parse($event->date)->format('h:i A'),
-                'date' => Carbon::parse($event->date)->format('d M Y'),
-                'location' => $event->location_address,
-                'cover' => $event->cover ? url($event->cover) : null,
+            $business_hour = $event->business_hours->first();
 
+            return [
+                
+                'id' => $event->id,
+                'title' => $event->business_name,
+                'time' => $business_hour ? $business_hour->open_time . "-" .  $business_hour->close_time  : 'N/A',
+                'date' => $event->created_at->format('M d, Y'),
+                'location' => $event->location,
+                'cover' => $event->cover ? url($event->cover) : null,
             ];
         });
 

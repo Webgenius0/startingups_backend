@@ -63,6 +63,7 @@ class UserAuthController extends Controller
             'date_of_birth' => $request->date_of_birth,
             'country' => $request->country,
             'phone' => $request->phone,
+            
         ]);
 
         foreach ($request->preferences_id as $preference) {
