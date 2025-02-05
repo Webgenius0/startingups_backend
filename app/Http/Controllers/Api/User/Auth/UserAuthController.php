@@ -265,7 +265,7 @@ class UserAuthController extends Controller
         $user_preferences = $user->user_preferences->pluck('category_id');
 
 
-        $preferences = Category::whereIn('id', $user_preferences)->pluck('name');
+        $preferences = Category::whereIn('id', $user_preferences)->get();
 
         return $this->success($preferences, 'Preferences retrieved successfully.');
     }

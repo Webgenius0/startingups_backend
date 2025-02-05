@@ -12,9 +12,10 @@ use App\Models\SubCategory;
 use App\Traits\ApiResponse;
 use App\Models\BusinessHour;
 use App\Models\EventBooking;
+use App\Models\UserPreference;
 use App\Models\BusinessProfile;
-use App\Http\Controllers\Controller;
 use App\Models\BusinessCategory;
+use App\Http\Controllers\Controller;
 
 class UserHomeController extends Controller
 {
@@ -111,11 +112,11 @@ class UserHomeController extends Controller
         try {
 
             $business_events = BusinessProfile::with('business_hours', 'event_clicks', 'event_bookings')
-                                ->where(function ($query) {
-                                    $query->whereHas('event_clicks')
-                                        ->orWhereHas('event_bookings');
-                                })
-                                ->get();
+                ->where(function ($query) {
+                    $query->whereHas('event_clicks')
+                        ->orWhereHas('event_bookings');
+                })
+                ->get();
 
             $near_events = $business_events->map(function ($event) {
                 $business_hour = $event->business_hours->first();
@@ -133,12 +134,12 @@ class UserHomeController extends Controller
 
 
             $recommated_events  = BusinessProfile::with('business_hours', 'event_clicks', 'event_bookings')
-                                    // ->where('type', 'business_profile')
-                                    // ->where(function ($query) {
-                                    //     $query->whereHas('event_clicks')
-                                    //         ->orWhereHas('event_bookings');
-                                    // })
-                                    ->get();
+                // ->where('type', 'business_profile')
+                // ->where(function ($query) {
+                //     $query->whereHas('event_clicks')
+                //         ->orWhereHas('event_bookings');
+                // })
+                ->get();
 
             $recommated_events = $recommated_events->map(function ($event) {
                 $business_hour = $event->business_hours->first();
@@ -154,13 +155,11 @@ class UserHomeController extends Controller
                 ];
             });
 
-            
+
             return $this->success([
                 'near_events' => $near_events,
                 'recommated_events' => $recommated_events,
             ], 'Events retrieved successfully', 200);
-
-
         } catch (\Exception $e) {
 
             return $this->error([], 'Error retrieving events: ' . $e->getMessage(), 500);
@@ -172,8 +171,19 @@ class UserHomeController extends Controller
     {
         try {
 
-            $tailored_event  = BusinessProfile::with('business_hours', 'event_clicks', 'event_bookings')->get();
+            $user = auth()->user();
 
+            if (!$user) {
+                return $this->error([], 'User not authenticated', 401);
+            }
+
+            $preferredCategories = UserPreference::where('user_id', $user->id)->pluck('category_id');
+            // dd($preferredCategories);
+            $tailored_event  = BusinessProfile::whereIn('category_id', $preferredCategories)
+                                                ->with('business_hours', 'event_clicks', 'event_bookings')
+                                                ->get();
+
+            
             $tailored_event = $tailored_event->map(function ($event) {
                 $business_hour = $event->business_hours->first();
                 return [
@@ -200,7 +210,7 @@ class UserHomeController extends Controller
     {
         try {
 
-            
+
             $business_events  = BusinessProfile::with('business_hours', 'event_clicks', 'event_bookings')->orderBy('created_at', 'desc')->get();
 
             $random_event = $business_events->map(function ($event) {
@@ -217,7 +227,7 @@ class UserHomeController extends Controller
                 ];
             });
 
-            
+
 
             return $this->success($random_event, 'Random Events retrieved successfully', 200);
         } catch (\Exception $e) {
@@ -236,7 +246,7 @@ class UserHomeController extends Controller
             $business_hour = $event->business_hours->first();
 
             return [
-                
+
                 'id' => $event->id,
                 'title' => $event->business_name,
                 'time' => $business_hour ? $business_hour->open_time . "-" .  $business_hour->close_time  : 'N/A',
@@ -266,7 +276,7 @@ class UserHomeController extends Controller
             $business_hour = $event->business_hours->first();
 
             return [
-                
+
                 'id' => $event->id,
                 'title' => $event->business_name,
                 'time' => $business_hour ? $business_hour->open_time . "-" .  $business_hour->close_time  : 'N/A',
