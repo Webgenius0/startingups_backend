@@ -285,8 +285,7 @@ class UserHomeController extends Controller
     public function events()
     {
 
-        $upcoming_events = BusinessProfile::with('business_hours')->orderBy('created_at', 'asc')
-            ->get();
+        $upcoming_events = BusinessProfile::with('business_hours')->orderBy('created_at', 'asc')->get();
 
         // if ($upcoming_events->isEmpty()) {
 
@@ -337,7 +336,7 @@ class UserHomeController extends Controller
 
         // dd($user);
 
-        $friends_events = BusinessProfile::whereHas('event_bookings', function ($query) use ($user) {
+        $friends_events = BusinessProfile::with('business_hours')->whereHas('event_bookings', function ($query) use ($user) {
             $query->whereIn('user_id', $user->followees->pluck('followee_id'));
         })
             ->limit(5)
@@ -345,12 +344,15 @@ class UserHomeController extends Controller
             ->get();
         //  dd($friends_events);
         $friends_events = $friends_events->map(function ($event) {
+            $business_hour = $event->business_hours->first();
+
             return [
+                
                 'id' => $event->id,
-                'title' => $event->title == null ?  $event->business_name : $event->title,
-                'time' => Carbon::parse($event->date)->format('h:i A'),
-                'date' => Carbon::parse($event->date)->format('d M Y'),
-                'location' => $event->location_address == null ? $event->location : $event->location_address,
+                'title' => $event->business_name,
+                'time' => $business_hour ? $business_hour->open_time . "-" .  $business_hour->close_time  : 'N/A',
+                'date' => $event->created_at->format('M d, Y'),
+                'location' => $event->location,
                 'cover' => $event->cover ? url($event->cover) : null,
             ];
         });
