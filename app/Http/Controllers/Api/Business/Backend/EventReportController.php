@@ -565,9 +565,9 @@ class EventReportController extends Controller
             : Carbon::now()->toDateString();
 
 
-        $events = BusinessProfile::with('business_houres')->where('user_id', auth('business')->id())
-            ->whereDate('date', $selectedDate)
-            ->orderBy('start_time')
+        $events = BusinessProfile::with('business_hours')->where('user_id', auth('business')->id())
+           
+            
             ->get();
 
 
