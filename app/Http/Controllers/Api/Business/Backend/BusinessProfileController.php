@@ -37,16 +37,11 @@ class BusinessProfileController extends Controller
             'age_min' => 'nullable',
             'age_max' => 'nullable',
 
-
-
             'prices' => 'required|array',
             'prices.*.type' => 'required|string',
             'prices.*.amount' => 'required',
             'prices.*.days' => 'required',
             'prices.*.offerings' => 'nullable|string',
-
-
-
         ]);
 
         $businessProfile = BusinessProfile::updateOrCreate(
