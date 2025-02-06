@@ -240,7 +240,7 @@ class BusinessProfileController extends Controller
                 'location' => $request->input('location', $businessProfile->location),
             ]);
 
-            if ($request->hasFile('cover')) {
+            if (!empty($request->hasFile('cover'))) {
                 if ($businessProfile->cover) {
                     Helper::deleteImage($businessProfile->cover);
                 }
@@ -257,18 +257,19 @@ class BusinessProfileController extends Controller
 
                     $businessProfile->business_hours()->delete();
 
-
-                    foreach ($hours as $hour) {
+                    foreach ($request->hours as $hour) {
                         $businessProfile->business_hours()->create([
                             'day' => $hour['day'],
-                            'is_closed' => $hour['is_closed'],
-                            'open_time' => $hour['is_closed'] ? null : $hour['open_time'],
-                            'close_time' => $hour['is_closed'] ? null : $hour['close_time'],
-                            'is_second_time' => $hour['is_second_time'],
-                            're_open_time' => isset($hour['re_open_time']) && !$hour['is_closed'] ? $hour['re_open_time'] : null,
-                            're_close_time' => isset($hour['re_close_time']) && !$hour['is_closed'] ? $hour['re_close_time'] : null,
+                            'is_closed' => $hour['is_closed'] ,
+                            'open_time' => !$hour['is_closed'] ? $hour['open_time'] : null,
+                            'close_time' => !$hour['is_closed'] ? $hour['close_time'] : null,
+                            'is_second_time' => $hour['is_second_time'] ,
+                            're_open_time' => ($hour['is_second_time'] && !$hour['is_closed'] && isset($hour['re_open_time'])) ? $hour['re_open_time'] : null,
+                            're_close_time' => ($hour['is_second_time'] && !$hour['is_closed'] && isset($hour['re_close_time'])) ? $hour['re_close_time'] : null,
+            
                         ]);
                     }
+                    
                 }
             }
 
