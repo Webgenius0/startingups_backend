@@ -565,7 +565,7 @@ class EventReportController extends Controller
             : Carbon::now()->toDateString();
 
 
-        $events = BusinessProfile::where('user_id', auth('business')->id())
+        $events = BusinessProfile::with('business_houres')->where('user_id', auth('business')->id())
             ->whereDate('date', $selectedDate)
             ->orderBy('start_time')
             ->get();
@@ -575,12 +575,16 @@ class EventReportController extends Controller
         $eventList = [];
 
         foreach ($events as $event) {
+
+            $business_hour = $event->business_hours->first();
+
             $eventList[] = [
+               
                 "id" => $event->id,
-                "title" => $event->title ?? $event->business_name,
-                'date' => Carbon::parse($event->date)->format('F j, Y'),
-                "start_time" => Carbon::parse($event->start_time)->format('g:i A'),
-                "end_time" => Carbon::parse($event->end_time)->format('g:i A'),
+                'title' => $event->business_name,
+                'date' => Carbon::parse($event->created_at)->format('F j, Y'),
+                "start_time" => Carbon::parse($business_hour->open_time)->format('g:i A'),
+                "end_time" => Carbon::parse($business_hour->close_time)->format('g:i A'),
                 "progress" => rand(0, 100),
                 "location" => $event->location_address ?? $event->location,
                 "guests" => json_decode($event->guest_list),
