@@ -378,26 +378,21 @@ class EventReportController extends Controller
             return $this->error([], 'User not found.', 404);
         }
 
-        // Get the selected filter (daily, weekly, monthly)
         $filter = $request->input('filter', 'monthly');
         $startDate = $this->getStartDateByFilter($filter);
 
-        // Fetch all events owned by this business user
         $events = BusinessProfile::with(['event_clicks', 'event_bookings'])
             ->where('user_id', $user->id)
             ->get();
 
-        // Aggregate event data
         $combinedClicks = $events->flatMap(fn($event) => $event->event_clicks);
         $combinedBookings = $events->flatMap(fn($event) => $event->event_bookings);
 
-        // Calculate totals
         $totalLinkClicks = $combinedClicks->count();
         $totalSignUps = $combinedBookings->count();
         $totalRevenue = $combinedBookings->sum('price');
         $totalRepeatCustomers = $combinedBookings->whereNotNull('user_id')->unique('user_id')->count();
 
-        // Generate x-y trend data for each metric
         $trendData = [
             'link_clicks' => $this->formatTrendData1($this->getTrendData($combinedClicks)),
             'sign_ups' => $this->formatTrendData1($this->getTrendData($combinedBookings)),
@@ -565,12 +560,7 @@ class EventReportController extends Controller
             : Carbon::now()->toDateString();
 
 
-        $events = BusinessProfile::with('business_hours')->where('user_id', auth('business')->id())
-           
-            
-            ->get();
-
-
+        $events = BusinessProfile::with('business_hours')->where('user_id', auth('business')->id())->get();
 
         $eventList = [];
 
@@ -588,6 +578,7 @@ class EventReportController extends Controller
                 "progress" => rand(0, 100),
                 "location" => $event->location_address ?? $event->location,
                 "guests" => json_decode($event->guest_list),
+
             ];
         }
 

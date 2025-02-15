@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\User\Backend\GoogleLoginController;
 use App\Http\Controllers\Api\User\Backend\UserAccountController;
 use App\Http\Controllers\Api\User\Backend\UserPaymentController;
 use App\Http\Controllers\Api\User\Backend\EventBookingController;
+use App\Http\Controllers\Api\User\Backend\EventSearchController;
 use App\Http\Controllers\Api\User\Backend\UserRelationshipController;
 
 // Public User API Routes
@@ -92,10 +93,12 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
 
     // Categories
     Route::get('categories', [UserHomeController::class, 'business_categories']);
-    Route::get('categories/explore-events', [UserHomeController::class, 'explore_event']);
 
-    Route::get('/categories/tailored-events', [UserHomeController::class, 'tailored_event']);
-    Route::get('/categories/random-events', [UserHomeController::class, 'random_event']);
+
+    // search event
+    Route::get('categories/explore-events', [EventSearchController::class, 'explore_event']);
+    Route::get('/categories/tailored-events', [EventSearchController::class, 'tailored_event']);
+    Route::get('/categories/random-events', [EventSearchController::class, 'random_event']);
 
     Route::get('category-event/details/{id}', [UserHomeController::class, 'category_event_details']);
 

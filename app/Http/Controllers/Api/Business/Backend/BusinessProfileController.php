@@ -32,6 +32,8 @@ class BusinessProfileController extends Controller
             'category_id' => 'required|integer',
             'activity' => 'required',
             'location' => 'required|string',
+            'latitude' => 'required|string',
+            'longitude' => 'required|string',
 
             // age limit
             'age_min' => 'nullable',
@@ -51,6 +53,8 @@ class BusinessProfileController extends Controller
                 'category_id' => $validatedData['category_id'],
                 'activity' => $validatedData['activity'],
                 'location' => $validatedData['location'],
+                'latitude' => $validatedData['latitude'],
+                'longitude' => $validatedData['longitude'],
                 'age_min' => $validatedData['age_min'],
                 'age_max' => $validatedData['age_max'],
 
@@ -104,6 +108,8 @@ class BusinessProfileController extends Controller
 
             'activity' => $businessProfile->activity,
             'location' => $businessProfile->location,
+            'latitude' => $businessProfile->latitude,
+            'longitude' => $businessProfile->longitude,
             'age_min' => $businessProfile->age_min,
             'age_max' => $businessProfile->age_max,
 
@@ -233,6 +239,8 @@ class BusinessProfileController extends Controller
 
                 'activity' => $request->input('activity', $businessProfile->activity),
                 'location' => $request->input('location', $businessProfile->location),
+                'latitude' => $request->input('latitude', $businessProfile->location),
+                'longitude' => $request->input('longitude', $businessProfile->longitude),
             ]);
 
             if (!empty($request->hasFile('cover'))) {
