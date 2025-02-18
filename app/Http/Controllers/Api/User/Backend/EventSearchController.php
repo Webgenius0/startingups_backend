@@ -27,7 +27,8 @@ class EventSearchController extends Controller
             }
 
 
-            $business_events = BusinessProfile::selectRaw("
+            $business_events = BusinessProfile::selectRaw(
+                "
                 business_profiles.id, business_profiles.business_name, 
                 business_profiles.location, business_profiles.cover, 
                 business_profiles.latitude, business_profiles.longitude, business_profiles.created_at,
@@ -46,7 +47,7 @@ class EventSearchController extends Controller
                 ->with('business_hours', 'event_clicks', 'event_bookings')
                 ->get();
 
-                // dd($business_events);
+            // dd($business_events);
 
 
             $near_events = $business_events->map(function ($event) {
@@ -114,26 +115,51 @@ class EventSearchController extends Controller
                 return $this->error([], 'User not authenticated', 401);
             }
 
+            $latitude = $user->latitude;
+            $longitude = $user->longitude;
+            $radius = 5; // 5 km radius
+
+            if (!$latitude || !$longitude) {
+                return $this->error([], 'User location not found', 400);
+            }
+
             $user->load('followees');
 
             $user_preferences = UserPreference::where('user_id', $user->id)->pluck('category_id');
 
-            $category_based_events = BusinessProfile::whereIn('category_id', $user_preferences)
+            $category_based_events = BusinessProfile::selectRaw(
+                "
+                business_profiles.*, 
+                (6371 * acos(cos(radians(?)) * cos(radians(business_profiles.latitude)) 
+                * cos(radians(business_profiles.longitude) - radians(?)) 
+                + sin(radians(?)) * sin(radians(business_profiles.latitude)))) AS distance",
+                [$latitude, $longitude, $latitude]
+            )
+                ->whereIn('category_id', $user_preferences)
+                // ->having('distance', '<', $radius)
                 ->with('business_hours', 'event_clicks', 'event_bookings')
                 ->get();
 
             $followee_ids = $user->followees->pluck('followee_id');
 
-
-            $followee_based_events = BusinessProfile::whereHas('event_bookings', function ($query) use ($followee_ids) {
-                $query->whereIn('user_id', $followee_ids);
-            })
+            $followee_based_events = BusinessProfile::selectRaw(
+                "
+                business_profiles.*, 
+                (6371 * acos(cos(radians(?)) * cos(radians(business_profiles.latitude)) 
+                * cos(radians(business_profiles.longitude) - radians(?)) 
+                + sin(radians(?)) * sin(radians(business_profiles.latitude)))) AS distance",
+                [$latitude, $longitude, $latitude]
+            )
+                ->whereHas('event_bookings', function ($query) use ($followee_ids) {
+                    $query->whereIn('user_id', $followee_ids);
+                })
+                ->having('distance', '<', $radius)
                 ->with('business_hours', 'event_clicks', 'event_bookings')
                 ->get();
 
             $tailored_events = $category_based_events->merge($followee_based_events)->unique('id');
 
-            $tailored_events = $tailored_events->map(function ($event)use ($user_preferences, $followee_ids) {
+            $tailored_events = $tailored_events->map(function ($event) use ($user_preferences, $followee_ids) {
                 $business_hour = $event->business_hours->first();
 
                 // Calculate Tailored Score
@@ -142,14 +168,16 @@ class EventSearchController extends Controller
                 $friends_upcoming_activities_score = $event->event_bookings->whereIn('user_id', $followee_ids)->where('created_at', '>', now())->count() > 0 ? 15 : 0;
 
                 $tailored_score = $business_match_score + $friends_previous_activities_score + $friends_upcoming_activities_score;
+
                 return [
                     'id' => $event->id,
                     'title' => $event->business_name,
-                    'time' => $business_hour ? $business_hour->open_time . "-" .  $business_hour->close_time  : 'N/A',
+                    'time' => $business_hour ? $business_hour->open_time . "-" . $business_hour->close_time : 'N/A',
                     'date' => $event->created_at->format('M d, Y'),
                     'location' => $event->location,
                     'cover' => $event->cover ? url($event->cover) : null,
-                    'score' => $tailored_score, 
+                    'distance' => round($event->distance, 2) . ' km',
+                    'score' => $tailored_score,
                 ];
             });
 
@@ -158,6 +186,7 @@ class EventSearchController extends Controller
             return $this->error([], 'Error retrieving events: ' . $e->getMessage(), 500);
         }
     }
+
 
 
     // __random events
@@ -170,8 +199,15 @@ class EventSearchController extends Controller
                 return $this->error([], 'User not authenticated', 401);
             }
 
-            $user_preferences = UserPreference::where('user_id', $user->id)->pluck('category_id');
+            $latitude = $user->latitude;
+            $longitude = $user->longitude;
+            $radius = 5; // 5 km radius
 
+            if (!$latitude || !$longitude) {
+                return $this->error([], 'User location not found', 400);
+            }
+
+            $user_preferences = UserPreference::where('user_id', $user->id)->pluck('category_id');
             $followee_ids = $user->followees->pluck('followee_id');
 
             $tailored_event_ids = BusinessProfile::whereIn('category_id', $user_preferences)
@@ -180,8 +216,16 @@ class EventSearchController extends Controller
                 })
                 ->pluck('id');
 
-
-            $random_events = BusinessProfile::whereNotIn('id', $tailored_event_ids)
+            $random_events = BusinessProfile::selectRaw(
+                "
+                business_profiles.*, 
+                (6371 * acos(cos(radians(?)) * cos(radians(business_profiles.latitude)) 
+                * cos(radians(business_profiles.longitude) - radians(?)) 
+                + sin(radians(?)) * sin(radians(business_profiles.latitude)))) AS distance",
+                [$latitude, $longitude, $latitude]
+            )
+                ->whereNotIn('id', $tailored_event_ids)
+                // ->having('distance', '<', $radius)
                 ->inRandomOrder()
                 ->limit(10) // Limit to 10 random events
                 ->with('business_hours', 'event_clicks', 'event_bookings')
@@ -195,7 +239,8 @@ class EventSearchController extends Controller
                         'date' => $event->created_at->format('M d, Y'),
                         'location' => $event->location,
                         'cover' => $event->cover ? url($event->cover) : null,
-                        'score' => rand(1, 100)
+                        'distance' => round($event->distance, 2) . ' km',
+                        'score' => rand(1, 100),
                     ];
                 });
 
