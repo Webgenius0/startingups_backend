@@ -148,7 +148,7 @@ class EventSearchController extends Controller
                     'date' => $event->created_at->format('M d, Y'),
                     'location' => $event->location,
                     'cover' => $event->cover ? url($event->cover) : null,
-                    'tailored_score' => $tailored_score, 
+                    'score' => $tailored_score, 
                 ];
             });
 
