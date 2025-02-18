@@ -57,6 +57,8 @@ class BusinessProfileController extends Controller
                 'longitude' => $validatedData['longitude'],
                 'age_min' => $validatedData['age_min'],
                 'age_max' => $validatedData['age_max'],
+                'created_at' => now(),
+                'updated_at' => now()
 
             ]
         );
@@ -241,6 +243,8 @@ class BusinessProfileController extends Controller
                 'location' => $request->input('location', $businessProfile->location),
                 'latitude' => $request->input('latitude', $businessProfile->location),
                 'longitude' => $request->input('longitude', $businessProfile->longitude),
+                'created_at' => now(),
+                'updated_at' => now()
             ]);
 
             if (!empty($request->hasFile('cover'))) {

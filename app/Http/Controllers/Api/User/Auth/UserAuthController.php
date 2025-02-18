@@ -90,7 +90,10 @@ class UserAuthController extends Controller
         $user = auth('api')->user();
         $user->street_address = $request->street_address;
         $user->city = $request->city;
+        $user->latitude = $request->latitude;
+        $user->longitude = $request->longitude;
         $user->save();
+
         return $this->success($user, 'Location updated successfully.');
     }
 
