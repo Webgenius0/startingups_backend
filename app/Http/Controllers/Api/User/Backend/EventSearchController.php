@@ -20,15 +20,14 @@ class EventSearchController extends Controller
 
             $latitude = $user->latitude;
             $longitude = $user->longitude;
-            $radius = 30;
+            $radius = 50;
 
             if (!$latitude || !$longitude) {
                 return $this->error([], 'User location not found', 400);
             }
 
 
-            $business_events = BusinessProfile::selectRaw(
-                "
+            $business_events = BusinessProfile::selectRaw("
                 business_profiles.id, business_profiles.business_name, 
                 business_profiles.location, business_profiles.cover, 
                 business_profiles.latitude, business_profiles.longitude, business_profiles.created_at,
