@@ -20,7 +20,7 @@ class EventSearchController extends Controller
 
             $latitude = $user->latitude;
             $longitude = $user->longitude;
-            $radius = 50;
+            $radius = 5;
 
             if (!$latitude || !$longitude) {
                 return $this->error([], 'User location not found', 400);
@@ -41,10 +41,12 @@ class EventSearchController extends Controller
                         ->orWhereHas('event_bookings')
                         ->orWhereHas('event_reviews');
                 })
-                ->having('distance', '<', $radius)
+                // ->having('distance', '<', $radius)
                 ->orderBy('distance', 'ASC')
                 ->with('business_hours', 'event_clicks', 'event_bookings')
                 ->get();
+
+                // dd($business_events);
 
 
             $near_events = $business_events->map(function ($event) {
