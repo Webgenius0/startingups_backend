@@ -265,19 +265,19 @@ class BusinessAuthController extends Controller
         $email = $request->email;
         $otp = $request->otp;
 
-        
+
         $cachedOtp = Cache::get('otp_' . $email);
 
         if (!$cachedOtp || $cachedOtp != $otp) {
             return response()->json(['message' => 'Invalid or expired OTP.'], 401);
         }
 
-        
+
         Cache::forget('otp_' . $email);
 
         $resetToken = Str::random(64);
 
-        
+
         Cache::put('reset_token_' . $email, $resetToken, now()->addMinutes(15));
 
         return response()->json(['reset_token' => $resetToken, 'message' => 'OTP verified.'], 200);
@@ -298,14 +298,14 @@ class BusinessAuthController extends Controller
         $email = $request->email;
         $resetToken = $request->reset_token;
 
-        
+
         $cachedResetToken = Cache::get('reset_token_' . $email);
 
         if (!$cachedResetToken || $cachedResetToken != $resetToken) {
             return response()->json(['message' => 'Invalid or expired reset token.'], 401);
         }
 
-       
+
         $user = User::where('email', $email)->first();
         $user->password = bcrypt($request->password);
         $user->save();
@@ -325,7 +325,8 @@ class BusinessAuthController extends Controller
 
             auth('api')->logout();
 
-            return $this->success('Successfully loged out.', 200);
+
+            return $this->success(null, 'Successfully loged out.');
         } catch (Exception $e) {
 
             Log::error($e->getMessage());
@@ -359,7 +360,7 @@ class BusinessAuthController extends Controller
     }
 
 
-   
+
     // previous day notifications
     public function previousDayNotifications()
     {
@@ -369,7 +370,7 @@ class BusinessAuthController extends Controller
             return $this->error([], 'User not found.', 404);
         }
 
-       
+
         // return only message and created_at
         $data = $user->notifications->map(function ($notification) {
             return [

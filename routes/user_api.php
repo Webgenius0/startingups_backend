@@ -33,6 +33,7 @@ Route::get('event/{id}/ticket-download', [EventBookingController::class, 'downlo
 
 Route::get('event/{id}/ticket-download', [EventBookingController::class, 'download_ticket'])->name('user.event_ticket_download');
 
+Route::post('/stripe/webhook', [UserPaymentController::class, 'webhookHandler']); // Optional for webhooks
 
 // Protected User API Routes
 Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(function () {
@@ -80,7 +81,6 @@ Route::middleware(['auth:user', 'role:user'])->prefix('auth-user')->group(functi
 
     Route::post('/stripe/create-payment-intent', [UserPaymentController::class, 'createPaymentIntent']);
     Route::post('/stripe/confirm-payment', [UserPaymentController::class, 'confirmPayment']);
-    Route::post('/stripe/webhook', [UserPaymentController::class, 'webhookHandler']); // Optional for webhooks
     
 
     //event history
