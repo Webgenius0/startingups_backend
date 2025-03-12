@@ -14,6 +14,6 @@ jobs:
       - name: FTP-Deploy-Action
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
-          server: 54.92.202.3
-          username: pricheftp
-          password: "inLWqYXaxuMGnEB5EiPX"
+          server: ftp.softvencefsd.xyz
+          username: app@startingups.softvencefsd.xyz
+          password: "opvWy2WQLmzn"
