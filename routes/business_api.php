@@ -57,8 +57,8 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
 
     // Business Profile Management
     Route::post('business-profile/create', [BusinessProfileController::class, 'store']);
-    Route::get('business-profile/show', [BusinessProfileController::class, 'business_profile_details']);
-    Route::post('business-profile/update', [BusinessProfileController::class, 'business_profile_update']);
+    Route::get('business-profile/show/{id}', [BusinessProfileController::class, 'business_profile_details']);
+    Route::post('business-profile/update/{id}', [BusinessProfileController::class, 'business_profile_update']);
 
 
     // Events

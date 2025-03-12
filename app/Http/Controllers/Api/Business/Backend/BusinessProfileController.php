@@ -46,9 +46,9 @@ class BusinessProfileController extends Controller
             'prices.*.offerings' => 'nullable|string',
         ]);
 
-        $businessProfile = BusinessProfile::updateOrCreate(
-            ['user_id' => Auth::id()],
+        $businessProfile = BusinessProfile::create(
             [
+                'user_id' => Auth::id(),
                 'business_name' => $validatedData['business_name'],
                 'category_id' => $validatedData['category_id'],
                 'activity' => $validatedData['activity'],
@@ -74,10 +74,10 @@ class BusinessProfileController extends Controller
         foreach ($request->hours as $hour) {
             $businessProfile->business_hours()->create([
                 'day' => $hour['day'],
-                'is_closed' => $hour['is_closed'] ,
+                'is_closed' => $hour['is_closed'],
                 'open_time' => !$hour['is_closed'] ? $hour['open_time'] : null,
                 'close_time' => !$hour['is_closed'] ? $hour['close_time'] : null,
-                'is_second_time' => $hour['is_second_time'] ,
+                'is_second_time' => $hour['is_second_time'],
                 're_open_time' => ($hour['is_second_time'] && !$hour['is_closed'] && isset($hour['re_open_time'])) ? $hour['re_open_time'] : null,
                 're_close_time' => ($hour['is_second_time'] && !$hour['is_closed'] && isset($hour['re_close_time'])) ? $hour['re_close_time'] : null,
 
@@ -148,9 +148,9 @@ class BusinessProfileController extends Controller
         return $this->success($data, 'Business Profile created successfully', 200);
     }
 
-    public function business_profile_details()
+    public function business_profile_details($id)
     {
-        $businessProfile = BusinessProfile::where('user_id', Auth::id())->first();
+        $businessProfile = BusinessProfile::find($id);
 
         if (!$businessProfile) {
             return $this->error([], 'Business Profile not found', 404);
@@ -216,13 +216,13 @@ class BusinessProfileController extends Controller
 
 
 
-    public function business_profile_update(Request $request)
+    public function business_profile_update(Request $request, $id)
     {
 
         DB::beginTransaction();
 
         try {
-            $businessProfile = BusinessProfile::where('user_id', Auth::id())->first();
+            $businessProfile = BusinessProfile::where('user_id', Auth::id())->find($id);
 
             if (!$businessProfile) {
                 return response()->json([
@@ -267,16 +267,15 @@ class BusinessProfileController extends Controller
                     foreach ($request->hours as $hour) {
                         $businessProfile->business_hours()->create([
                             'day' => $hour['day'],
-                            'is_closed' => $hour['is_closed'] ,
+                            'is_closed' => $hour['is_closed'],
                             'open_time' => !$hour['is_closed'] ? $hour['open_time'] : null,
                             'close_time' => !$hour['is_closed'] ? $hour['close_time'] : null,
-                            'is_second_time' => $hour['is_second_time'] ,
+                            'is_second_time' => $hour['is_second_time'],
                             're_open_time' => ($hour['is_second_time'] && !$hour['is_closed'] && isset($hour['re_open_time'])) ? $hour['re_open_time'] : null,
                             're_close_time' => ($hour['is_second_time'] && !$hour['is_closed'] && isset($hour['re_close_time'])) ? $hour['re_close_time'] : null,
-            
+
                         ]);
                     }
-                    
                 }
             }
 
