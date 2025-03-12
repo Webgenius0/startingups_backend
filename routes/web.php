@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Api\Business\Backend\GoogleLoginController;
+use App\Http\Controllers\Api\Business\Backend\StripeOnboardingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +26,8 @@ Route::get('/google/login', [GoogleLoginController::class, 'login'])->name('goog
 Route::get('/google/redirect', [GoogleLoginController::class, 'redirectToGoogle'])->name('google.redirect');
 Route::get('/google/callback', [GoogleLoginController::class, 'handleGoogleCallback'])->name('google.callback');
 
-
+Route::get('stripe/success/{id}', [StripeOnboardingController::class, 'stripeSuccess'])->name('stripe.success');
+Route::get('stripe/refresh/{id}', [StripeOnboardingController::class, 'stripeRefresh'])->name('stripe.refresh');
 
 // Routes for running artisan commands
 Route::get('/run-migrate-fresh', function () {
