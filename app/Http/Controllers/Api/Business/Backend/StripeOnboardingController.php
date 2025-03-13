@@ -32,10 +32,9 @@ class StripeOnboardingController extends Controller
         $user = auth('api')->user();
 
         if (!$user) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'User not authenticated.',
-            ], 401);
+           
+            return $this->error([], 'User not authenticated.', 404);
+
         }
 
         if ($user->stripe_account_id) {
@@ -50,10 +49,9 @@ class StripeOnboardingController extends Controller
                 return $this->success(['url' => $loginLink->url], 'Redirecting to Stripe Express Dashboard..');
             } catch (\Exception $e) {
                 Log::info($e->getMessage());
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Error generating Stripe login link: ' . $e->getMessage(),
-                ], 500);
+               
+                return $this->error([], 'Error generating Stripe login link.', 404);
+
             }
         }
 
@@ -90,16 +88,15 @@ class StripeOnboardingController extends Controller
             return $this->success(['url' => $link->url], 'Onboarding link generated successfully.');
         } catch (\Stripe\Exception\ApiErrorException $e) {
             Log::info($e->getMessage());
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Stripe API error: ' . $e->getMessage(),
-            ], 500);
+           
+            return $this->error([], 'Stripe API error.', 404);
+
         } catch (\Exception $e) {
             Log::info($e->getMessage());
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Error: ' . $e->getMessage(),
-            ], 500);
+            
+
+            return $this->error([], 'User not found.' . $e->getMessage(), 404);
+
         }
     }
 
@@ -117,10 +114,9 @@ class StripeOnboardingController extends Controller
             $user = User::where('email', $account->email)->first();
 
             if (!$user) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'User not found in the database for this Stripe account.',
-                ], 404);
+              
+                return $this->error([], 'User not found in the database for this Stripe account', 404);
+
             }
 
 
@@ -129,14 +125,13 @@ class StripeOnboardingController extends Controller
                 // 'is_stripe_onboarded' => true
             ]);
 
-
             return $this->redirectToStripeDashboard($user->stripe_account_id);
+
         } catch (\Exception $e) {
             Log::info($e->getMessage());
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Error processing onboarding success: ' . $e->getMessage(),
-            ], 500);
+          
+            return $this->error([], 'Error processing onboarding success: ' . $e->getMessage());
+
         }
     }
 
@@ -153,10 +148,9 @@ class StripeOnboardingController extends Controller
             return redirect()->away($loginLink->url);
         } catch (\Exception $e) {
             Log::info($e->getMessage());
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Error generating Stripe login link: ' . $e->getMessage(),
-            ], 500);
+          
+            return $this->error([], 'Error generating Stripe login link: ' . $e->getMessage());
+
         }
     }
 
@@ -181,11 +175,7 @@ class StripeOnboardingController extends Controller
         } catch (\Exception $e) {
 
             Log::info($e->getMessage());
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Error generating refresh link: ' . $e->getMessage(),
-            ], 500);
+            return $this->error([], 'Error generating Stripe login link: ' . $e->getMessage());
         }
     }
 }
