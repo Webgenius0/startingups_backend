@@ -83,7 +83,7 @@ class EventReportController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Event analytics fetched successfully.',
+            'message' => 'Business profile analytics fetched successfully.',
             'data' => $responseData,
             'code' => 200,
         ]);
@@ -136,7 +136,7 @@ class EventReportController extends Controller
             'total_reviews' => $reviewCount,
             'rating_percentages' => $ratingPercentages,
             'reviews' => $reviews,
-        ], 'Event ratings fetched successfully.');
+        ], 'Business profile ratings fetched successfully.');
     }
 
 
@@ -224,7 +224,7 @@ class EventReportController extends Controller
             ],
 
 
-        ], 'Busness Proile report fetched successfully.');
+        ], 'Business Proile report fetched successfully.');
     }
 
     private function formatTrendData($trendData)
