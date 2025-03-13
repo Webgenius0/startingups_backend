@@ -17,13 +17,13 @@
                                 <!-- Business Name -->
                                 <div class="mb-3">
                                     <label class="form-label">Business Name</label>
-                                    <input type="text" name="business_name" class="form-control" value="{{ $event->business_name }}" required>
+                                    <input disabled type="text" name="business_name" class="form-control" value="{{ $event->business_name }}" required>
                                 </div>
 
                                 <!-- Category -->
                                 <div class="mb-3">
                                     <label class="form-label">Category</label>
-                                    <select name="category_id" class="form-control" required>
+                                    <select disabled name="category_id" class="form-control" required>
                                         @foreach ($categories as $category)
                                             <option value="{{ $category->id }}" {{ $event->category_id == $category->id ? 'selected' : '' }}>
                                                 {{ $category->name }}
@@ -32,28 +32,26 @@
                                     </select>
                                 </div>
 
-                               
-
                                 <!-- Activity (Indoor/Outdoor) -->
                                 <div class="mb-3">
                                     <label class="form-label">Activity Type</label>
                                     <div>
-                                        <input type="radio" name="activity" value="Indoor" {{ $event->activity == 'Indoor' ? 'checked' : '' }}> Indoor
-                                        <input type="radio" name="activity" value="Outdoor" {{ $event->activity == 'Outdoor' ? 'checked' : '' }}> Outdoor
+                                        <input disabled type="radio" name="activity" value="Indoor" {{ $event->activity == 'Indoor' ? 'checked' : '' }}> Indoor
+                                        <input disabled type="radio" name="activity" value="Outdoor" {{ $event->activity == 'Outdoor' ? 'checked' : '' }}> Outdoor
                                     </div>
                                 </div>
 
                                 <!-- Location -->
                                 <div class="mb-3">
                                     <label class="form-label">Location</label>
-                                    <input type="text" name="location" class="form-control" value="{{ $event->location }}" required>
+                                    <input disabled type="text" name="location" class="form-control" value="{{ $event->location }}" required>
                                 </div>
 
                                 <!-- Age Range -->
                                 <div class="mb-3">
                                     <label class="form-label">Age Range</label>
-                                    <input type="number" name="age_min" class="form-control" value="{{ $event->age_min }}" required>
-                                    <input type="number" name="age_max" class="form-control" value="{{ $event->age_max }}" required>
+                                    <input disabled type="number" name="age_min" class="form-control" value="{{ $event->age_min }}" required>
+                                    <input disabled type="number" name="age_max" class="form-control" value="{{ $event->age_max }}" required>
                                 </div>
 
                                 <!-- Cover Image -->
@@ -62,7 +60,7 @@
                                     @if ($event->cover)
                                         <img src="{{ asset($event->cover) }}" width="100">
                                     @endif
-                                    <input type="file" name="cover" class="form-control">
+                                    <input disabled type="file" name="cover" class="form-control">
                                 </div>
 
                                 <!-- Operating Hours -->
@@ -75,32 +73,32 @@
                                                 <input type="hidden" name="hours[{{ $index }}][day]" value="{{ $day }}">
                                                 
                                                 <div class="form-check">
-                                                    <input type="checkbox" name="hours[{{ $index }}][is_closed]" class="form-check-input" value="1" {{ isset($event->business_hours[$index]) && $event->business_hours[$index]->is_closed ? 'checked' : '' }}> Closed
+                                                    <input disabled type="checkbox" name="hours[{{ $index }}][is_closed]" class="form-check-input" value="1" {{ isset($event->business_hours[$index]) && $event->business_hours[$index]->is_closed ? 'checked' : '' }}> Closed
                                                 </div>
 
                                                 <div class="row">
                                                     <div class="col-md-6 mb-2">
                                                         <label class="form-label">Open Time</label>
-                                                        <input type="text" name="hours[{{ $index }}][open_time]" class="form-control" value="{{ $event->business_hours[$index]->open_time ?? '' }}">
+                                                        <input disabled type="text" name="hours[{{ $index }}][open_time]" class="form-control" value="{{ $event->business_hours[$index]->open_time ?? '' }}">
                                                     </div>
                                                     <div class="col-md-6 mb-2">
                                                         <label class="form-label">Close Time</label>
-                                                        <input type="text" name="hours[{{ $index }}][close_time]" class="form-control" value="{{ $event->business_hours[$index]->close_time ?? '' }}">
+                                                        <input disabled type="text" name="hours[{{ $index }}][close_time]" class="form-control" value="{{ $event->business_hours[$index]->close_time ?? '' }}">
                                                     </div>
                                                 </div>
 
                                                 <div class="form-check">
-                                                    <input type="checkbox" name="hours[{{ $index }}][is_second_time]" class="form-check-input" value="1" {{ isset($event->business_hours[$index]) && $event->business_hours[$index]->is_second_time ? 'checked' : '' }}> Second Time
+                                                    <input disabled type="checkbox" name="hours[{{ $index }}][is_second_time]" class="form-check-input" value="1" {{ isset($event->business_hours[$index]) && $event->business_hours[$index]->is_second_time ? 'checked' : '' }}> Second Time
                                                 </div>
 
                                                 <div class="row">
                                                     <div class="col-md-6 mb-2">
                                                         <label class="form-label">Reopen Time</label>
-                                                        <input type="text" name="hours[{{ $index }}][re_open_time]" class="form-control" value="{{ $event->business_hours[$index]->re_open_time ?? '' }}">
+                                                        <input disabled type="text" name="hours[{{ $index }}][re_open_time]" class="form-control" value="{{ $event->business_hours[$index]->re_open_time ?? '' }}">
                                                     </div>
                                                     <div class="col-md-6 mb-2">
                                                         <label class="form-label">Reclose Time</label>
-                                                        <input type="text" name="hours[{{ $index }}][re_close_time]" class="form-control" value="{{ $event->business_hours[$index]->re_close_time ?? '' }}">
+                                                        <input disabled type="text" name="hours[{{ $index }}][re_close_time]" class="form-control" value="{{ $event->business_hours[$index]->re_close_time ?? '' }}">
                                                     </div>
                                                 </div>
                                             </div>
@@ -108,7 +106,8 @@
                                     @endforeach
                                 </div>
 
-                                <button type="submit" class="btn btn-primary">Update Event</button>
+                                {{-- <!-- Update Button Disabled -->
+                                <button disabled type="submit" class="btn btn-primary">Update Event</button> --}}
                             </form>
                         </div>
                     </div>

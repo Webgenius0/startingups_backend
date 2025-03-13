@@ -14,84 +14,9 @@ class EventReportController extends Controller
 {
 
     use ApiResponse;
-    // __event reports
+    
 
-    // public function all_event_reports(Request $request)
-    // {
-    //     $user = auth('business')->user();
-
-    //     if (!$user) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'User not found.',
-    //             'data' => [],
-    //             'code' => 404,
-    //         ]);
-    //     }
-
-    //     $events = BusinessProfile::where('user_id', $user->id)
-    //         ->with('event_clicks', 'event_bookings', 'event_reviews')
-    //         ->get();
-
-    //     $overall = [
-    //         'link_clicks' => 0,
-    //         'sign_ups' => 0,
-    //         'revenue' => 0.00,
-    //         'reported_customers' => 0,
-    //     ];
-
-    //     $eventAnalytics = $events->map(function ($event) use (&$overall) {
-    //         $linkClicks = $event->event_clicks->count();
-    //         $signUps = $event->event_bookings->count();
-    //         $revenue = $event->event_bookings->sum('price');
-    //         $reportedCustomers = $event->event_bookings->where('user_id', '!=', null)->count();
-    //         $rating = $event->event_reviews->sum('rating');
-    //         $reviewCount = $event->event_reviews->count();
-    //         $averageRating = $reviewCount > 0 ? round($rating / $reviewCount, 2) : 0;
-
-    //         $overall['link_clicks'] += $linkClicks;
-    //         $overall['sign_ups'] += $signUps;
-    //         $overall['revenue'] += $revenue;
-    //         $overall['reported_customers'] += $reportedCustomers;
-
-    //         $eventDate = Carbon::parse($event->date)->format('F j, Y');
-    //         $startTime = Carbon::parse($event->start_time)->format('g:i A');
-    //         $endTime = Carbon::parse($event->end_time)->format('g:i A');
-
-    //         return [
-    //             'event_id' => $event->id,
-    //             'event_name' => $event->business_name == null ?  $event->title : $event->business_name,
-    //             'event_date' => $eventDate,
-    //             'event_time' => $startTime . ' - ' . $endTime,
-    //             'average_rating' => $averageRating,
-    //             'link_clicks' => $linkClicks,
-    //             'sign_ups' => $signUps,
-    //             'revenue' => $revenue,
-    //             'reported_customers' => $reportedCustomers,
-
-    //             'status' => 'active'
-    //         ];
-    //     });
-
-    //     $overallData = collect($overall)->map(function ($value, $key) {
-    //         return [
-    //             'name' => $key,
-    //             'value' => $value,
-    //         ];
-    //     })->values();
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'All event analytics fetched successfully.',
-    //         'data' => [
-    //             'events' => $eventAnalytics,
-    //             // 'overall' => $overallData,
-    //         ],
-    //         'code' => 200,
-    //     ]);
-    // }
-
-    public function event_details(Request $request)
+    public function all_profile_report(Request $request)
     {
         $user = auth('business')->user();
 
@@ -215,7 +140,7 @@ class EventReportController extends Controller
     }
 
 
-    public function signle_event_reports(Request $request, $eventId)
+    public function business_profile_report(Request $request, $eventId)
     {
         $user = auth('business')->user();
 
@@ -299,7 +224,7 @@ class EventReportController extends Controller
             ],
 
 
-        ], 'Event report fetched successfully.');
+        ], 'Busness Proile report fetched successfully.');
     }
 
     private function formatTrendData($trendData)

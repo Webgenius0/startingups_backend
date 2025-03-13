@@ -7,9 +7,10 @@ use App\Models\Category;
 use App\Models\SubCategory;
 use Illuminate\Http\Request;
 use App\Models\BusinessProfile;
-use Yajra\DataTables\DataTables;
-use App\Http\Controllers\Controller;
 use App\Models\BusinessCategory;
+use Yajra\DataTables\DataTables;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -22,7 +23,7 @@ class AdminEventController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = BusinessProfile::where('status', 'pending')->get();
+            $data = BusinessProfile::all();
 
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -43,20 +44,63 @@ class AdminEventController extends Controller
                     return ucfirst($data->status);
                 })
                 ->addColumn('action', function ($data) {
-                    return '<div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                                <a href="' . route('admin.event.edit', $data->id) . '" class="btn btn-primary text-white" title="Edit">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                              <a href="javascript:void(0);" onclick="showDeleteConfirm(' . $data->id . ')" class="btn btn-danger text-white" title="Delete">
-                              <i class="bi bi-trash"></i>
-                              </a>
-                            </div>';
+                    $checked = $data->status == "accept" ? "checked" : "";
+                    $statusText = $data->status == "accept" ? "Accepted" : "Pending";
+                    $badgeClass = $data->status == "accept" ? "badge-success" : "badge-warning";
+                
+                    $toggleSwitch = '<div class="d-flex align-items-center">
+                                        <div class="form-check form-switch me-2">
+                                            <input onclick="showStatusChangeAlert(' . $data->id . ')" 
+                                                   type="checkbox" class="form-check-input" 
+                                                   id="customSwitch' . $data->id . '" 
+                                                   name="status" ' . $checked . '>
+                                            <label for="customSwitch' . $data->id . '" 
+                                                   class="form-check-label"></label>
+                                        </div>
+                                        <span class="badge ' . $badgeClass . '">' . $statusText . '</span>
+                                    </div>';
+                
+                    $editButton = '<div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
+                                        <a href="' . route('admin.event.edit', $data->id) . '" class="btn btn-primary text-white" title="Edit">
+                                            Show
+                                        </a>
+                                   </div>';
+                
+                    return $toggleSwitch . $editButton;
                 })
+                
                 ->rawColumns(['image', 'action'])
                 ->make(true);
         }
 
         return view('backend.layouts.event.index');
+    }
+
+    public function status(int $id): JsonResponse
+    {
+        $data = BusinessProfile::findOrFail($id);
+
+        
+
+
+        if ($data->status == 'pending') {
+
+            $data->status = 'accept';
+            $message = 'Business profile status changed to Accepted.';
+
+        } else {
+            $data->status = 'pending';
+            $message = 'Business profile status changed to Pending.';
+        }
+
+        $data->save();
+
+       
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'data'    => $data,
+        ]);
     }
 
 

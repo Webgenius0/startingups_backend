@@ -1,12 +1,12 @@
 @extends('backend.app')
-@section('title', 'Events')
+@section('title', 'Business Profile')
 
 @section('content')
 <div class="toolbar" id="kt_toolbar">
     <div class="container-fluid d-flex flex-stack flex-wrap flex-sm-nowrap">
         <div class="d-flex flex-column align-items-start justify-content-center flex-wrap me-2">
             <h1 class="text-dark fw-bold my-1 fs-2">
-                Events Management
+                Business Profile Management
             </h1>
             <ul class="breadcrumb fw-semibold fs-base my-1">
                 <li class="breadcrumb-item text-muted">
@@ -14,7 +14,7 @@
                         Home
                     </a>
                 </li>
-                <li class="breadcrumb-item text-muted">Events</li>
+                <li class="breadcrumb-item text-muted">Business Profile</li>
             </ul>
         </div>
     </div>
@@ -25,9 +25,9 @@
         <div class="row">
             <div class="col-12">
                 <div class="bg-white p-5">
-                    <div class="d-flex justify-content-start mb-5">
+                    {{-- <div class="d-flex justify-content-start mb-5">
                         <a href="{{ route('admin.event.create') }}" class="btn btn-primary">Add Event</a>
-                    </div>
+                    </div> --}}
                     <div class="table-wrapper table-responsive mt-5">
                         <table id="data-table" class="table table-bordered mt-5">
                             <thead>

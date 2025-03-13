@@ -109,7 +109,7 @@
                         <span class="menu-icon">
                             <i class="fas fa-th-list"></i> <!-- Subcategory icon -->
                         </span>
-                        <span class="menu-title">Event</span>
+                        <span class="menu-title">Business Profile</span>
                     </a>
                 </div>
 

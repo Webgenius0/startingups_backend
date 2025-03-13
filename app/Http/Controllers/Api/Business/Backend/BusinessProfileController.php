@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Business\Backend;
 
+use Carbon\Carbon;
 use App\Helper\Helper;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -15,11 +16,66 @@ class BusinessProfileController extends Controller
 
     use ApiResponse;
 
-    public function create()
+    public function list()
     {
-        //
+        $user = auth('business')->user();
+
+        if (!$user) {
+            return $this->error([], 'User not found.', 404);
+
+        }
+
+        $businessProfiles = BusinessProfile::where('user_id', $user->id)
+                            ->with('event_clicks', 'event_bookings', 'event_reviews')
+                            ->get();
+
+       
+
+        $data = $businessProfiles->map(function ($profile) {
+
+
+            $linkClicks = $profile->event_clicks->count();
+            $signUps = $profile->event_bookings->count();
+            $revenue = $profile->event_bookings->sum('price');
+            $reportedCustomers = $profile->event_bookings->where('user_id', '!=', null)->count();
+            $rating = $profile->event_reviews->sum('rating');
+            $reviewCount = $profile->event_reviews->count();
+            $averageRating = $reviewCount > 0 ? round($rating / $reviewCount, 2) : 0;
+
+           
+
+            // $eventDate = Carbon::parse($profile->date)->format('F j, Y');
+            // $startTime = Carbon::parse($profile->start_time)->format('g:i A');
+            // $endTime = Carbon::parse($profile->end_time)->format('g:i A');
+
+            return [
+
+                'business_profile_id' => $profile->id,
+                'business_name' => $profile->business_name == null ?  $profile->title : $profile->business_name,
+                // 'business_date' => $eventDate,
+                // 'business_time' => $startTime . ' - ' . $endTime,
+                'average_rating' => $averageRating,
+                'link_clicks' => $linkClicks,
+                'sign_ups' => $signUps,
+                'revenue' => $revenue,
+                'reported_customers' => $reportedCustomers,
+
+                'status' => 'active'
+            ];
+        });
+
+        return $this->success($data, 'Business Profile  list retrived  successfully.');
+       
+
+        
     }
 
+
+
+
+
+
+    
     // __store business profile
     public function store(Request $request)
     {
@@ -58,7 +114,8 @@ class BusinessProfileController extends Controller
                 'age_min' => $validatedData['age_min'],
                 'age_max' => $validatedData['age_max'],
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
+                'status' => 'pending'
 
             ]
         );
@@ -203,16 +260,6 @@ class BusinessProfileController extends Controller
     }
 
 
-    public function show(string $id)
-    {
-        //
-    }
-
-    public function edit(string $id)
-    {
-        //
-    }
-
 
 
 
@@ -224,11 +271,11 @@ class BusinessProfileController extends Controller
         try {
             $businessProfile = BusinessProfile::where('user_id', Auth::id())->find($id);
 
+
+            
             if (!$businessProfile) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Business profile not found or unauthorized access.',
-                ], 404);
+                return $this->error([], 'Business profile not found or unauthorized access.', 404);
+
             }
 
             // Decode hours from JSON if needed
@@ -283,10 +330,7 @@ class BusinessProfileController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Business Profile updated successfully',
-                'data' => [
+            $data = [
                     'id' => $businessProfile->id,
                     'cover' => url($businessProfile->cover),
                     'business_name' => $businessProfile->business_name,
@@ -296,8 +340,12 @@ class BusinessProfileController extends Controller
                     'activity' => $businessProfile->activity,
                     'location' => $businessProfile->location,
                     'business_hours' => $businessProfile->business_hours,
-                ]
-            ], 200);
+            ];
+
+            return $this->success($data, 'Business Profile Updated successfully.');
+
+
+          
         } catch (\Exception $e) {
             DB::rollBack();
 
