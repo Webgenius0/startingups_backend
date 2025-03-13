@@ -327,7 +327,7 @@ class BusinessProfileController extends Controller
 
             $data = [
                 'id' => $businessProfile->id,
-                'cover' => $businessProfile->cover ? url($businessProfile->cover) : '',
+                'cover' => $businessProfile->cover ? url($businessProfile->cover) : null,
                 'business_name' => $businessProfile->business_name,
                 'category_id' => $businessProfile->category_id,
                 'category_name' => $businessProfile->category->name,
