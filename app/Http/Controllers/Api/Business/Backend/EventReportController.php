@@ -14,7 +14,7 @@ class EventReportController extends Controller
 {
 
     use ApiResponse;
-    
+
 
     public function all_profile_report(Request $request)
     {
@@ -494,7 +494,7 @@ class EventReportController extends Controller
             $business_hour = $event->business_hours->first();
 
             $eventList[] = [
-               
+
                 "id" => $event->id,
                 'title' => $event->business_name,
                 'date' => Carbon::parse($event->created_at)->format('F j, Y'),

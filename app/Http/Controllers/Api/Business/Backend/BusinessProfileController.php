@@ -22,14 +22,13 @@ class BusinessProfileController extends Controller
 
         if (!$user) {
             return $this->error([], 'User not found.', 404);
-
         }
 
         $businessProfiles = BusinessProfile::where('user_id', $user->id)
-                            ->with('event_clicks', 'event_bookings', 'event_reviews')
-                            ->get();
+            ->with('event_clicks', 'event_bookings', 'event_reviews')
+            ->get();
 
-       
+
 
         $data = $businessProfiles->map(function ($profile) {
 
@@ -42,7 +41,7 @@ class BusinessProfileController extends Controller
             $reviewCount = $profile->event_reviews->count();
             $averageRating = $reviewCount > 0 ? round($rating / $reviewCount, 2) : 0;
 
-           
+
 
             // $eventDate = Carbon::parse($profile->date)->format('F j, Y');
             // $startTime = Carbon::parse($profile->start_time)->format('g:i A');
@@ -65,9 +64,6 @@ class BusinessProfileController extends Controller
         });
 
         return $this->success($data, 'Business Profile  list retrived  successfully.');
-       
-
-        
     }
 
 
@@ -75,7 +71,7 @@ class BusinessProfileController extends Controller
 
 
 
-    
+
     // __store business profile
     public function store(Request $request)
     {
@@ -272,10 +268,9 @@ class BusinessProfileController extends Controller
             $businessProfile = BusinessProfile::where('user_id', Auth::id())->find($id);
 
 
-            
+
             if (!$businessProfile) {
                 return $this->error([], 'Business profile not found or unauthorized access.', 404);
-
             }
 
             // Decode hours from JSON if needed
@@ -331,21 +326,18 @@ class BusinessProfileController extends Controller
             DB::commit();
 
             $data = [
-                    'id' => $businessProfile->id,
-                    'cover' => url($businessProfile->cover),
-                    'business_name' => $businessProfile->business_name,
-                    'category_id' => $businessProfile->category_id,
-                    'category_name' => $businessProfile->category->name,
+                'id' => $businessProfile->id,
+                'cover' => url($businessProfile->cover),
+                'business_name' => $businessProfile->business_name,
+                'category_id' => $businessProfile->category_id,
+                'category_name' => $businessProfile->category->name,
 
-                    'activity' => $businessProfile->activity,
-                    'location' => $businessProfile->location,
-                    'business_hours' => $businessProfile->business_hours,
+                'activity' => $businessProfile->activity,
+                'location' => $businessProfile->location,
+                'business_hours' => $businessProfile->business_hours,
             ];
 
             return $this->success($data, 'Business Profile Updated successfully.');
-
-
-          
         } catch (\Exception $e) {
             DB::rollBack();
 

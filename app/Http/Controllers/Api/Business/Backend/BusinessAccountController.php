@@ -130,7 +130,4 @@ class BusinessAccountController extends Controller
         ];
         return $this->success($user, 'Profile updated successfully.');
     }
-
-
-    
 }

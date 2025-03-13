@@ -63,14 +63,12 @@ class SubscriptionController extends Controller
 
             // __send created notification
             $user->notify(new SubscriptionStatusNotification('Your subscription has been successfully created.'));
-
         } catch (IncompletePayment $exception) {
 
             return $this->error([
                 'status' => 'incomplete',
                 'payment_url' => $exception->payment->next_action->use_stripe_sdk->stripe_js,
             ], 'Payment incomplete', 422);
-
         } catch (\Exception $e) {
             return $this->error($e->getMessage(), 'Error creating subscription', 500);
         }
