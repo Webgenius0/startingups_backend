@@ -115,7 +115,7 @@ class BusinessAccountController extends Controller
         $user->gender = $request->gender;
         $user->phone = $user->phone;
         $user->country_code = $request->country_code;
-        $user->avatar = $coverPath;
+        $user->avatar = $coverPath ? url($coverPath) : '';
         $user->save();
 
         $user = [

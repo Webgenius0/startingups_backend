@@ -8,7 +8,6 @@ use App\Models\Event;
 use App\Traits\ApiResponse;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Bus;
 
 class EventReportController extends Controller
 {
@@ -185,8 +184,6 @@ class EventReportController extends Controller
         ];
 
         return $this->success([
-
-
 
             'link_clicks' => [
                 'total' => $linkClicks,
