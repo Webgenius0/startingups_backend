@@ -62,14 +62,14 @@
                 </div>
 
                 <!-- Categories Available Card -->
-                {{-- <div class="col-md-4">
+                <div class="col-md-4">
                     <div class="card text-center card-hover">
                         <div class="card-body">
-                            <h1 class="display-4 count-up" data-count="{{ $pending_business }}">0</h1>
-                            <p class="card-text">Pending Business</p>
+                            <h1 class="display-4 count-up" data-count="{{ $earning_amount }}">0</h1>
+                            <p class="card-text">Total Revenue</p>
                         </div>
                     </div>
-                </div> --}}
+                </div>
 
                 <!-- Sub Categories Available Card -->
                 <div class="col-md-4">
