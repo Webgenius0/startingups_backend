@@ -29,6 +29,7 @@ class UserPaymentController extends Controller
     {
         Stripe::setApiKey(config('services.stripe.secret'));
 
+
         $validatedData = Validator::make($request->all(), [
             'event_booking_id' => 'required|integer|exists:event_bookings,id',
             'amount' => 'required|numeric',
@@ -38,71 +39,54 @@ class UserPaymentController extends Controller
             return $this->error([], $validatedData->errors()->first(), 422);
         }
 
-        // Event booking and event owner
+        // event booking and the event owner
         $eventBooking = EventBooking::with('business_profile')->findOrFail($request->event_booking_id);
         $event_owner = $eventBooking->business_profile->user;
+
+
 
         if (!$event_owner->stripe_account_id) {
             return $this->error([], 'Event owner is not onboarded to Stripe.', 400);
         }
 
+        
         $account = Account::retrieve($event_owner->stripe_account_id);
-
+       
         if (!$account->capabilities->transfers || $account->capabilities->transfers !== 'active') {
             return $this->error([], 'The event owner\'s account is not enabled for transfers.', 400);
         }
 
         try {
 
-
-            $platformFee = $request->amount * 0.20; // 20% Platform Fee
-            $userChargeFee = $request->amount * 0.015; // 1.5% User Charge
-            $totalAmount = $request->amount; // The full amount customer is paying
-            $adminFee = $platformFee + $userChargeFee; // Total amount admin earns
-            $businessOwnerAmount = $totalAmount - $adminFee; // Remaining for event owner
+            
+            Stripe::setApiKey(config('services.stripe.secret'));
 
             $paymentIntent = PaymentIntent::create([
-                'amount' => $totalAmount * 100, 
+                'amount' => $request->amount * 100,
                 'currency' => 'usd',
                 'metadata' => [
                     'event_booking_id' => $request->event_booking_id,
                     'event_owner_id' => $event_owner->id,
                 ],
                 'transfer_data' => [
-                    'destination' => $event_owner->stripe_account_id, 
+                    'destination' => $event_owner->stripe_account_id,
                 ],
-                'application_fee_amount' => $adminFee * 100, 
             ]);
 
-            // Store the transaction
             PaymentTransaction::create([
                 'event_booking_id' => $request->event_booking_id,
                 'transaction_id' => $paymentIntent->id,
-                'amount' => $totalAmount, 
-                // 'platform_fee' => $platformFee,
-                // 'user_charge_fee' => $userChargeFee,
-                // 'admin_fee' => $adminFee,
-                // 'business_owner_amount' => $businessOwnerAmount,
+                'amount' => $request->amount,
                 'status' => 'pending',
             ]);
 
-
-
-
-            // $data = [
-            //     'plat_form_fee' => $platformFee,
-            //     'user_charge' => $userChargeFee,
-            //     'client_secret' => $paymentIntent->client_secret
-            // ];
-
-            // return $this->success($data, 'Payment intent created successfully.');
-
             return $this->success(['client_secret' => $paymentIntent->client_secret], 'Payment intent created successfully.');
+
         } catch (ApiErrorException $e) {
+
             return $this->error([], 'Stripe error: ' . $e->getMessage(), 500);
         }
     }
-
 
 
 
