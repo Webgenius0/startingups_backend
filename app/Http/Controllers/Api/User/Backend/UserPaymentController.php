@@ -42,15 +42,15 @@ class UserPaymentController extends Controller
         $eventBooking = EventBooking::with('business_profile')->findOrFail($request->event_booking_id);
         $event_owner = $eventBooking->business_profile->user;
 
-        // if (!$event_owner->stripe_account_id) {
-        //     return $this->error([], 'Event owner is not onboarded to Stripe.', 400);
-        // }
+        if (!$event_owner->stripe_account_id) {
+            return $this->error([], 'Event owner is not onboarded to Stripe.', 400);
+        }
 
         $account = Account::retrieve($event_owner->stripe_account_id);
 
-        // if (!$account->capabilities->transfers || $account->capabilities->transfers !== 'active') {
-        //     return $this->error([], 'The event owner\'s account is not enabled for transfers.', 400);
-        // }
+        if (!$account->capabilities->transfers || $account->capabilities->transfers !== 'active') {
+            return $this->error([], 'The event owner\'s account is not enabled for transfers.', 400);
+        }
 
         try {
 
