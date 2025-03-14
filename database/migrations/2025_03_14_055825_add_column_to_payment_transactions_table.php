@@ -1,0 +1,31 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('payment_transactions', function (Blueprint $table) {
+
+            $table->decimal('admin_fee', 10, 2);
+            $table->decimal('business_owner_amount', 10, 2);
+            
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('payment_transactions', function (Blueprint $table) {
+            //
+        });
+    }
+};

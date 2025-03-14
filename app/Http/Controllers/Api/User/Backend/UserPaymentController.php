@@ -79,10 +79,9 @@ class UserPaymentController extends Controller
                 'event_booking_id' => $request->event_booking_id,
                 'transaction_id' => $paymentIntent->id,
                 'amount' => $totalAmount, 
-                // 'platform_fee' => $platformFee,
-                // 'user_charge_fee' => $userChargeFee,
-                // 'admin_fee' => $adminFee,
-                // 'business_owner_amount' => $businessOwnerAmount,
+             
+                'admin_fee' => $adminFee,
+                'business_owner_amount' => $businessOwnerAmount,
                 'status' => 'pending',
             ]);
 
