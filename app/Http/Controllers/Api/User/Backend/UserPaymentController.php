@@ -48,9 +48,9 @@ class UserPaymentController extends Controller
 
         $account = Account::retrieve($event_owner->stripe_account_id);
 
-        if (!$account->capabilities->transfers || $account->capabilities->transfers !== 'active') {
-            return $this->error([], 'The event owner\'s account is not enabled for transfers.', 400);
-        }
+        // if (!$account->capabilities->transfers || $account->capabilities->transfers !== 'active') {
+        //     return $this->error([], 'The event owner\'s account is not enabled for transfers.', 400);
+        // }
 
         try {
 
