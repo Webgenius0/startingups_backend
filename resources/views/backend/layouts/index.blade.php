@@ -62,21 +62,21 @@
                 </div>
 
                 <!-- Categories Available Card -->
-                <div class="col-md-4">
+                {{-- <div class="col-md-4">
                     <div class="card text-center card-hover">
                         <div class="card-body">
-                            <h1 class="display-4 count-up" data-count="{{ $categories }}">0</h1>
-                            <p class="card-text">Categories Available</p>
+                            <h1 class="display-4 count-up" data-count="{{ $pending_business }}">0</h1>
+                            <p class="card-text">Pending Business</p>
                         </div>
                     </div>
-                </div>
+                </div> --}}
 
                 <!-- Sub Categories Available Card -->
                 <div class="col-md-4">
                     <div class="card text-center card-hover">
                         <div class="card-body">
-                            <h1 class="display-4 count-up" data-count="{{ $subcategories }}">0</h1>
-                            <p class="card-text">Sub Categories Available</p>
+                            <h1 class="display-4 count-up" data-count="{{ $accept_business }}">0</h1>
+                            <p class="card-text">Total Business</p>
                         </div>
                     </div>
                 </div>
@@ -146,7 +146,7 @@
                                                     <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
                                                         <a href="view.html">
                                                             <div class="symbol-label">
-                                                                <img src="{{ asset($user->avatar) }}" alt="{{ $user->name }}" class="w-100">
+                                                                <img src="{{ $user->avatar ?  asset($user->avatar) : asset('uploads/default_user.jpg') }}" alt="{{ $user->name }}" class="w-100">
                                                             </div>
                                                         </a>
                                                     </div>

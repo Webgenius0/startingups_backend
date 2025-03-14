@@ -68,7 +68,7 @@ Route::post('/event/status/{id}', [AdminEventController::class, 'status'])->name
 Route::get('sub-category', [SubCategoryController::class, 'index'])->name('admin.sub_category.index');
 Route::get('sub-category/create', [SubCategoryController::class, 'create'])->name('admin.sub_category.create');
 Route::post('sub-category/store', [SubCategoryController::class, 'store'])->name('admin.sub_category.store');
-Route::get('sub-category/edit/{id}', [SubCategoryController::class, 'edit'])->name('admin.sub_category.edit');
+Route::get('sub-category/show-details/{id}', [SubCategoryController::class, 'edit'])->name('admin.sub_category.edit');
 Route::put('sub-category/update/{id}', [SubCategoryController::class, 'update'])->name('admin.sub_category.update');
 Route::delete('sub-category/delete/{id}', [SubCategoryController::class, 'destroy'])->name('admin.sub_category.destroy');
 Route::post('sub-category/status/{id}', [SubCategoryController::class, 'status'])->name('admin.sub_category.status');

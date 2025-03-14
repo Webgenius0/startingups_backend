@@ -48,17 +48,17 @@ class AdminEventController extends Controller
                     $statusText = $data->status == "accept" ? "Accepted" : "Pending";
                     $badgeClass = $data->status == "accept" ? "badge-success" : "badge-warning";
                 
-                    $toggleSwitch = '<div class="d-flex align-items-center">
-                                        <div class="form-check form-switch me-2">
-                                            <input onclick="showStatusChangeAlert(' . $data->id . ')" 
-                                                   type="checkbox" class="form-check-input" 
-                                                   id="customSwitch' . $data->id . '" 
-                                                   name="status" ' . $checked . '>
-                                            <label for="customSwitch' . $data->id . '" 
-                                                   class="form-check-label"></label>
-                                        </div>
-                                        <span class="badge ' . $badgeClass . '">' . $statusText . '</span>
-                                    </div>';
+                    // $toggleSwitch = '<div class="d-flex align-items-center">
+                    //                     <div class="form-check form-switch me-2">
+                    //                         <input onclick="showStatusChangeAlert(' . $data->id . ')" 
+                    //                                type="checkbox" class="form-check-input" 
+                    //                                id="customSwitch' . $data->id . '" 
+                    //                                name="status" ' . $checked . '>
+                    //                         <label for="customSwitch' . $data->id . '" 
+                    //                                class="form-check-label"></label>
+                    //                     </div>
+                    //                     <span class="badge ' . $badgeClass . '">' . $statusText . '</span>
+                    //                 </div>';
                 
                     $editButton = '<div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
                                         <a href="' . route('admin.event.edit', $data->id) . '" class="btn btn-primary text-white" title="Edit">
@@ -66,7 +66,8 @@ class AdminEventController extends Controller
                                         </a>
                                    </div>';
                 
-                    return $toggleSwitch . $editButton;
+                    return  $editButton;
+                    // return $toggleSwitch . $editButton;
                 })
                 
                 ->rawColumns(['image', 'action'])

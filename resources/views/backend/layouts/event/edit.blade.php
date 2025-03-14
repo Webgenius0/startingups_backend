@@ -60,7 +60,7 @@
                                     @if ($event->cover)
                                         <img src="{{ asset($event->cover) }}" width="100">
                                     @endif
-                                    <input disabled type="file" name="cover" class="form-control">
+                                    {{-- <input disabled type="file" name="cover" class="form-control"> --}}
                                 </div>
 
                                 <!-- Operating Hours -->
