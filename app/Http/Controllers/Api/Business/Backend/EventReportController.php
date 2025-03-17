@@ -110,11 +110,11 @@ class EventReportController extends Controller
         $ratings = ['a' => 5, 'b' => 4, 'c' => 3, 'd' => 2, 'e' => 1];
 
         foreach ($ratings as $key => $value) {
-            if ($reviewCount > 0) {
-                $percentage = round(($ratingCounts->get($value, 0) / $reviewCount) * 100, 2);
-            } else {
+            // if ($reviewCount > 0) {
+            //     $percentage = round(($ratingCounts->get($value, 0) / $reviewCount) * 100, 2);
+            // } else {
                 $percentage = 0.00; // directly as float
-            }
+            // }
             $ratingPercentages[$key] = $percentage;
         }
 
