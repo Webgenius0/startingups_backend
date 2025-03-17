@@ -115,7 +115,7 @@ class EventReportController extends Controller
             } else {
                 $percentage = number_format(0, 2, '.', ''); // Ensures it's 0.00
             }
-            $ratingPercentages[$key] = (float) $percentage; // Cast to float if needed
+            $ratingPercentages[$key] = $percentage; // Cast to float if needed
         }
         
 
