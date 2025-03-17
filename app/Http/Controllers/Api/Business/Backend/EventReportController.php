@@ -100,7 +100,7 @@ class EventReportController extends Controller
             return $this->error([], 'Event not found', 404);
         }
 
-        $ratingCounts = $event->event_reviews->groupBy('rating')->map(function ($reviews, $rating) {
+        $ratingCounts = $event->event_reviews->groupBy('rating')->map(function ($reviews) {
             return count($reviews);
         });
 
@@ -110,24 +110,20 @@ class EventReportController extends Controller
         $ratings = ['a' => 5, 'b' => 4, 'c' => 3, 'd' => 2, 'e' => 1];
 
         foreach ($ratings as $key => $value) {
-            if ($reviewCount > 0) {
-                $percentage = round(($ratingCounts->get($value, 0) / $reviewCount) * 100, 2);
-            } else {
-                $percentage = 0.00; // directly as float
-            }
-            $ratingPercentages[$key] = $percentage;
+            $percentage = ($reviewCount > 0) ? round(($ratingCounts->get($value, 0) / $reviewCount) * 100) : 0;
+            $ratingPercentages[$key] = (int) $percentage;
         }
 
         $rating = $event->event_reviews->sum('rating');
-        $averageRating = $reviewCount > 0 ? round($rating / $reviewCount, 1) : 0.00;
+        $averageRating = $reviewCount > 0 ? (int) round($rating / $reviewCount) : 0;
 
         $reviews = $event->event_reviews->map(function ($review) {
             return [
-                'review_id' => $review->id,
-                'user_id' => $review->user_id,
+                'review_id' => (int) $review->id,
+                'user_id' => (int) $review->user_id,
                 'user_name' => $review->user->full_name ?? 'Anonymous',
                 'avatar' => $review->user ? url($review->user->avatar) : null,
-                'rating' => $review->rating,
+                'rating' => (int) $review->rating,
                 'review_comment' => $review->review ?? '',
                 'review_cover' => $review->cover ? url($review->cover) : null,
                 'review_date' => $review->created_at->format('F j, Y, g:i A'),
@@ -135,15 +131,14 @@ class EventReportController extends Controller
         });
 
         return $this->success([
-            'event_id' => $event->id,
+            'event_id' => (int) $event->id,
             'average_rating' => $averageRating,
-            'total_reviews' => $reviewCount,
-            'rating_percentages' => collect($ratingPercentages)->map(function ($val) {
-                return number_format($val, 2, '.', ''); // formats as string "0.00"
-            }),
+            'total_reviews' => (int) $reviewCount,
+            'rating_percentages' => $ratingPercentages,
             'reviews' => $reviews,
         ], 'Business profile ratings fetched successfully.');
     }
+
 
 
 
