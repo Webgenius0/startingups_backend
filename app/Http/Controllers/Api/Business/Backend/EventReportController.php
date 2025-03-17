@@ -116,7 +116,7 @@ class EventReportController extends Controller
 
         $rating = $event->event_reviews->sum('rating');
 
-        $averageRating = $reviewCount > 0 ? round($rating / $reviewCount, 1) : 0;
+        $averageRating = $reviewCount > 0 ? round($rating / $reviewCount, 1) : 0.00;
 
         $reviews = $event->event_reviews->map(function ($review) {
             return [
