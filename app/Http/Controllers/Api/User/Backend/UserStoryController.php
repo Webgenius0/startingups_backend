@@ -33,7 +33,7 @@ class UserStoryController extends Controller
                 'user_id' => $story->user->id,
                 'user_name' => $story->user->full_name,
                 'user_avatar' => url($story->user->avatar),
-                'business_name' => $story->user->businessProfile->business_name ?? '',
+                // 'business_name' => $story->user->businessProfile->business_name ?? '',
                 'id' => $story->id,
                 'title' => $story->title,
                 // 'description' => $story->description,
