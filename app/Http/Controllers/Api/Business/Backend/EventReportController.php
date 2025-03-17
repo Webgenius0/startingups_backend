@@ -106,21 +106,19 @@ class EventReportController extends Controller
 
         $reviewCount = $event->event_reviews->count();
         $ratingPercentages = [];
-        
+
         $ratings = ['a' => 5, 'b' => 4, 'c' => 3, 'd' => 2, 'e' => 1];
-        
+
         foreach ($ratings as $key => $value) {
             if ($reviewCount > 0) {
                 $percentage = round(($ratingCounts->get($value, 0) / $reviewCount) * 100, 2);
             } else {
-                $percentage = number_format(0, 2, '.', ''); // Ensures it's 0.00
+                $percentage = 0.00; // directly as float
             }
-            $ratingPercentages[$key] = $percentage; // Cast to float if needed
+            $ratingPercentages[$key] = $percentage;
         }
-        
 
         $rating = $event->event_reviews->sum('rating');
-
         $averageRating = $reviewCount > 0 ? round($rating / $reviewCount, 1) : 0.00;
 
         $reviews = $event->event_reviews->map(function ($review) {
@@ -144,6 +142,7 @@ class EventReportController extends Controller
             'reviews' => $reviews,
         ], 'Business profile ratings fetched successfully.');
     }
+
 
 
     public function business_profile_report(Request $request, $eventId)
