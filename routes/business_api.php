@@ -98,6 +98,8 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
 
     // stripe onboarding
     Route::post('account/user/onboarding', [StripeOnboardingController::class, 'onboard']);
+
+    Route::get('account/connect/check', [StripeOnboardingController::class, 'connect_check']);
     
 
     

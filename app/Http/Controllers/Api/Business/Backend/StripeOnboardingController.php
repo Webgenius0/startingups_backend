@@ -170,4 +170,35 @@ class StripeOnboardingController extends Controller
             return $this->error([], 'Error generating Stripe login link: ' . $e->getMessage());
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+    public function connect_check()
+    {
+        try {
+
+            $user = auth('api')->user();
+
+
+            $data = [
+                'is_connect' => $user->stripe_account_id ? true : false,
+            ];
+
+
+            return $this->success($data, 'Please complete your connect account before creating your business.');
+        } catch (\Exception $e) {
+
+            Log::info($e->getMessage());
+            return $this->error([], 'Error generating Stripe login link: ' . $e->getMessage());
+        }
+    }
 }
