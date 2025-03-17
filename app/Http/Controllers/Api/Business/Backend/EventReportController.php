@@ -108,8 +108,10 @@ class EventReportController extends Controller
         // dd($reviewCount);
         $ratingPercentages = [];
 
-        for ($i = 5; $i >= 1; $i--) {
-            $ratingPercentages[$i] = $reviewCount > 0 ? round(($ratingCounts->get($i, 0) / $reviewCount) * 100, 1) : 0;
+        $ratings = ['a' => 5, 'b' => 4, 'c' => 3, 'd' => 2, 'e' => 1];
+
+        foreach ($ratings as $key => $value) {
+            $ratingPercentages[$key] = $reviewCount > 0 ? round(($ratingCounts->get($value, 0) / $reviewCount) * 100, 1) : 0;
         }
 
         $rating = $event->event_reviews->sum('rating');
