@@ -75,10 +75,6 @@ class BusinessProfileController extends Controller
     // __store business profile
     public function store(Request $request)
     {
-
-
-      
-
         // dd($request->all());
         $validatedData = $request->validate([
 
@@ -130,7 +126,9 @@ class BusinessProfileController extends Controller
 
 
         $businessProfile->business_hours()->delete();
+
         foreach ($request->hours as $hour) {
+
             $businessProfile->business_hours()->create([
                 'day' => $hour['day'],
                 'is_closed' => $hour['is_closed'],
@@ -141,6 +139,7 @@ class BusinessProfileController extends Controller
                 're_close_time' => ($hour['is_second_time'] && !$hour['is_closed'] && isset($hour['re_close_time'])) ? $hour['re_close_time'] : null,
 
             ]);
+            
         }
 
 
