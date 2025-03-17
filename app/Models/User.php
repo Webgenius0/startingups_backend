@@ -48,7 +48,7 @@ class User extends Authenticatable implements JWTSubject
      */
     public function businessProfile()
     {
-        return $this->hasOne(BusinessProfile::class);
+        return $this->hasMany(BusinessProfile::class);
     }
 
     /**

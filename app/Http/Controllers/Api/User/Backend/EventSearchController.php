@@ -20,7 +20,7 @@ class EventSearchController extends Controller
 
             $latitude = $user->latitude;
             $longitude = $user->longitude;
-            $radius = 5;
+            $radius = 10000;
 
             if (!$latitude || !$longitude) {
                 return $this->error([], 'User location not found', 400);
@@ -42,7 +42,7 @@ class EventSearchController extends Controller
                         ->orWhereHas('event_bookings')
                         ->orWhereHas('event_reviews');
                 })
-                // ->having('distance', '<', $radius)
+                ->having('distance', '<', $radius)
                 ->orderBy('distance', 'ASC')
                 ->with('business_hours', 'event_clicks', 'event_bookings')
                 ->get();
@@ -56,9 +56,9 @@ class EventSearchController extends Controller
                 // Calculate Discovery Score
                 $signups = $event->event_bookings->count();
                 $clicks = $event->event_clicks->count();
-                $reviews_avg = $event->event_reviews->avg('rating') ?? 0; // Average rating
+                $reviews_avg = $event->event_reviews->avg('rating') ?? 0; 
                 $favorites = $event->event_reviews->where('rating', ">", 3)->count();
-                // $video_bonus = $event->videos->count() > 0 ? 50 : 0; // Check if event has video
+                // $video_bonus = $event->videos->count() > 0 ? 50 : 0; 
 
                 $score = ($signups * 5) + ($clicks * 4) + ($reviews_avg * 3) + ($favorites * 2);
 
@@ -143,13 +143,14 @@ class EventSearchController extends Controller
             $followee_ids = $user->followees->pluck('followee_id');
 
             $followee_based_events = BusinessProfile::selectRaw(
-                "
-                business_profiles.*, 
-                (6371 * acos(cos(radians(?)) * cos(radians(business_profiles.latitude)) 
-                * cos(radians(business_profiles.longitude) - radians(?)) 
-                + sin(radians(?)) * sin(radians(business_profiles.latitude)))) AS distance",
-                [$latitude, $longitude, $latitude]
-            )
+
+                    "business_profiles.*, 
+                    (6371 * acos(cos(radians(?)) * cos(radians(business_profiles.latitude)) 
+                    * cos(radians(business_profiles.longitude) - radians(?)) 
+                    + sin(radians(?)) * sin(radians(business_profiles.latitude)))) AS distance",
+                    [$latitude, $longitude, $latitude]
+
+                )
                 ->whereHas('event_bookings', function ($query) use ($followee_ids) {
                     $query->whereIn('user_id', $followee_ids);
                 })

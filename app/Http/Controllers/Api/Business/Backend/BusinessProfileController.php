@@ -76,6 +76,13 @@ class BusinessProfileController extends Controller
     public function store(Request $request)
     {
 
+
+        $user = auth('api')->user();
+
+        if (!$user->stripe_account_id) {
+            return $this->error([], 'Please complete your connect account before creating your business.');
+        }
+
         // dd($request->all());
         $validatedData = $request->validate([
 
@@ -97,6 +104,9 @@ class BusinessProfileController extends Controller
             'prices.*.days' => 'required',
             'prices.*.offerings' => 'nullable|string',
         ]);
+
+
+
 
         $businessProfile = BusinessProfile::create(
             [
