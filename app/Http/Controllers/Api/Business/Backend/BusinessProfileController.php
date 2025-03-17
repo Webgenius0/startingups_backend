@@ -80,7 +80,7 @@ class BusinessProfileController extends Controller
         $user = auth('api')->user();
 
         if (!$user->stripe_account_id) {
-            return $this->error([], 'Please complete your connect account before creating your business.');
+            return $this->success([], 'Please complete your connect account before creating your business.');
         }
 
         // dd($request->all());
