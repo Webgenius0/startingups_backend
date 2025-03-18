@@ -189,44 +189,41 @@ class EventReportController extends Controller
         return $this->success([
 
             'name' => $event->business_name,
-
+        
             'link_clicks' => [
                 'total' => $linkClicks,
                 'change_percentage' => $this->calculatePercentageChange($linkClicks, $event->event_clicks->count()),
                 'trend_data' => $linkClicks ? $this->formatTrendData($trendData['link_clicks']) : [
-                    ['x' => Carbon::now()->format('y-m-d'), 'y' => 0]
+                    ['x' => Carbon::now()->format('M'), 'y' => 0]
                 ],
             ],
-
+        
             'sign_ups' => [
                 'total' => $signUps,
                 'change_percentage' => $this->calculatePercentageChange($signUps, $event->event_bookings->count()),
-                'trend_data' => $signUps ? $this->formatTrendData($trendData['sign_ups']) :
-                    [
-                        ['x' => Carbon::now()->format('y-m-d'), 'y' => 0]
-                    ],
+                'trend_data' => $signUps ? $this->formatTrendData($trendData['sign_ups']) : [
+                    ['x' => Carbon::now()->format('M'), 'y' => 0]
+                ],
             ],
-
+        
             'revenue' => [
                 'total' => $revenue,
                 'change_percentage' => $this->calculatePercentageChange($revenue, $event->event_bookings->sum('price')),
-                'trend_data' => $revenue ? $this->formatTrendData($trendData['revenue']) :
-                    [
-                        ['x' => Carbon::now()->format('y-m-d'), 'y' => 0]
-                    ],
+                'trend_data' => $revenue ? $this->formatTrendData($trendData['revenue']) : [
+                    ['x' => Carbon::now()->format('M'), 'y' => 0]
+                ],
             ],
-
+        
             'repeat_customers' => [
                 'total' => $repeatCustomers,
                 'change_percentage' => $this->calculatePercentageChange($repeatCustomers, $event->event_bookings->where('user_id', '!=', null)->count()),
-                'trend_data' => $repeatCustomers ? $this->formatTrendData($trendData['repeat_customers']) :
-                    [
-                        ['x' => Carbon::now()->format('y-m-d'), 'y' => 0]
-                    ],
+                'trend_data' => $repeatCustomers ? $this->formatTrendData($trendData['repeat_customers']) : [
+                    ['x' => Carbon::now()->format('M'), 'y' => 0]
+                ],
             ],
-
-
-        ], 'Business Proile report fetched successfully.');
+        
+        ], 'Business Proile report fetched successfully');
+        
     }
 
     private function formatTrendData($trendData)
