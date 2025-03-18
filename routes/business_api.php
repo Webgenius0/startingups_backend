@@ -115,3 +115,4 @@ Route::middleware(['auth:business', 'role:business'])->prefix('auth-business')->
     // previous notifications
     Route::get('previous/notifications', [BusinessAuthController::class, 'previousDayNotifications']);
 });
+Route::get('/stripe/onboarding/success', [StripeOnboardingController::class, 'stripeSuccessPage'])->name('stripe.success.page');
