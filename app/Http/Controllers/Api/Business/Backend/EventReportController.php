@@ -193,7 +193,7 @@ class EventReportController extends Controller
                 'total' => $linkClicks,
                 'change_percentage' => $this->calculatePercentageChange($linkClicks, $event->event_clicks->count()),
                 'trend_data' => $linkClicks ? $this->formatMonthlyTrendData($trendData['link_clicks']) : [
-                    ['x' => Carbon::now()->format('M-Y'), 'y' => 0]
+                    ['x' => Carbon::now()->format('M'), 'y' => 0]
                 ],
             ],
 
@@ -201,7 +201,7 @@ class EventReportController extends Controller
                 'total' => $signUps,
                 'change_percentage' => $this->calculatePercentageChange($signUps, $event->event_bookings->count()),
                 'trend_data' => $signUps ? $this->formatMonthlyTrendData($trendData['sign_ups']) : [
-                    ['x' => Carbon::now()->format('M-Y'), 'y' => 0]
+                    ['x' => Carbon::now()->format('M'), 'y' => 0]
                 ],
             ],
 
@@ -209,7 +209,7 @@ class EventReportController extends Controller
                 'total' => $revenue,
                 'change_percentage' => $this->calculatePercentageChange($revenue, $event->event_bookings->sum('price')),
                 'trend_data' => $revenue ? $this->formatMonthlyTrendData($trendData['revenue']) : [
-                    ['x' => Carbon::now()->format('M-Y'), 'y' => 0]
+                    ['x' => Carbon::now()->format('M'), 'y' => 0]
                 ],
             ],
 
@@ -217,7 +217,7 @@ class EventReportController extends Controller
                 'total' => $repeatCustomers,
                 'change_percentage' => $this->calculatePercentageChange($repeatCustomers, $event->event_bookings->where('user_id', '!=', null)->count()),
                 'trend_data' => $repeatCustomers ? $this->formatMonthlyTrendData($trendData['repeat_customers']) : [
-                    ['x' => Carbon::now()->format('M-Y'), 'y' => 0]
+                    ['x' => Carbon::now()->format('M'), 'y' => 0]
                 ],
             ],
 
@@ -246,7 +246,7 @@ class EventReportController extends Controller
     {
         return $data->groupBy(function ($item) {
             // Group by month and year (e.g., 'Jan-2025', 'Feb-2025')
-            return $item->created_at->format('M-Y');
+            return $item->created_at->format('M');
         })->map(function ($group) {
             return $group->count(); // Count the occurrences for each month
         })->toArray();
@@ -262,7 +262,7 @@ class EventReportController extends Controller
                 case 'weekly':
                     return $date->startOfWeek()->format('Y-m-d');
                 case 'monthly':
-                    return $date->format('M-Y'); // Group by month and year
+                    return $date->format('M'); // Group by month and year
                 default:
                     return $date->format('Y-m-d');
             }
@@ -281,7 +281,7 @@ class EventReportController extends Controller
                 case 'weekly':
                     return $date->startOfWeek()->format('Y-m-d');
                 case 'monthly':
-                    return $date->format('M-Y'); // Group by month and year
+                    return $date->format('M'); // Group by month and year
                 default:
                     return $date->format('Y-m-d');
             }
