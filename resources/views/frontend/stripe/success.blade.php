@@ -28,7 +28,7 @@
     <div class="card text-center">
         <h2 class="mb-4 text-success">🎉 Onboarding Completed!</h2>
         <p class="mb-4">Your Stripe account onboarding is successful. You can now manage your payouts and settings from your dashboard.</p>
-        <a href="{{ url('/') }}" class="btn btn-primary">Go to Dashboard</a>
+        <a href="{{ url('/') }}" class="btn btn-primary">Go to Back</a>
     </div>
 
 </body>
