@@ -230,7 +230,7 @@ class EventReportController extends Controller
     {
         return array_map(function ($date, $value) {
             return [
-                'x' => \Carbon\Carbon::createFromFormat('Y-m-d', $date)->format('y-m-d'), // Format as YY-MM-DD
+                'x' => \Carbon\Carbon::createFromFormat('Y-m-d', $date)->format('M'), // Format as YY-MM-DD
                 'y' => $value,
             ];
         }, array_keys($trendData), $trendData);
