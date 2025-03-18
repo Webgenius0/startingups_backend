@@ -188,6 +188,8 @@ class EventReportController extends Controller
 
         return $this->success([
 
+            'name' => $event->business_name,
+
             'link_clicks' => [
                 'total' => $linkClicks,
                 'change_percentage' => $this->calculatePercentageChange($linkClicks, $event->event_clicks->count()),
